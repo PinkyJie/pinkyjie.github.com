@@ -1026,7 +1026,7 @@ hexo-util@^1.4.0, hexo-util@^1.8.0:
     punycode.js "^2.1.0"
     striptags "^3.1.1"
 
-hexo@^4.0.0:
+hexo@^4.2.0:
   version "4.2.0"
   resolved "https://registry.yarnpkg.com/hexo/-/hexo-4.2.0.tgz#dd306abe801ca47623cae7c86818af4425b466ec"
   integrity sha512-j2Kzgx/eWF0IgSfUEsAAhr0mDaaqR3E1MTus0/Vrs+JpQdMiSlqSbudPf2S9O4FHi5CAzDCuzToGlg2kgoQxcA==
