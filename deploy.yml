@@ -1,0 +1,26 @@
+name: Deploy to Github
+
+on:
+  push:
+    branches:
+      - hexo
+
+jobs:
+  build_deploy:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [10.x]
+    steps:
+      - uses: actions/checkout@master
+      - uses: actions/setup-node@v1
+      - name: Install yarn
+        run: npm install -g yarn
+      - name: Install dependencies
+        run: yarn install
+      - name: Deploy
+        run: |
+          yarn clean
+          yarn deploy
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}

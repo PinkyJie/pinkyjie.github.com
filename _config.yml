@@ -97,8 +97,9 @@ theme: next
 ## Docs: https://hexo.io/docs/deployment.html
 deploy:
   type: git
-  repo: git@github.com:/PinkyJie/pinkyjie.github.com.git
+  repo: https://github.com/PinkyJie/pinkyjie.github.com.git
   branch: master
+  token: $GH_TOKEN
 
 theme_config:
   scheme: Pisces
