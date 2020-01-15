@@ -99,6 +99,8 @@ deploy:
   type: git
   repo: https://github.com/PinkyJie/pinkyjie.github.com.git
   branch: master
+  name: PinkyJie
+  email: pinkyjie.gn@gmail.com
   token: $GH_TOKEN
 
 theme_config:
