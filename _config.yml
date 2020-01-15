@@ -91,11 +91,58 @@ ignore:
 # Extensions
 ## Plugins: https://hexo.io/plugins/
 ## Themes: https://hexo.io/themes/
-theme: landscape
+theme: next
 
 # Deployment
 ## Docs: https://hexo.io/docs/deployment.html
 deploy:
   type: git
-  repo: https://github.com/PinkyJie/pinkyjie.github.com
-  branch: gh-pages
+  repo: git@github.com:/PinkyJie/pinkyjie.github.com.git
+  branch: master
+
+theme_config:
+  scheme: Pisces
+
+  menu:
+    home: / || home
+    about: /about/ || user
+    tags: /tags/ || tags
+    categories: /categories/ || th
+    archives: /archives/ || archive
+
+  social:
+    GitHub: https://github.com/PinkyJie || github
+    E-Mail: mailto:pinkyjie.gn@gmail.com || envelope
+    Twitter: https://twitter.com/PinkyJie || twitter
+    StackOverflow: http://stackoverflow.com/users/689948/pinkyjie || stack-overflow
+
+  avatar:
+    url: assets/images/avatar.jpg
+    rounded: true
+    opacity: 1
+    rotated: false
+
+  swiftype_key: 8k3UxSuRWYkrhVg55bC3
+
+  google_site_verification: o7yQBnLIoWby8Y5vNMQywBiMtev-ilWjXt89RQpTvVw
+
+  google_analytics: UA-45012422-1
+
+  cnzz_siteid: 1253033676
+
+  comments:
+    active: gitalk
+
+  math:
+    mathjax:
+      enable: true
+
+  gitalk:
+    enable: true
+    github_id: PinkyJie
+    repo: pinkyjie.github.com
+    client_id: f9f9e61911dad3c54abd
+    client_secret: 2de8c1e8bc1bf553827b0da3bf65ae6e7f5956b7
+    admin_user: PinkyJie
+    distraction_free_mode: true
+    language:
