@@ -136,18 +136,16 @@ theme_config:
   cnzz_siteid: 1253033676
 
   comments:
-    active: gitalk
+    active: utteranc
 
   math:
     mathjax:
       enable: true
 
-  gitalk:
+  utteranc:
     enable: true
-    github_id: PinkyJie
-    repo: pinkyjie.github.com
-    client_id: f9f9e61911dad3c54abd
-    client_secret: 2de8c1e8bc1bf553827b0da3bf65ae6e7f5956b7
-    admin_user: PinkyJie
-    distraction_free_mode: true
-    language:
+    repo: PinkyJie/pinkyjie.github.com
+    pathname: pathname
+    # theme: github-light,github-dark,github-dark-orange
+    theme: github-light
+    cdn: https://utteranc.es/client.js

@@ -971,6 +971,12 @@ hexo-log@^1.0.0:
     chalk "^2.4.1"
     hexo-bunyan "^2.0.0"
 
+hexo-next-utteranc@theme-next/hexo-next-utteranc:
+  version "1.0.0"
+  resolved "https://codeload.github.com/theme-next/hexo-next-utteranc/tar.gz/f592272a73cb47923f25443709786942f0398a69"
+  dependencies:
+    next-util "^1.0.0"
+
 hexo-pagination@1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/hexo-pagination/-/hexo-pagination-1.0.0.tgz#c9c0ca3665267b9e9d0a89fc3edcaf3276907dc1"
@@ -1344,7 +1350,7 @@ lcid@^1.0.0:
   dependencies:
     invert-kv "^1.0.0"
 
-lodash@^4.17.11:
+lodash@^4.17.11, lodash@^4.17.15:
   version "4.17.15"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.15.tgz#b447f6670a0455bbfeedd11392eff330ea097548"
   integrity sha512-8xOcRHvCjnocdS5cpwXQXVzmmh5e5+saE2QGoeQmbKmRS6J3VQppPOIt0MnmE+4xlZoumy0GPG0D0MVIQbNA1A==
@@ -1567,6 +1573,14 @@ neo-async@^2.6.0:
   version "2.6.1"
   resolved "https://registry.yarnpkg.com/neo-async/-/neo-async-2.6.1.tgz#ac27ada66167fa8849a6addd837f6b189ad2081c"
   integrity sha512-iyam8fBuCUpWeKPGpaNMetEocMt364qkCsfL9JuhjXX6dRnguRVOfk2GZaDpPjcOKiiXCPINZC1GczQ7iTq3Zw==
+
+next-util@^1.0.0:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/next-util/-/next-util-1.0.1.tgz#bba5566da15f7e18252fb7ca439950c9e4c74c01"
+  integrity sha512-8vaUTbFJHeITHjqGq4R2IyEM/I1p9b/wXIbN+rqJXQm/h7HIXCAMZPitDaSJRh/tzWrP2JZU3FA4mY7Smj24Wg==
+  dependencies:
+    js-yaml "^3.13.1"
+    lodash "^4.17.15"
 
 nib@^1.1.2:
   version "1.1.2"
