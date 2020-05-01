@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="o7yQBnLIoWby8Y5vNMQywBiMtev-ilWjXt89RQpTvVw">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('http://pinkyjie.com').hostname,
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.7.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":"utteranc","storage":true,"lazyload":false,"nav":null,"activeClass":"utteranc"},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="上周末闲着没事干突然想把博客从 Wordpress 迁移到 Github pages 上，于是周日花了一天时间做迁移，期间各种折腾，终于变成了现在这样还算满意的情况。虽然我已经好久不写博客了，但俗话说“书非借不能读也”，博客这一迁移也激起了我重新写博客的欲望。再说，这个博客还身兼重任，那就是——养媳妇！哈哈～还是说说迁移中遇到的乱七八糟的问题吧～">
+<meta property="og:type" content="article">
+<meta property="og:title" content="从 Wordpress 迁移到 Jekyll">
+<meta property="og:url" content="http://pinkyjie.com/2013/10/24/migrate-from-wordpress-to-jekyll/index.html">
+<meta property="og:site_name" content="进击的马斯特">
+<meta property="og:description" content="上周末闲着没事干突然想把博客从 Wordpress 迁移到 Github pages 上，于是周日花了一天时间做迁移，期间各种折腾，终于变成了现在这样还算满意的情况。虽然我已经好久不写博客了，但俗话说“书非借不能读也”，博客这一迁移也激起了我重新写博客的欲望。再说，这个博客还身兼重任，那就是——养媳妇！哈哈～还是说说迁移中遇到的乱七八糟的问题吧～">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2013-10-24T21:09:00.000Z">
+<meta property="article:modified_time" content="2020-05-01T01:47:54.590Z">
+<meta property="article:author" content="马斯特">
+<meta property="article:tag" content="jekyll">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="github">
+<meta property="article:tag" content="github pages">
+<meta property="article:tag" content="blog">
+<meta property="article:tag" content="mathjax">
+<meta property="article:tag" content="多说">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://pinkyjie.com/2013/10/24/migrate-from-wordpress-to-jekyll/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>从 Wordpress 迁移到 Jekyll | 进击的马斯特</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">进击的马斯特</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">CODING MY LIFE</p>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://pinkyjie.com/2013/10/24/migrate-from-wordpress-to-jekyll/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/assets/images/avatar.jpg">
+      <meta itemprop="name" content="马斯特">
+      <meta itemprop="description" content="前端 | 溜冰 | Mac">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="进击的马斯特">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          从 Wordpress 迁移到 Jekyll
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2013-10-24 21:09:00" itemprop="dateCreated datePublished" datetime="2013-10-24T21:09:00+00:00">2013-10-24</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-05-01 01:47:54" itemprop="dateModified" datetime="2020-05-01T01:47:54+00:00">2020-05-01</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BD%91%E7%AB%99%E7%9B%B8%E5%85%B3/" itemprop="url" rel="index">
+                    <span itemprop="name">网站相关</span>
+                  </a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>上周末闲着没事干突然想把博客从 Wordpress 迁移到 Github pages 上，于是周日花了一天时间做迁移，期间各种折腾，终于变成了现在这样还算满意的情况。虽然我已经好久不写博客了，但俗话说“书非借不能读也”，博客这一迁移也激起了我重新写博客的欲望。再说，这个博客还身兼重任，那就是——养媳妇！哈哈～还是说说迁移中遇到的乱七八糟的问题吧～</p>
+<a id="more"></a>
+<h3 id="搭建本地环境"><a href="#搭建本地环境" class="headerlink" title="搭建本地环境"></a>搭建本地环境</h3><p>首先，自然是在自己的 github 上面 new 一个 repository 了，名字必须是<code>yourname.github.com</code>，虽然现在 github pages 的地址已经改为<code>yourname.github.io</code>了，但我还没有尝试过 repository 用 io 结尾行不。<br>完成以后，就是各种本地的设置了，搭建 git 环境，搭建 ruby 环境啊一类的，这里就不详细说了，ruby 环境的搭建推荐使用<a href="https://rvm.io/" target="_blank" rel="noopener">RVM</a>，很方便的说，当然，貌似不支持 windows。。。如果在 widnows 下我推荐使用云 IDE，就好像浏览器里的虚拟机，<code>editor+terminal</code>，我常用<code>Nitrous.IO</code>，给个<a href="https://www.nitrous.io/join/OoRQwt0SaLc" target="_blank" rel="noopener">我的推荐链接</a>，有兴趣的可以试试。</p>
+<p>然后就要在本地安装<code>Jekyll</code>了，一句话<code>gem install jekyll</code>搞定。<a href="http://jekyllrb.com/" target="_blank" rel="noopener">Jekyll</a>是一个 ruby 编写的静态站点生成器，在 github 上搭博客就靠它。但直接用 jekyll 貌似外观太朴素了，推荐直接使用<a href="http://jekyllbootstrap.com/" target="_blank" rel="noopener">jekyll-bootstrap</a>，从名字就可以看出，这玩意把来自 twitter 的优秀 CSS 框架<code>bootstrap</code>结合进来，很多漂亮的主题可以选择，而且内置了很多常用的功能。直接从<code>jekyll-bootstrap</code>起步吧，先 clone 下来，然后把 remote 的地址改成自己的～</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/plusjade/jekyll-bootstrap.git yourname.github.com</span><br><span class="line"><span class="built_in">cd</span> yourname.github.com</span><br><span class="line">git remote <span class="built_in">set</span>-url origin git@github.com:yourname/yourname.github.com.git</span><br></pre></td></tr></table></figure>
+<p>然后<code>jekyll serve</code>就可以在本地<code>localhost:4000</code>看到博客的样子，当然，现在空空如也～</p>
+<h3 id="先换主题"><a href="#先换主题" class="headerlink" title="先换主题"></a>先换主题</h3><p>在导入文章进行各种设置之前，推荐先选一个自己喜欢的主题换上，因为后面很多定制涉及到修改主题文件，为了避免 2 次修改，先换一个主题比较方便。<code>jekyll-bootstrap</code>提供了一个<a href="http://themes.jekyllbootstrap.com/preview/twitter/" target="_blank" rel="noopener">主题预览网站</a>，上面就有很多不错的主题。点击页面下面的主题名字进行预览，选择喜欢的以后，点击蓝色的<code>Install Theme</code>按钮，复制里面的代码执行，比如我选择的<code>hooligan</code>，代码如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">rake theme:install git=<span class="string">"https://github.com/dhulihan/hooligan.git"</span></span><br><span class="line">rake theme:switch name=<span class="string">"hooligan"</span></span><br></pre></td></tr></table></figure>
+<p>其中第一行将主题下载到<code>_theme_packages</code>里面，第二行切换到新主题。现在本地预览就可以看到新主题了。主题有两个相应的文件夹，一个是<code>_includes/themes/xxx</code>，这里放的是网页模板，另一个是 <code>assets/themes/xxx</code>，这里放的主题用到的 css/js 文件。我们要定制页面显示的内容通常修改第一个文件夹的东西，定制样式修改第二个，后面遇到了详细说。</p>
+<h3 id="Wordpress-的文章迁移"><a href="#Wordpress-的文章迁移" class="headerlink" title="Wordpress 的文章迁移"></a>Wordpress 的文章迁移</h3><p>现在可以导入原来的文章了，这个就比较闹心了，我的折腾时间有很大一部分花在这上面。<a href="http://jekyllrb.com/docs/migrations/" target="_blank" rel="noopener">官方文档</a>专门讲解了各个常用的博客系统怎么迁移过来，wordpress 的步骤也不复杂，从管理后台导出 xml，然后执行一条命令即可将所有文章转换成<code>.markdown</code>，将其拷入<code>_post</code>文件夹即可。这个时候你本地预览就可以看到文章，标签以及分类信息了。闹心的事情来了，为什么我预览报一堆错误？为什么我的显示跟预期的不一样？唉，一个一个说吧～</p>
+<h3 id="乱七八糟的Could-not-find-ref-id"><a href="#乱七八糟的Could-not-find-ref-id" class="headerlink" title="乱七八糟的Could not find ref_id"></a>乱七八糟的<code>Could not find ref_id</code></h3><p>这个问题浪费了我不少时间，最后发现原来是字符转义的问题！<code>markdown</code>语法里中括号<code>[]</code>是特殊字符，如果你的文章里出现则需要转义，加<code>\</code>号即可。Too Simple!</p>
+<h3 id="公式的显示"><a href="#公式的显示" class="headerlink" title="公式的显示"></a>公式的显示</h3><p>以前研究学术的时候写过好几篇满是公式的博文，原先 wordpress 里貌似用的是一种插件，到这里显然行不通了。一番搜索后发现一个叫<a href="http://www.mathjax.org/" target="_blank" rel="noopener">MathJax</a>的牛逼东西，用 js 来渲染公式。在<code>_includes/themes/hooligan/default.html</code>里加入</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">"text/javascript"</span> <span class="attr">src</span>=<span class="string">"http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>即可，这样就可以用$$$$作为开始结束符来输入公式了。注意这里的<code>hooligan</code>是你的主题名称，你的主题如果是别的就改成相应别的。这样的公式是独占一行的，如果要输入 inline 的公式，则还需要添加</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">"text/x-mathjax-config"</span>&gt;</span></span><br><span class="line">    MathJax.Hub.Config(&#123;</span><br><span class="line"><span class="actionscript">      tex2jax: &#123; inlineMath: [[<span class="string">'$'</span>,<span class="string">'$'</span>], [<span class="string">'\\('</span>,<span class="string">'\\)'</span>]] &#125;</span></span><br><span class="line">    &#125;);</span><br><span class="line"><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>这样，使用<code>$</code>作开始结束符就可以输入行内的公式了。这里有个坑，有可能会遇到类似<code>Liquid Exception: Variable xxx was not properly terminated with regexp xxx</code>，这个我搜了半天，最后发现是公式内需要显示大括号时，原来会输入<code>\{\}</code>，但 jekyll 中<code>\</code>也需要转义，改成<code>\\{\\}</code>即可。同样的问题还有公式换行的时候，原先的<code>\\</code>改成<code>\\\\</code>才行。有时<code>[]</code>也需要转义。转义——多么痛的领悟。</p>
+<h3 id="代码高亮"><a href="#代码高亮" class="headerlink" title="代码高亮"></a>代码高亮</h3><p>把博客整到 github 上的应该多半都是程序员吧，博客自然少不了一堆公式。在 github 上直接用类似</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">&lt;figure class&#x3D;&quot;highlight python&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class&#x3D;&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class&#x3D;&quot;line&quot;&gt;1&lt;&#x2F;span&gt;&lt;br&gt;&lt;&#x2F;pre&gt;&lt;&#x2F;td&gt;&lt;td class&#x3D;&quot;code&quot;&gt;&lt;pre&gt;&lt;span class&#x3D;&quot;line&quot;&gt;code&lt;&#x2F;span&gt;&lt;br&gt;&lt;&#x2F;pre&gt;&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;&lt;&#x2F;table&gt;&lt;&#x2F;figure&gt;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>即可，但不知道为什么我的高亮一直没发生效，后来还是乖乖的用</p>
+
+
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#123;% highlight python %&#125;</span><br><span class="line">code</span><br><span class="line">&#123;% endhighlight %&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>虽然写起来稍显复杂，但高亮效果不错，配合我的主题非常好看。另外，在写这篇文章的时候我又遇到一个问题，如何显示标签，比如像上面的代码里带有标签该如何转义书写呢，这个问题我也折腾了好久，很多人说用<code>&quot;</code>进行嵌套，能解决问题，但是有点搞不清楚为啥这么写，后来发现，原来官方早就给答案了，把内容放到<code>{% raw %}{% endraw %}</code>和<code>{{ "{% endraw "}}%}`里面就不会进行 tag 解析了。
+
+### 图片迁移
+
+博客搬过来了，图片不多的话自然也搬过来吧～在`assets`文件夹下新建文件夹`images`和`files`，一个用来放图片，一个用来放文件附件。然后为了方便引用这两个路径，可以在`_config.yml`里定义变量：
+
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">img_url:</span> <span class="string">/assets/images</span></span><br><span class="line"><span class="attr">file_url:</span> <span class="string">/assets/files</span></span><br></pre></td></tr></table></figure>
+
+然后就可以在文章里像这样`![]({% raw %}assets/images{% endraw %}/picture.jpg)`插入图片了。其实这里可以发现，`_config.yml`里就是这样定义变量的，然后文章里就可用`site.xxx`来访问了，后面添加评论的时候还会用到。`_config.yml`里还有很多有用的配置，比如作者信息，博客的名字等等，不多说，自己研究吧。添加图片路径后，巨大的工作量来自——下载原博客里的图片，这里推荐一个 chrome 插件[Fatkun 图片批量下载](https://chrome.google.com/webstore/detail/fatkun-batch-download-ima/nnjjahlikiabnchcpehcpkdeckfgnohf?hl=zh-CN)，谁用谁知道。
+
+### 评论系统
+
+由于是静态网站，评论什么的就知道使用第三方的套件来实现了，`jekyll-bootstrap`里自带的是国外很有名的社交评论系统`disqus`，只要在`_config.yml`里配置自己的帐号即可。但入乡随俗嘛，我用`disqus 国内 山寨`为关键词 Google 了一把，立马发现了符合我朝国情的产品，类似[友言](http://www.uyan.cc/)，[多说](http://duoshuo.com/)等等，随便看了一下，最后决定多说吧。。。据说多说可以将原 wordpress 的评论导入，反正我是没成功。注册一个多说，填写相关的站点信息，就可以在`工具=>获取代码=>通用代码`里得到需要粘贴的代码，其中`<div class="ds-thread"></div>`是具体显示评论的代码，其他部分是 js 代码。仿照前面的，将 js 代码复制到`_includes/themes/hooligan/default.html`里。为了不写死代码，我们将`short_name`这一行修改为
+
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> duoshuoQuery = &#123;</span><br><span class="line">  short_name: &#123;% raw %&#125; <span class="string">"&#123;&#123; site.JB.comments.duoshuo.short_name &#125;&#125;"</span> &#123;% endraw %&#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+后面我们会在`_config.yml`里配置这个`short_name`。然后另外的代码放哪里呢？首先，将你的多说信息配置到`_config.yml`里面，找到`_config.yml`里`comments`这一段，改成：
+
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">comments:</span></span><br><span class="line">  <span class="attr">provider:</span> <span class="string">duoshuo</span></span><br><span class="line">  <span class="attr">duoshuo:</span></span><br><span class="line">    <span class="attr">short_name:</span> <span class="string">xxxx</span></span><br></pre></td></tr></table></figure>
+
+其中的`short_name`就是多说的通用代码里的`short_name`值。然后根据`jekll-bootstrap`的结构，评论由`_includes/JB/comments`管理，打开发现里面是一个 ruby 的`switch-case`分支结构，在`{% raw %}{% endcase %}{% endraw %}`之前加上多说的判断即可：
+
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&#123;% raw %&#125;&#123;% when "duoshuo" %&#125;&#123;% endraw %&#125;</span><br><span class="line">   &#123;&#123; "&#123;% include JB/comments-providers/duoshuo "&#125;&#125;%&#125;</span><br></pre></td></tr></table></figure>
+
+可以看到，实际的评论代码是放在`_includes/JB/comments-probiders`目录下的，在该目录下新建一个文件`duoshuo`，然后将刚才通用代码里的`<div class="ds-thread"></div>`复制进去即可。因为这个`_includes/JB/comments`会被很多模板自动引用，所以评论已经被添加到需要的地方去了。另外，如果你想定制评论，比如每篇博客右侧显示最近的评论和最近的来访者，可以修改`_includes/themes/hooligan/page.html`，这个是页面的默认模板，加一个`<div class="span4">`，熟悉`bootstrap`的孩子一定不陌生，这里就是右侧边栏，在这个 div 的最后面加入：
+
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">section</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">h3</span>&gt;</span>Latest Comments<span class="tag">&lt;/<span class="name">h3</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">ul</span> <span class="attr">class</span>=<span class="string">"ds-recent-comments"</span> <span class="attr">data-num-items</span>=<span class="string">"10"</span> <span class="attr">data-show-avatars</span>=<span class="string">"0"</span> <span class="attr">data-show-time</span>=<span class="string">"0"</span> <span class="attr">data-show-title</span>=<span class="string">"0"</span> <span class="attr">data-show-admin</span>=<span class="string">"0"</span> <span class="attr">data-excerpt-length</span>=<span class="string">"18"</span>&gt;</span><span class="tag">&lt;/<span class="name">ul</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">section</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">section</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">h3</span>&gt;</span>Recently Visitors<span class="tag">&lt;/<span class="name">h3</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">ul</span> <span class="attr">class</span>=<span class="string">"ds-recent-visitors"</span> <span class="attr">data-num-items</span>=<span class="string">"4"</span> <span class="attr">data-avatar-size</span>=<span class="string">"45"</span> <span class="attr">style</span>=<span class="string">"margin-top:10px;"</span>&gt;</span><span class="tag">&lt;/<span class="name">ul</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">section</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+### 首页的定制：分页与摘要
+
+到现在博客应该像模像样了吧，但唯一不爽的就是首页了，默认的首页`index.md`显示的是所有文章的存档，比较朴素，怎样改成像传统 wordpress 那样显示文章的摘要和合理分页呢？[官方文档](http://jekyllrb.com/docs/pagination/)同样专门有一节讲分页。首先，在`_config.yml`里配置分页，即添加`paginate: 5`，其中的`5`为每页的文章数，自己把握。然后，删除`index.md`，新建`index.html`，这一步很重要，我原来设置分页一直不成功就卡在这里，官方文档里也有讲，分页只对`html`生效！文档中有中规中矩的写法，大家可以参考，这里放出我修改过的版本。
+
+{% raw %}
+
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br></pre></td><td class="code"><pre><span class="line">---</span><br><span class="line">layout: page</span><br><span class="line">title: 进击的马斯特</span><br><span class="line">tagline: Go Fighting! Master!</span><br><span class="line">---</span><br><span class="line"></span><br><span class="line">&#123;% for post in paginator.posts %&#125;</span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"post-wrapper"</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">h2</span> <span class="attr">class</span>=<span class="string">"h2 entry-title"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">"&#123;&#123; post.url &#125;&#125;"</span>&gt;</span>&#123;&#123; post.title &#125;&#125;<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">h2</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"entry-meta"</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">i</span> <span class="attr">class</span>=<span class="string">"icon-user"</span>&gt;</span><span class="tag">&lt;/<span class="name">i</span>&gt;</span>  <span class="tag">&lt;<span class="name">span</span>&gt;</span>&#123;&#123; post.author &#125;&#125;<span class="tag">&lt;/<span class="name">span</span>&gt;</span> <span class="symbol">&amp;nbsp;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">i</span> <span class="attr">class</span>=<span class="string">"icon-calendar"</span>&gt;</span><span class="tag">&lt;/<span class="name">i</span>&gt;</span>  <span class="tag">&lt;<span class="name">span</span>&gt;</span>&#123;&#123; post.date | date:"%Y-%m-%d" &#125;&#125;<span class="tag">&lt;/<span class="name">span</span>&gt;</span> <span class="symbol">&amp;nbsp;</span></span><br><span class="line">      &#123;% unless post.categories == empty %&#125;</span><br><span class="line">        <span class="tag">&lt;<span class="name">i</span> <span class="attr">class</span>=<span class="string">"icon-bookmark"</span>&gt;</span><span class="tag">&lt;/<span class="name">i</span>&gt;</span></span><br><span class="line">        &#123;% for category in post.categories %&#125;</span><br><span class="line">          <span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">"/categories.html#&#123;&#123; category &#125;&#125;-ref"</span> <span class="attr">target</span>=<span class="string">"_blank"</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">span</span> <span class="attr">class</span>=<span class="string">"label post-category"</span>&gt;</span>&#123;&#123; category &#125;&#125;<span class="tag">&lt;/<span class="name">span</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br><span class="line">        &#123;% endfor %&#125;</span><br><span class="line">      &#123;% endunless %&#125;</span><br><span class="line">       <span class="symbol">&amp;nbsp;</span></span><br><span class="line">      &#123;% unless post.tags == empty %&#125;</span><br><span class="line">        <span class="tag">&lt;<span class="name">i</span> <span class="attr">class</span>=<span class="string">"icon-tag"</span>&gt;</span><span class="tag">&lt;/<span class="name">i</span>&gt;</span></span><br><span class="line">        &#123;% for tag in post.tags %&#125;</span><br><span class="line">          <span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">"/tags.html#&#123;&#123; tag &#125;&#125;-ref"</span> <span class="attr">target</span>=<span class="string">"_blank"</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">span</span> <span class="attr">class</span>=<span class="string">"label post-tag"</span>&gt;</span>&#123;&#123; tag &#125;&#125;<span class="tag">&lt;/<span class="name">span</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br><span class="line">        &#123;% endfor %&#125;</span><br><span class="line">      &#123;% endunless %&#125;</span><br><span class="line">  <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">br</span> /&gt;</span><span class="tag">&lt;<span class="name">br</span> /&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"entry"</span>&gt;</span></span><br><span class="line">    &#123;&#123; post.content | split: '<span class="comment">&lt;!--more--&gt;</span>' | first &#125;&#125;</span><br><span class="line">    <span class="tag">&lt;<span class="name">p</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">"&#123;&#123; post.url &#125;&#125;/#more"</span> <span class="attr">class</span>=<span class="string">"more-link btn"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">span</span> <span class="attr">class</span>=<span class="string">"readmore"</span>&gt;</span>阅读全文 <span class="symbol">&amp;raquo;</span><span class="tag">&lt;/<span class="name">span</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">br</span> /&gt;</span></span><br><span class="line">&#123;% endfor %&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!-- Pagination links --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"pagination pagination-centered"</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">hr</span> /&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">ul</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">li</span> <span class="attr">class</span>=<span class="string">"disabled"</span>&gt;</span><span class="tag">&lt;<span class="name">a</span>&gt;</span>&#123;&#123; paginator.page &#125;&#125; / &#123;&#123; paginator.total_pages &#125;&#125;<span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">li</span>&gt;</span><span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">"/"</span>&gt;</span><span class="symbol">&amp;laquo;</span><span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">    &#123;% if paginator.previous_page %&#125;</span><br><span class="line">      &#123;% if paginator.previous_page == 1 %&#125;</span><br><span class="line">        <span class="tag">&lt;<span class="name">li</span>&gt;</span><span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">"/"</span> <span class="attr">class</span>=<span class="string">"current"</span>&gt;</span><span class="symbol">&amp;lt;</span><span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">      &#123;% else %&#125;</span><br><span class="line">        <span class="tag">&lt;<span class="name">li</span>&gt;</span><span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">"/page&#123;&#123;paginator.previous_page&#125;&#125;/"</span>&gt;</span><span class="symbol">&amp;lt;</span><span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">      &#123;% endif %&#125;</span><br><span class="line">    &#123;% else %&#125;</span><br><span class="line">      <span class="tag">&lt;<span class="name">li</span> <span class="attr">class</span>=<span class="string">"disabled"</span>&gt;</span><span class="tag">&lt;<span class="name">a</span>&gt;</span><span class="symbol">&amp;lt;</span><span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">    &#123;% endif %&#125;</span><br><span class="line">    &#123;% for count in (2..paginator.total_pages) limit:6 %&#125;</span><br><span class="line">      &#123;% if count == paginator.page %&#125;</span><br><span class="line">        <span class="tag">&lt;<span class="name">li</span> <span class="attr">class</span>=<span class="string">"active"</span>&gt;</span><span class="tag">&lt;<span class="name">a</span>&gt;</span>&#123;&#123;count&#125;&#125;<span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">      &#123;% else %&#125;</span><br><span class="line">        <span class="tag">&lt;<span class="name">li</span>&gt;</span><span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">"/page&#123;&#123;count&#125;&#125;/"</span>&gt;</span>&#123;&#123;count&#125;&#125;<span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">      &#123;% endif %&#125;</span><br><span class="line">    &#123;% endfor %&#125;</span><br><span class="line">    &#123;% if paginator.next_page %&#125;</span><br><span class="line">      <span class="tag">&lt;<span class="name">li</span>&gt;</span><span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">"/page&#123;&#123;paginator.next_page&#125;&#125;/"</span>&gt;</span><span class="symbol">&amp;gt;</span><span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">    &#123;% else %&#125;</span><br><span class="line">      <span class="tag">&lt;<span class="name">li</span> <span class="attr">class</span>=<span class="string">"disabled"</span>&gt;</span><span class="tag">&lt;<span class="name">a</span>&gt;</span><span class="symbol">&amp;gt;</span><span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">    &#123;% endif %&#125;</span><br><span class="line">    <span class="tag">&lt;<span class="name">li</span>&gt;</span><span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">"/page&#123;&#123;paginator.total_pages&#125;&#125;/"</span>&gt;</span><span class="symbol">&amp;raquo;</span><span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">ul</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">br</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">br</span> /&gt;</span></span><br></pre></td></tr></table></figure>
+
+{% endraw %}
+
+头部就是主标题副标题，这个没啥说的，下面开始，`paginator.posts`里保存的是该页的所有文章信息，每篇文章的结构大致是`.post-wrapper > .entry-title > .entry-meta > .entry`的`div`嵌套，这些样式你可以在`assets/themes/hooligan/css/style.css`里自定义。其中可以看到`entry-meta`里会输出文章的分类信息和标签信息，`.entry`里输出摘要。摘要如何实现网上有千奇百怪的版本，我也试了很多，心力憔悴，最后发现居然一句话就能实现，网上还有很多为了这个自己写插件的。。。其实想想原理就不难，因为 wordpress 里使用`<!--more-->`来显示摘要，只要在`post.content`里查找`<!--more-->`的位置显示其前面的内容就是摘要啊！所以`{{ "{{ post.content | split: '<!--more-->' | first "}}}}</code>用这种类似管道的<code>filter</code>方式，先以<code>&lt;!--more--&gt;</code>调用<code>split</code>分割，然后用<code>first</code>取前面即可。其实我不太明白为什么直接写<code>{{"{{ post.content.split('!--more-->').first "}}}}</code>为啥不行。。。有懂的可以告诉我～后面的部分就是分页的页码了，我这里为了风格统一，套用了<code>bootstrap</code>的分页样式，具体可以看<code>bootstrap</code>的<a href="http://v2.bootcss.com/components.html#pagination" target="_blank" rel="noopener">分页文档</a>。这样“高大上”的首页就诞生了。</p>
+<h3 id="大段代码的显示"><a href="#大段代码的显示" class="headerlink" title="大段代码的显示"></a>大段代码的显示</h3><p>大段代码的显示推荐使用 github 的<a href="https://gist.github.com" target="_blank" rel="noopener">gist</a>，否则转义累死人啊！上面的大段代码就是用的 gist 显示的，配合了自定义的 gist 样式。这里值得说一下，gist 也是个坑！关于在 jekyll 嵌入 gist，可以使用官方的方案，直接写<code>&lt;script src=&quot;https://gist.github.com/yourname/xxx.js&quot;&gt;&lt;/script&gt;</code>，也可以用 jekyll 的 gist 标签：<code>{% raw %}{% gist xxx %}{% endraw %}</code>。很不幸，这两种方案都有问题，本地预览时正常显示，但上传到 github 后发现，gist 后面的内容被截断，匪夷所思。经过一番算搜索发现，又是 jekyll 的标签解析惹得货啊。详细可以看这两篇文章：<a href="http://mystcolor.me/post/22455268027/fixing-your-embedding-gist-snippets" target="_blank" rel="noopener">Fixing your embedding gist snippets</a> 和 <a href="http://stackoverflow.com/questions/69913/why-dont-self-closing-script-tags-work" target="_blank" rel="noopener">Why don’t self-closing script tags work?</a>。简单来说就是，这两种方式会生成<code>&lt;script src=&quot;https://gist.github.com/yourname/xxx.js&quot; /&gt;</code>这样的标签，而很多浏览器解析这样的“自关闭标签”有 bug，很奇怪吧，非常简单的问题居然有 bug！！那怎么破呢，非常简单，加个空格即可，如：<code>&lt;script src=&quot;https://gist.github.com/yourname/xxx.js&quot;&gt; &lt;/script&gt;</code>。</p>
+<h3 id="push-到-github-时没效果"><a href="#push-到-github-时没效果" class="headerlink" title="push 到 github 时没效果"></a>push 到 github 时没效果</h3><p>一切就绪，push 到 github 去吧，相信很多人遇到过这个问题：明明我本地预览正常，为啥 push 到 github 不生效呢？快去查查邮箱，有没有收到 github 给你发的<code>page build failure</code>邮件啊，我是收到过五六封。。。其实这是因为 github 为了安全考虑禁止使用第三方插件，所以首先删除你<code>_plugins</code>文件夹下除了<code>debug.rb</code>以外的其他文件，然后本地预览时使用<code>jekyll serve --safe --watch</code>命令，<code>--safe</code>确保满足 github 的安全要求，<code>--watch</code>可以不用重启 jekyll 使修改即时生效。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>好了，博客现在差不多了，但对美有要求的你应该不会停止。<code>jekyll-bootstrap</code>由于是以<code>bootstrap</code>为基础的，所以熟悉前端的孩子修改起来特别方便，比如首页加个侧边栏，各种样式修改，加入<code>font-awesome</code>图标等等，慢慢探索吧～用<code>bootstrap</code>的另外一大好处就是，这个框架本来就是响应式的，所以不用费心去像 wordpress 一样装个插件去优化手机版，各种尺寸的屏幕都能做到自适应，非常方便！快把你的博客也迁过来吧！</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/jekyll/" rel="tag"># jekyll</a>
+              <a href="/tags/wordpress/" rel="tag"># wordpress</a>
+              <a href="/tags/github/" rel="tag"># github</a>
+              <a href="/tags/github-pages/" rel="tag"># github pages</a>
+              <a href="/tags/blog/" rel="tag"># blog</a>
+              <a href="/tags/mathjax/" rel="tag"># mathjax</a>
+              <a href="/tags/%E5%A4%9A%E8%AF%B4/" rel="tag"># 多说</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2012/03/17/secret-of-my-heart/" rel="prev" title="Secret of my heart">
+      <i class="fa fa-chevron-left"></i> Secret of my heart
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2013/11/24/first-look-at-yeoman/" rel="next" title="Yeoman初体验">
+      Yeoman初体验 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    
+  
+  <div class="comments">
+  <script src="https://utteranc.es/client.js" repo="PinkyJie/pinkyjie.github.com" issue-term="pathname" theme="github-light" crossorigin="anonymous" async></script>
+  </div>
+  
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#搭建本地环境"><span class="nav-number">1.</span> <span class="nav-text">搭建本地环境</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#先换主题"><span class="nav-number">2.</span> <span class="nav-text">先换主题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Wordpress-的文章迁移"><span class="nav-number">3.</span> <span class="nav-text">Wordpress 的文章迁移</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#乱七八糟的Could-not-find-ref-id"><span class="nav-number">4.</span> <span class="nav-text">乱七八糟的Could not find ref_id</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#公式的显示"><span class="nav-number">5.</span> <span class="nav-text">公式的显示</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#代码高亮"><span class="nav-number">6.</span> <span class="nav-text">代码高亮</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#大段代码的显示"><span class="nav-number">7.</span> <span class="nav-text">大段代码的显示</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#push-到-github-时没效果"><span class="nav-number">8.</span> <span class="nav-text">push 到 github 时没效果</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-number">9.</span> <span class="nav-text">总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="马斯特"
+      src="/assets/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">马斯特</p>
+  <div class="site-description" itemprop="description">前端 | 溜冰 | Mac</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">55</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">186</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/PinkyJie" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;PinkyJie" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:pinkyjie.gn@gmail.com" title="E-Mail → mailto:pinkyjie.gn@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/PinkyJie" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;PinkyJie" rel="noopener" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://stackoverflow.com/users/689948/pinkyjie" title="StackOverflow → http:&#x2F;&#x2F;stackoverflow.com&#x2F;users&#x2F;689948&#x2F;pinkyjie" rel="noopener" target="_blank"><i class="fa fa-fw fa-stack-overflow"></i>StackOverflow</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">马斯特</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.7.0
+  </div>
+
+        
+
+
+  <div style="display: none;">
+    <script src="//s95.cnzz.com/z_stat.php?id=1253033676&web_id=1253033676"></script>
+  </div>
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  <script>
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install','8k3UxSuRWYkrhVg55bC3','2.0.0');
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

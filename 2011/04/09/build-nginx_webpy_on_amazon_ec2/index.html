@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="o7yQBnLIoWby8Y5vNMQywBiMtev-ilWjXt89RQpTvVw">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('http://pinkyjie.com').hostname,
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.7.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":"utteranc","storage":true,"lazyload":false,"nav":null,"activeClass":"utteranc"},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="一直想弄个VPS玩，可动辄五六百一年的money目前还是承受不起，昨天又看到一个网站在推广Amazon的免费一年的EC2，就尝试申请了下。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="在Amazon的EC2上部署nginx+web.py">
+<meta property="og:url" content="http://pinkyjie.com/2011/04/09/build-nginx_webpy_on_amazon_ec2/index.html">
+<meta property="og:site_name" content="进击的马斯特">
+<meta property="og:description" content="一直想弄个VPS玩，可动辄五六百一年的money目前还是承受不起，昨天又看到一个网站在推广Amazon的免费一年的EC2，就尝试申请了下。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://pinkyjie.com/assets/images/build-nginx_webpy_on_amazon_ec2-1.png">
+<meta property="og:image" content="http://pinkyjie.com/assets/images/build-nginx_webpy_on_amazon_ec2-2.png">
+<meta property="article:published_time" content="2011-04-09T09:40:43.000Z">
+<meta property="article:modified_time" content="2020-05-01T01:47:54.590Z">
+<meta property="article:author" content="马斯特">
+<meta property="article:tag" content="amazon">
+<meta property="article:tag" content="ec2">
+<meta property="article:tag" content="nginx">
+<meta property="article:tag" content="spawn-fcgi">
+<meta property="article:tag" content="web.py">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://pinkyjie.com/assets/images/build-nginx_webpy_on_amazon_ec2-1.png">
+
+<link rel="canonical" href="http://pinkyjie.com/2011/04/09/build-nginx_webpy_on_amazon_ec2/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>在Amazon的EC2上部署nginx+web.py | 进击的马斯特</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">进击的马斯特</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">CODING MY LIFE</p>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://pinkyjie.com/2011/04/09/build-nginx_webpy_on_amazon_ec2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/assets/images/avatar.jpg">
+      <meta itemprop="name" content="马斯特">
+      <meta itemprop="description" content="前端 | 溜冰 | Mac">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="进击的马斯特">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          在Amazon的EC2上部署nginx+web.py
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2011-04-09 09:40:43" itemprop="dateCreated datePublished" datetime="2011-04-09T09:40:43+00:00">2011-04-09</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-05-01 01:47:54" itemprop="dateModified" datetime="2020-05-01T01:47:54+00:00">2020-05-01</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BD%91%E7%AB%99%E7%9B%B8%E5%85%B3/" itemprop="url" rel="index">
+                    <span itemprop="name">网站相关</span>
+                  </a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>一直想弄个VPS玩，可动辄五六百一年的money目前还是承受不起，昨天又看到一个网站在推广Amazon的免费一年的EC2，就尝试申请了下。</p>
+<a id="more"></a>
+<h3 id="申请Amazon的EC2"><a href="#申请Amazon的EC2" class="headerlink" title="申请Amazon的EC2"></a>申请Amazon的EC2</h3><p>免费申请的条件有两个，首先你得是新用户，另外需要一张能够提供外币支付的信用卡。整个注册过程大概会扣2刀，网上说是测试信用卡是否可用，到底这2刀是否归还我也不清楚。点击 <a href="http://aws.amazon.com/free/" target="_blank" rel="noopener">http://aws.amazon.com/free/</a> ，点右面的sign up进行申请，申请的步骤跟普通的差不多，就是填填姓名啊地址邮箱神马的，需要注意的是留信用卡的地方，信息一定要正确。另外，申请过程中需要打电话确认，一定要使用真实的电话号码，打电话之前会让你重新填写电话的，所以先前注册时随便填电话也行。输完电话号码点call me now，就会收到一个+1开头的号码打来的电话，一堆非常机械的女声洋文以后，会请你输入电脑屏幕闪的四个数字。不要急，输完就行，电话自动挂断后就可以继续注册。我当时就是太紧张了，导致打了两次电话才完成认证。认证完成后收到电邮确认，然后登陆 <a href="https://console.aws.amazon.com/ec2/home" target="_blank" rel="noopener">https://console.aws.amazon.com/ec2/home</a> ，这就是你的控制台了，在Region里选US west，离我们国家近一点的机房，然后点Launch Instance就可以配置操作系统一类的了。配置中有几点需要注意，首先，选操作系统的时候右面加五星的才是免费的，默认的只有Amazon定制的可选，是基于Fedora的，如果想选Ubuntu，可以点第三个标签Community AMIs，在Viewing里选择Free tier eligible，这里会有很多带五星的系统可以选，有Ubuntu啊，Cent OS一类的可以选，而且都是预装了一些服务器程序或Wordpress程序的，如下图：</p>
+<p><img src="/assets/images/build-nginx_webpy_on_amazon_ec2-1.png" alt=""></p>
+<p>在select以后进入的下一步中，注册Instance Type选第一项Micro，这个才是免费的。另外，后面配置security的时候要开几个端口，SSH，HTTP和HTTPS都要开，因为要搞webpy，我直接开了8000-9500所有的端口，参见下图：</p>
+<p><img src="/assets/images/build-nginx_webpy_on_amazon_ec2-2.png" alt=""></p>
+<p>其他详细步骤可以看<a href="http://www.baidu.com.ru/archives/556.html" target="_blank" rel="noopener">千百度记忆角落的这篇《Amazon EC2免费一年申请使用图文教程》</a>，非常的详细。所有步骤完成后，就可以在自己的机器上SSH登陆这个VPS了，涉及到公钥证书神马的，因为我是直接用msys在windows上虚拟了一个unix环境中使用ssh的，一条命令搞定，如果你想用putty，SecureCRT一类的SSH客户端，请参见<a href="http://www.baidu.com.ru/archives/573.html" target="_blank" rel="noopener">千百度记忆角落的这篇《Windows下如何用putty连接Amazon EC2实例图文教程！》</a>。</p>
+<h3 id="搭建nginx-web-py"><a href="#搭建nginx-web-py" class="headerlink" title="搭建nginx+web.py"></a>搭建nginx+web.py</h3><p>登陆上主机以后，我们开始配置环境吧。首先下好各种软件，以Ubuntu环境为例。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install nginx   <span class="comment"># 安装nginx</span></span><br><span class="line">sudo apt-get install python-setuptools</span><br><span class="line"><span class="comment"># python默认有，不用装，这一步是为了装好easy_install</span></span><br><span class="line">sudo easy_install web.py  <span class="comment"># 安装web.py</span></span><br><span class="line">sudo apt-get install flup <span class="comment"># 发布用</span></span><br><span class="line">sudo apt-get install spawn-fcgi <span class="comment"># 执行py需要的cgi</span></span><br></pre></td></tr></table></figure>
+<p>这样，所有需要的软件就都安装好了，Amazon的下载速度是很快的。首先，先测试一下web.py，按照官网给的例子写一个code.py。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> web</span><br><span class="line"></span><br><span class="line">urls = (</span><br><span class="line">    <span class="string">'/(.*)'</span>, <span class="string">'hello'</span></span><br><span class="line">)</span><br><span class="line">app = web.application(urls, globals())</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">hello</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">GET</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="keyword">return</span> <span class="string">'Hello, web.py'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</span><br><span class="line">    app.run()</span><br></pre></td></tr></table></figure>
+<p>然后运行<code>python code.py</code>，如果出现<code>http://0.0.0.0:8080/</code>则表明<code>web.py</code>工作正常，按<code>Ctrl +Ｃ</code>结束即可。下面我们要做的就是三步走，第一，修改nginx的配置文件；第二，开启一个<code>spawn-fcgi</code>进程；最后，打开nginx服务器。在这之前，我们还需要修改下<code>code.py</code>，以便顺利完成发布，首先修改<code>code.py</code>为可执行，即执行<code>chmod +x code.py</code>，然后在<code>app.run()</code>这句之前加上一句：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">web.wsgi.runwsgi = <span class="keyword">lambda</span> func, addr=<span class="literal">None</span>: web.wsgi.runfcgi(func, addr)</span><br></pre></td></tr></table></figure>
+<h3 id="修改nginx的配置文件"><a href="#修改nginx的配置文件" class="headerlink" title="修改nginx的配置文件"></a>修改nginx的配置文件</h3><p>nginx默认被安装在<code>/etc/nginx</code>目录中，其中的<code>nginx.conf</code>就是默认的配置文件，为了避免一开始就修改坏，我们将其拷贝出来一份，比如放在和刚才的<code>code.py</code>相同的文件夹下，这里以<code>~/pytest/</code>为例。打开后我们发现这个文件由http模块和注释掉的mail模块组成，我们要修改的就是http模块。这里配置文件的具体参数我也不大懂，放上我最终修改好的以供参考。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line">user www-data;</span><br><span class="line">worker_processes  1;</span><br><span class="line"></span><br><span class="line">error_log  /var/<span class="built_in">log</span>/nginx/error.log;</span><br><span class="line">pid        /var/run/nginx.pid;</span><br><span class="line"></span><br><span class="line">events &#123;</span><br><span class="line">    worker_connections  1024;</span><br><span class="line">    <span class="comment"># multi_accept on;</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">http &#123;</span><br><span class="line">    include       /etc/nginx/mime.types;</span><br><span class="line"></span><br><span class="line">    access_log  /var/<span class="built_in">log</span>/nginx/access.log;</span><br><span class="line"></span><br><span class="line">    sendfile        on;</span><br><span class="line">    <span class="comment">#tcp_nopush     on;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">#keepalive_timeout  0;</span></span><br><span class="line">    keepalive_timeout  65;</span><br><span class="line">    tcp_nodelay        on;</span><br><span class="line"></span><br><span class="line">    gzip  on;</span><br><span class="line">    gzip_disable <span class="string">"MSIE [1-6]\.(?!.*SV1)"</span>;</span><br><span class="line"></span><br><span class="line">    include /etc/nginx/conf.d/*.conf;</span><br><span class="line">    include /etc/nginx/sites-enabled/*;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 新添加的部分</span></span><br><span class="line">    server &#123;</span><br><span class="line">        listen 80;    <span class="comment"># 监听80端口，也就是HTTP对应的端口</span></span><br><span class="line">        server_name 127.0.0.1:9001; <span class="comment">#这里端口可以随便填，但确定先前配置系统的时候已开通</span></span><br><span class="line">        <span class="comment"># 处理静态文件</span></span><br><span class="line">        location /static/ &#123;</span><br><span class="line">            <span class="keyword">if</span> (-f <span class="variable">$request_filename</span>) &#123;</span><br><span class="line">                rewrite ^/static/(.*)$ /static/<span class="variable">$1</span> <span class="built_in">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment"># 重点部分</span></span><br><span class="line">        location / &#123;</span><br><span class="line">             fastcgi_pass 127.0.0.1:9001;</span><br><span class="line">             fastcgi_param SERVER_NAME <span class="variable">$server_name</span>;</span><br><span class="line">             fastcgi_param SERVER_PORT <span class="variable">$server_port</span>;</span><br><span class="line">             fastcgi_param SERVER_PROTOCOL <span class="variable">$server_protocol</span>;</span><br><span class="line">             fastcgi_param PATH_INFO <span class="variable">$fastcgi_script_name</span>;</span><br><span class="line">             fastcgi_param REQUEST_METHOD <span class="variable">$request_method</span>;</span><br><span class="line">             fastcgi_param QUERY_STRING <span class="variable">$query_string</span>;</span><br><span class="line">             fastcgi_param CONTENT_TYPE <span class="variable">$content_type</span>;</span><br><span class="line">             fastcgi_param CONTENT_LENGTH <span class="variable">$content_length</span>;</span><br><span class="line">             fastcgi_pass_header Authorization;</span><br><span class="line">             fastcgi_intercept_errors off;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>主要就是添加了server块的部分，nginx的详细参数意义可以参加<a href="http://wiki.nginx.org/NginxChsHttpCoreModule" target="_blank" rel="noopener">官方的Wiki</a>。</p>
+<h3 id="开启spawn-fcgi进程"><a href="#开启spawn-fcgi进程" class="headerlink" title="开启spawn-fcgi进程"></a>开启spawn-fcgi进程</h3><p>执行如下命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo spawn-fcgi -d ~/pytest/ -f ~/pytest/code.py -a 127.0.0.1 -p 9001</span><br></pre></td></tr></table></figure>
+<p>这里，-d表示py文件所在的目录，-f表示py文件的绝对路径，-a是地址，-p是端口，这里要与<code>nginx.conf</code>里的设置保持一致。如果你的运气好，就会出现<code>spawn-fcgi: child spawned successfully: PID: 1517</code>，这说明进程已经成功开启，ID号为1517。但是，通常是会报错的，比如<code>spawn-fcgi: child exited with: xxx</code>。这时需要检查几点，首先刚才的chmod命令有没有执行，即<code>code.py</code>的可执行属性有没有加上。如果加上以后还不行，那么先把<code>code.py</code>最后加上的<code>web.wsgi.runwsgi = lambda func...</code>这句代码加#号注释掉，然后执行<code>python code.py</code>看是否出现刚才说的<code>http://0.0.0.0:8080</code>，如果代码报错，如<code>[Errno 98] Address already in use</code>，说明刚才python可能没有正常结束，还占用着这个地址，直接<code>killall python</code>，或者用<code>ps aux | grep “python”</code>查出python对应的PID，通过<code>kill PID</code>来结束。如果这步还不行，那只能重启试试了。</p>
+<h3 id="打开nginx服务器"><a href="#打开nginx服务器" class="headerlink" title="打开nginx服务器"></a>打开nginx服务器</h3><p>在成功开启一个spawn-fcgi进程后，我们就可以打开nginx了：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo nginx -t -c ~/pytest/nginx.conf</span><br><span class="line"><span class="comment"># 测试自己指定的配置文件是否正确，若正确则执行</span></span><br><span class="line">sudo nginx -c ~/pytest/nginx.conf</span><br></pre></td></tr></table></figure>
+<p>同样，如果运气好的话，什么也不显示代表正常启动了。否则会报错，如<code>[emerg]: bind() to 0.0.0.0:80 failed (98: Address already in use)</code>，这个错误一方面可能是上面的spawn-fcgi启动不正常导致，先检查下，使用命令<code>ps aux | grep “code.py”</code>看是否存在两个结果(因为一个进程是grep查询进程)，如果正常，则可能是nginx重复启动，自己占用了自己的端口。通过命令 <code>ps aux | grep “nginx”</code>看下是否有nginx的进程，通常是一个master主进程，一个worker进程，如果有，同样几下它们的PID，用kill命令杀掉进程再试，有必要的话再重启下nginx的服务，执行<code>service nginx restart</code>。一般的话就正常了。如果启动正常，那通过浏览器访问你Public DNS地址，就会出现 <code>hello web.py</code>的网页了。如果此时出现的还是welcome to nginx的默认网页，有可能是nginx的默认配置所致，需要检查下你的<code>/etc/nginx/sites-enabled</code>目录下，是否有一个default的文件，有的话移走，随便移动到哪都行，然后再试，应该就正常了。如果还不行肿么办，因为上面的情况都是我自己遇到的，其他没遇到的那我也没办法了，你只能查看下nginx的<code>error log</code>文件，看有没有神马蛛丝马迹，这个错误日志文件默认在<code>/var/log/nginx/</code>目录下，<code>error.log</code>文件，看看里面记录了什么再进一步排查了。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/amazon/" rel="tag"># amazon</a>
+              <a href="/tags/ec2/" rel="tag"># ec2</a>
+              <a href="/tags/nginx/" rel="tag"># nginx</a>
+              <a href="/tags/spawn-fcgi/" rel="tag"># spawn-fcgi</a>
+              <a href="/tags/web-py/" rel="tag"># web.py</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2011/04/07/android-call-sms-firewall-pinkyblocker/" rel="prev" title="PinkyBlocker -- 简易的 Android 来电短信防火墙">
+      <i class="fa fa-chevron-left"></i> PinkyBlocker -- 简易的 Android 来电短信防火墙
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2011/06/27/angry-master/" rel="next" title="Angry Master">
+      Angry Master <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    
+  
+  <div class="comments">
+  <script src="https://utteranc.es/client.js" repo="PinkyJie/pinkyjie.github.com" issue-term="pathname" theme="github-light" crossorigin="anonymous" async></script>
+  </div>
+  
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#申请Amazon的EC2"><span class="nav-number">1.</span> <span class="nav-text">申请Amazon的EC2</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#搭建nginx-web-py"><span class="nav-number">2.</span> <span class="nav-text">搭建nginx+web.py</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#修改nginx的配置文件"><span class="nav-number">3.</span> <span class="nav-text">修改nginx的配置文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#开启spawn-fcgi进程"><span class="nav-number">4.</span> <span class="nav-text">开启spawn-fcgi进程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#打开nginx服务器"><span class="nav-number">5.</span> <span class="nav-text">打开nginx服务器</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="马斯特"
+      src="/assets/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">马斯特</p>
+  <div class="site-description" itemprop="description">前端 | 溜冰 | Mac</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">55</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">186</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/PinkyJie" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;PinkyJie" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:pinkyjie.gn@gmail.com" title="E-Mail → mailto:pinkyjie.gn@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/PinkyJie" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;PinkyJie" rel="noopener" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://stackoverflow.com/users/689948/pinkyjie" title="StackOverflow → http:&#x2F;&#x2F;stackoverflow.com&#x2F;users&#x2F;689948&#x2F;pinkyjie" rel="noopener" target="_blank"><i class="fa fa-fw fa-stack-overflow"></i>StackOverflow</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">马斯特</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.7.0
+  </div>
+
+        
+
+
+  <div style="display: none;">
+    <script src="//s95.cnzz.com/z_stat.php?id=1253033676&web_id=1253033676"></script>
+  </div>
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  <script>
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install','8k3UxSuRWYkrhVg55bC3','2.0.0');
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

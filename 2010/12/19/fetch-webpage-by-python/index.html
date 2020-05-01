@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="o7yQBnLIoWby8Y5vNMQywBiMtev-ilWjXt89RQpTvVw">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('http://pinkyjie.com').hostname,
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.7.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":"utteranc","storage":true,"lazyload":false,"nav":null,"activeClass":"utteranc"},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="前一段时间写的小东西，一直没工夫把他系统写出来，今天眼睛疼，就写写吧~~(原来博主不蛋疼时也会更新博客的哈~)">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用 python 抓取网页(以人人网新鲜事和团购网信息为例)">
+<meta property="og:url" content="http://pinkyjie.com/2010/12/19/fetch-webpage-by-python/index.html">
+<meta property="og:site_name" content="进击的马斯特">
+<meta property="og:description" content="前一段时间写的小东西，一直没工夫把他系统写出来，今天眼睛疼，就写写吧~~(原来博主不蛋疼时也会更新博客的哈~)">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://pinkyjie.com/assets/images/fetch-webpage-by-python-1.png">
+<meta property="og:image" content="http://pinkyjie.com/assets/images/fetch-webpage-by-python-2.png">
+<meta property="og:image" content="http://pinkyjie.com/assets/images/fetch-webpage-by-python-3.png">
+<meta property="og:image" content="http://pinkyjie.com/assets/images/fetch-webpage-by-python-4.png">
+<meta property="og:image" content="http://pinkyjie.com/assets/images/fetch-webpage-by-python-5.png">
+<meta property="og:image" content="http://pinkyjie.com/assets/images/fetch-webpage-by-python-6.png">
+<meta property="article:published_time" content="2010-12-19T13:01:32.000Z">
+<meta property="article:modified_time" content="2020-05-01T01:47:54.590Z">
+<meta property="article:author" content="马斯特">
+<meta property="article:tag" content="Python">
+<meta property="article:tag" content="BeautifulSoup">
+<meta property="article:tag" content="urllib">
+<meta property="article:tag" content="人人网">
+<meta property="article:tag" content="团购">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://pinkyjie.com/assets/images/fetch-webpage-by-python-1.png">
+
+<link rel="canonical" href="http://pinkyjie.com/2010/12/19/fetch-webpage-by-python/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>使用 python 抓取网页(以人人网新鲜事和团购网信息为例) | 进击的马斯特</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">进击的马斯特</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">CODING MY LIFE</p>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://pinkyjie.com/2010/12/19/fetch-webpage-by-python/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/assets/images/avatar.jpg">
+      <meta itemprop="name" content="马斯特">
+      <meta itemprop="description" content="前端 | 溜冰 | Mac">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="进击的马斯特">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          使用 python 抓取网页(以人人网新鲜事和团购网信息为例)
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2010-12-19 13:01:32" itemprop="dateCreated datePublished" datetime="2010-12-19T13:01:32+00:00">2010-12-19</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-05-01 01:47:54" itemprop="dateModified" datetime="2020-05-01T01:47:54+00:00">2020-05-01</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%A1%8C%E9%9D%A2%E5%BC%80%E5%8F%91/" itemprop="url" rel="index">
+                    <span itemprop="name">桌面开发</span>
+                  </a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>前一段时间写的小东西，一直没工夫把他系统写出来，今天眼睛疼，就写写吧~~(原来博主不蛋疼时也会更新博客的哈~)</p>
+<a id="more"></a>
+<h3 id="python-抓取网页基础"><a href="#python-抓取网页基础" class="headerlink" title="python 抓取网页基础"></a>python 抓取网页基础</h3><p>python 自己带有很多网络应用相关的模块，如：ftplib 用于 FTP 相关操作，smtplib 和 poplib 用于收发电子邮件等等，利用这些 模块自己写一个 FTP 软件或是邮件客户端类软件完全是可能的，我就简单的试过完全用 python 脚本收发邮件和操作自己的 FTP 服务器。当然，这都不是今 天的主角，我们今天要用到的几个模块是：urllib，urllib2，cookielib，BeautifulSoup，我们先来简单介绍下。 urllib 和 urllib2 自然都是处理 URL 相关的操作，urllib 可以从指定的 URL 下载文件，或是对一些字符串进行编码解码以使他们成为特定的 URL 串，而 urllib2 则比 urllib 更 2 一点，哦不对，是更牛逼一点。它有各种各样的 Handler 啊，Processor 啊可以处理更复杂的问 题，比如网络认证，使用代理服务器，使用 cookie 等等。第三个 cookielib，顾名思义，专门处理 cookie 相关的操作，其他的我也没深入过。 而最后一个包，BeautifulSoup，“美丽的汤”，它是一个第三方的包，专门用于解析 HTML 和 XML 文件，使用非常之傻瓜，我们就要靠它来解析 网页源代码了，可以从<a href="http://www.crummy.com/software/BeautifulSoup/#Download" target="_blank" rel="noopener">这里</a>下载，当然你也可以用 easy_install 安装它，<a href="http://www.crummy.com/software/BeautifulSoup/documentation.zh.html" target="_blank" rel="noopener">这里</a>还有它的中文使用文档，有多例子是相当不错的。</p>
+<p>我们先来看看最简单的网页抓取，其实网页抓取就是将所要的网页源代码文件下载下来，然后对其分析以提取对自己有用的信息。最简单的抓取用一句话就可以搞定：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> urllib</span><br><span class="line">html_src = urllib.urlopen(<span class="string">'http://www.baidu.com'</span>).read()</span><br></pre></td></tr></table></figure>
+<p>这样就会打印出百度首页的 HTML 源码了，还是很 easy 的。urllib 的 urlopen 函数会返回一个“类文件”对象，所以直接调用 read()即可获取里面的内容了。但是这样打印得到的内容是一团糟，排版不好看，编码问题也没解决，所以是看不到中文字符的。这就需要我们的 BeautifulSoup 包了，我们可以使用上面得到的源代码字符串 html_src 来初始化一个 BeautifulSoup 对象：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> BeautifulSoup <span class="keyword">import</span> BeautifulSoup</span><br><span class="line">parser = BeautifulSoup(html_src)</span><br></pre></td></tr></table></figure>
+<p>这样，后续处理 HTML 源码的工作交给 parser 变量来负责就好，我们可以简单的调用 parser 的 prettify 函数来相对美观的显示源码， 可以看到这样就能看到中文字符了，因为 BeautifulSoup 能自动处理字符问题，并将返回结果都转化为 Unicode 编码格式。另 外，BeautifulSoup 还能迅速定位到满足条件的指定标签，后面我们会用到~</p>
+<h3 id="抓取人人网的新鲜事"><a href="#抓取人人网的新鲜事" class="headerlink" title="抓取人人网的新鲜事"></a>抓取人人网的新鲜事</h3><p>前面讲的是最简单的抓取情形了，但通常我们需要面对更复杂的情形，拿人人网来说，需要登录自己的账号才能显示新鲜事，这样我们就只能求助于更 2 一点 的 urllib2 模块了。试想，我们需要一个 opener 来打开你的人人网首页，而为了进入首先就需要认证，而这个登录认证需要 cookie 的支持，那我 们就需要在这个 opener 之上搭建一个处理 cookie 的 Handler：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> urllib,urllib2,cookielib</span><br><span class="line"><span class="keyword">from</span> BeautifulSoup <span class="keyword">import</span> BeautifulSoup</span><br><span class="line">myCookie = urllib2.HTTPCookieProcessor(cookielib.CookieJar());</span><br><span class="line">opener = urllib2.build_opener(myCookie)</span><br></pre></td></tr></table></figure>
+<p>首先 import 我们需要的所有模块，然后使用 urllib2 模块的 HTTPCookieProcessor 搭建一个处理 cookie 的 Handler，传入 cookielib 模块的 CookieJar 函数作为参数，这个这个函数处理 HTTP 的 cookie，简单地说，它从 HTTP 请求中 提取 cookie，然后将其返回给 HTTP 响应。然后利用 urllib2 的 build_opener 来建立我们需要的 opener，这个 opener 已经 满足我们处理 cookie 的要求了。</p>
+<p>那么这个 Handler 怎么工作呢，前面说了，它需要捕捉到 HTTP 请求才行，也就是说，我们需要知道，登录人人的时候发了什么数据包出去，牛逼的 人可以使用各种命令行抓包工具如 Tcpdump 一类的，我等小民还是图形化的吧。这里我们借助于 Firefox 的 HttpFox 来实现，可以从<a href="https://addons.mozilla.org/zh-CN/firefox/addon/6647/" target="_blank" rel="noopener">这里</a>添 加这个牛逼的插件。安装好该插件以后，我们用 Firefox 登录人人网，然后输入自己的账号和密码，然后，别急，不要按登录按钮，从状态栏打开 HttpFox 插件，点击 Start 按钮开始抓包，然后点击人人网的登陆，登陆过程完成后点击 HttpFox 的 Stop 停止抓包，如果一切正常的话应该可 以看到如下信息了。</p>
+<p><img src="/assets/images/fetch-webpage-by-python-1.png" alt=""><br><img src="/assets/images/fetch-webpage-by-python-2.png" alt=""></p>
+<p>我们可以看到登陆人人的过程中浏览器向人人的服务器发送 POST 请求数据，有四项，其中两项是你的账号和密码。下面我们就利用代码模拟发出同样的请求就可以啦。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">post_data = &#123;</span><br><span class="line">    <span class="string">'email'</span>:<span class="string">'xxxxx'</span>,</span><br><span class="line">    <span class="string">'password'</span>:<span class="string">'xxxxx'</span>,</span><br><span class="line">    <span class="string">'origURL'</span>:<span class="string">'http://www.renren.com/Home.do'</span>,</span><br><span class="line">    <span class="string">'domain'</span>:<span class="string">'renren.com'</span></span><br><span class="line">&#125;</span><br><span class="line">req = urllib2.Request(<span class="string">'http://www.renren.com/PLogin.do'</span>, urllib.urlencode(post_data))</span><br><span class="line">html_src = openner.open(req).read()</span><br><span class="line">parser = BeautifulSoup(html_src)</span><br></pre></td></tr></table></figure>
+<p>首先，构造一个字典来存储我们刚才抓到的 POST 数据，然后通过 urllib2 的 Request 类来自己构造一个“请求”对象，请求的递交网址就是 上面捕捉的 POST 请求的 URL 部分，后面跟着我们的 POST 数据，注意，这里需要使用 urllib 的 urlencode 方法重新编码，以使其成为合法的 URL 串。下面的过程就跟前面提到的简单抓取过程一样，只不过这里打开的不是简单的网址，而是将网址和 POST 数据封装后的 Request 请求，同样，我 们将源码赋给 BeautifulSoup 以便后面处理。</p>
+<p>现在我们的 parser 里存储的就是含有好友新鲜事的网页源码了，我们怎样提取有用的信息呢？分析网页这种粗活还是交给 Firefox 的 FireBug(<a href="https://addons.mozilla.org/zh-CN/firefox/addon/1843/" target="_blank" rel="noopener">这里下载</a>)来玩吧。登入你的人人网，随意右击一下新鲜事里某个人的状态，选择“查看元素”，就会蹦出如下窗口，显示出你所点击的部分对应的源码：</p>
+<p><img src="/assets/images/fetch-webpage-by-python-3.png" alt=""></p>
+<p>我们可以看到，每个新鲜事对应着 article 标签，我们再仔细看看 article 标签的详细内容：</p>
+<p><img src="/assets/images/fetch-webpage-by-python-4.png" alt=""></p>
+<p>里面的 h3 标签包含了好友的姓名和状态，当然，还有一些肥猪流的表情地址，接触过 HTML 的对这个应该不陌生吧。所以我们要抓的就是这个 h3 啦！</p>
+<h3 id="BeautifulSoup-抓取标签内容"><a href="#BeautifulSoup-抓取标签内容" class="headerlink" title="BeautifulSoup 抓取标签内容"></a>BeautifulSoup 抓取标签内容</h3><p>下面就是我们的 parser 露脸的时候了，BeautifulSoup 提供了很多定位标签的方法，简单的说，主要就是 find 函数和 findAll 函数了，常用的参数就是 name 和 attrs，一个是标签的名字，一个是标签的属性，name 是个字符串，而 attrs 是个字典，比如说<code>find(‘img’,{‘src’:&#39;abc.jpg’})</code>就会返回类似这样的标签：<code>&lt;img src=”abc.jpg”&gt;</code>。而 find 与 findAll 的区别就是，find 只返回第一个满足要求的标签，而 findAll 返回所有符合要求的 标签的列表。获取标签后，还有很多方便的方法获取子标签，例如，通过点操作符，tag.a 可以获取 tag 所代表的标签下的子标签 a，再如 tag.contents 可以获取其所有孩子的列表，更多应用可以查看它的文档。下面就具体到本例来看怎么抓取我们想要的内容。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">article_list = parser.find(<span class="string">'div'</span>,<span class="string">'feed-list'</span>).findAll(<span class="string">'article'</span>)</span><br><span class="line"><span class="keyword">for</span> my_article <span class="keyword">in</span> article_list:</span><br><span class="line">    state = []</span><br><span class="line">    <span class="keyword">for</span> my_tag <span class="keyword">in</span> my_article.h3.contents:</span><br><span class="line">        factor = my_tag.string</span><br><span class="line">        <span class="keyword">if</span> factor != <span class="literal">None</span>:</span><br><span class="line">            factor = factor.replace(<span class="string">u'\xa0'</span>,<span class="string">''</span>)</span><br><span class="line">            factor = factor.strip(<span class="string">u'\r\n'</span>)</span><br><span class="line">            factor = factor.strip(<span class="string">u'\n'</span>)</span><br><span class="line">            state.append(factor)</span><br><span class="line">    <span class="keyword">print</span> <span class="string">' '</span>.join(state)</span><br></pre></td></tr></table></figure>
+<p>这里，我们通过<code>find(‘div’,&#39;feed-list’).findAll(‘article’)</code>获取 class 属性为<code>feed-list</code>的 div 标签，第二个参数直接为一个字符串时代表的就是 CSS 的 class 属性了，然后获取其所有 article 的列表，对照上面的图，这句其 实就是获得了所有新鲜事的列表。然后我们遍历这个列表，对于每个 article 标签再获取其 h3 标签，并提取内容，如果标签中直接含有文本，则可以通过 string 属性获得，最后，我们去掉一些控制字符，如换行一类的。最终将结果打印出来，当然这只能获取一小部分，“更多新鲜事”的功能还不能达到，有兴 趣的继续研究吧，我觉得通过 HttpFox 是不难实现的吧。</p>
+<p><img src="/assets/images/fetch-webpage-by-python-5.png" alt=""></p>
+<h3 id="团购信息聚合小工具"><a href="#团购信息聚合小工具" class="headerlink" title="团购信息聚合小工具"></a>团购信息聚合小工具</h3><p>用同样的知识，我们还可以做一些有趣的应用，像现在很火的团购信息聚合，其实思路还是很容易的，就是分析网站的源代码，提取团购的标题，图片和价格 就好了。这里放出源码文件，有兴趣的可以研究下！用 PyQt 做的界面，按钮的功能还没有实现，只能提取“美团”，“糯米网”，“QQ 团购”三个网站，从下 拉列表框里选择就可显示，图片会保存在本地目录里，来个截图看看吧~</p>
+<p><img src="/assets/images/fetch-webpage-by-python-6.png" alt=""></p>
+<p>打叉的按钮功能没有实现哦~这里是文件下载，一个 pyw 主窗体文件，两外两个 py 文件一个是 UI，一个是 Resource。</p>
+<p><a href="/assets/files/TuanGou.7z">打包下载</a></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Python/" rel="tag"># Python</a>
+              <a href="/tags/BeautifulSoup/" rel="tag"># BeautifulSoup</a>
+              <a href="/tags/urllib/" rel="tag"># urllib</a>
+              <a href="/tags/%E4%BA%BA%E4%BA%BA%E7%BD%91/" rel="tag"># 人人网</a>
+              <a href="/tags/%E5%9B%A2%E8%B4%AD/" rel="tag"># 团购</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2010/11/26/move-your-research-platform-from-matlab-to-python/" rel="prev" title="将你的科学计算从 Matlab 迁移到 Python？">
+      <i class="fa fa-chevron-left"></i> 将你的科学计算从 Matlab 迁移到 Python？
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2010/12/19/today-is-a-blue-rainy-day/" rel="next" title="是下雨让我变得忧郁，还是我的忧郁让外面的雨下不停~">
+      是下雨让我变得忧郁，还是我的忧郁让外面的雨下不停~ <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    
+  
+  <div class="comments">
+  <script src="https://utteranc.es/client.js" repo="PinkyJie/pinkyjie.github.com" issue-term="pathname" theme="github-light" crossorigin="anonymous" async></script>
+  </div>
+  
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#python-抓取网页基础"><span class="nav-number">1.</span> <span class="nav-text">python 抓取网页基础</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#抓取人人网的新鲜事"><span class="nav-number">2.</span> <span class="nav-text">抓取人人网的新鲜事</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#BeautifulSoup-抓取标签内容"><span class="nav-number">3.</span> <span class="nav-text">BeautifulSoup 抓取标签内容</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#团购信息聚合小工具"><span class="nav-number">4.</span> <span class="nav-text">团购信息聚合小工具</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="马斯特"
+      src="/assets/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">马斯特</p>
+  <div class="site-description" itemprop="description">前端 | 溜冰 | Mac</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">55</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">186</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/PinkyJie" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;PinkyJie" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:pinkyjie.gn@gmail.com" title="E-Mail → mailto:pinkyjie.gn@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/PinkyJie" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;PinkyJie" rel="noopener" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://stackoverflow.com/users/689948/pinkyjie" title="StackOverflow → http:&#x2F;&#x2F;stackoverflow.com&#x2F;users&#x2F;689948&#x2F;pinkyjie" rel="noopener" target="_blank"><i class="fa fa-fw fa-stack-overflow"></i>StackOverflow</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">马斯特</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.7.0
+  </div>
+
+        
+
+
+  <div style="display: none;">
+    <script src="//s95.cnzz.com/z_stat.php?id=1253033676&web_id=1253033676"></script>
+  </div>
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  <script>
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install','8k3UxSuRWYkrhVg55bC3','2.0.0');
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

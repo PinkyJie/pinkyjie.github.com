@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="o7yQBnLIoWby8Y5vNMQywBiMtev-ilWjXt89RQpTvVw">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('http://pinkyjie.com').hostname,
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.7.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":"utteranc","storage":true,"lazyload":false,"nav":null,"activeClass":"utteranc"},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="ui-router与Angular自带的ngRoute最大的区别就是它是基于状态（state）的，而不是基于URL的。它带来的最大的便捷性就在于：  支持多个ui-view 支持ui-view的嵌套 支持state的继承（嵌套）  这篇文章就简单谈谈怎么利用ui-router去搭建一个网站的布局以及实现一些便捷的小功能。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基于ui-router的简单布局及其他应用">
+<meta property="og:url" content="http://pinkyjie.com/2015/07/25/simple-layout-based-on-ui-router/index.html">
+<meta property="og:site_name" content="进击的马斯特">
+<meta property="og:description" content="ui-router与Angular自带的ngRoute最大的区别就是它是基于状态（state）的，而不是基于URL的。它带来的最大的便捷性就在于：  支持多个ui-view 支持ui-view的嵌套 支持state的继承（嵌套）  这篇文章就简单谈谈怎么利用ui-router去搭建一个网站的布局以及实现一些便捷的小功能。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://pinkyjie.com/assets/images/simple-layout-based-on-ui-router-1.png">
+<meta property="article:published_time" content="2015-07-25T13:24:44.000Z">
+<meta property="article:modified_time" content="2020-05-01T01:47:54.590Z">
+<meta property="article:author" content="马斯特">
+<meta property="article:tag" content="AngularJS">
+<meta property="article:tag" content="generator-aio-angular">
+<meta property="article:tag" content="ui-router">
+<meta property="article:tag" content="breadcrumb">
+<meta property="article:tag" content="sidebar">
+<meta property="article:tag" content="authentication">
+<meta property="article:tag" content="authorization">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://pinkyjie.com/assets/images/simple-layout-based-on-ui-router-1.png">
+
+<link rel="canonical" href="http://pinkyjie.com/2015/07/25/simple-layout-based-on-ui-router/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>基于ui-router的简单布局及其他应用 | 进击的马斯特</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">进击的马斯特</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">CODING MY LIFE</p>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://pinkyjie.com/2015/07/25/simple-layout-based-on-ui-router/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/assets/images/avatar.jpg">
+      <meta itemprop="name" content="马斯特">
+      <meta itemprop="description" content="前端 | 溜冰 | Mac">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="进击的马斯特">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          基于ui-router的简单布局及其他应用
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2015-07-25 13:24:44" itemprop="dateCreated datePublished" datetime="2015-07-25T13:24:44+00:00">2015-07-25</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-05-01 01:47:54" itemprop="dateModified" datetime="2020-05-01T01:47:54+00:00">2020-05-01</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%89%8D%E7%AB%AF%E5%BC%80%E5%8F%91/" itemprop="url" rel="index">
+                    <span itemprop="name">前端开发</span>
+                  </a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><a href="https://github.com/angular-ui/ui-router" target="_blank" rel="noopener">ui-router</a>与Angular自带的ngRoute最大的区别就是它是基于状态（state）的，而不是基于URL的。它带来的最大的便捷性就在于：</p>
+<ul>
+<li>支持多个ui-view</li>
+<li>支持ui-view的嵌套</li>
+<li>支持state的继承（嵌套）</li>
+</ul>
+<p>这篇文章就简单谈谈怎么利用ui-router去搭建一个网站的布局以及实现一些便捷的小功能。</p>
+<a id="more"></a>
+<h3 id="一个ui-view对应一块区域"><a href="#一个ui-view对应一块区域" class="headerlink" title="一个ui-view对应一块区域"></a>一个ui-view对应一块区域</h3><p>先来看一张网站的模块图：</p>
+<p><img src="/assets/images/simple-layout-based-on-ui-router-1.png" alt="图1"></p>
+<p>可以看到整个页面分为5个模块，有了多ui-view的支持，我们可以非常直观的用一个ui-view来对应一个模块，那么我们的主template（即<code>index.jade</code>，单页面应用通常只有一个index页面）可以这么写（使用<a href="http://jade-lang.com/" target="_blank" rel="noopener">Jade</a>模板引擎）：</p>
+<figure class="highlight plain"><figcaption><span>index.jade</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">.wrapper</span><br><span class="line">    header.header-view(ui-view&#x3D;&quot;header&quot;)</span><br><span class="line">    .content</span><br><span class="line">        .sidebar-view(ui-view&#x3D;&quot;sidebar&quot;)</span><br><span class="line">        .main-content</span><br><span class="line">            .breadcrumb-view(ui-view&#x3D;&quot;breadcrumb&quot;)</span><br><span class="line">            .main-view(ui-view&#x3D;&quot;main&quot;)</span><br><span class="line">    footer.footer-view(ui-view&#x3D;&quot;footer&quot;)</span><br></pre></td></tr></table></figure>
+<p>这样的结构非常清晰，整个页面分为5个模块，不同的模块由不同的controller来处理：</p>
+<figure class="highlight javascript"><figcaption><span>layout.route.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">$stateProvider.state(<span class="string">'root'</span>, &#123;</span><br><span class="line">    abstract: <span class="literal">true</span>,</span><br><span class="line">    url: <span class="string">''</span>,</span><br><span class="line">    views: &#123;</span><br><span class="line">        <span class="string">'header'</span>: &#123;</span><br><span class="line">            templateUrl: <span class="string">'static/layout/header.html'</span>,</span><br><span class="line">            controller: <span class="string">'HeaderController as vm'</span></span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="string">'sidebar'</span>: &#123;</span><br><span class="line">            templateUrl: <span class="string">'static/layout/sidebar.html'</span>,</span><br><span class="line">            controller: <span class="string">'SidebarController as vm'</span></span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="string">'breadcrumb'</span>: &#123;</span><br><span class="line">            templateUrl: <span class="string">'static/layout/breadcrumb.html'</span>,</span><br><span class="line">            controller: <span class="string">'BreadcrumbController as vm'</span></span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="string">'footer'</span>: &#123;</span><br><span class="line">            templateUrl: <span class="string">'static/layout/footer.html'</span>,</span><br><span class="line">            controller: <span class="string">'FooterController as vm'</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>眼尖的同学可能注意到了，root这个state被定义成了抽象。之所以定义成抽象的原因是，我们并不直接使用root这个state（抽象的state不能被直接激活），这个state放在这里纯粹是为了继承用的。说到继承，有3个方面：</p>
+<ul>
+<li>子state可以沿用父state的View模板定义，通常公用的模块在大多数子state中都是不变的，即使用同样的template和controller，这些模块就可以直接定义在父state中。</li>
+<li>子state可以覆盖父state的View模块定义，公用的模块在某些页面可能需要不同的template或controller，这时就需要覆盖定义。</li>
+<li>子state可以添加新的View模块定义，自己独有的模块或非公用的模块需要自己添加。</li>
+</ul>
+<p>回到刚才那个截图上，这个页面是用户登录后的dashboard页面，显然并不是所有的页面都需要显示这5个模块，比如主页可能不需要Sidebar和Breadcrumb模块，未登录之前的其他页面也不需要显示Sidebar模块。那么主页home的state可以按如下代码定义：</p>
+<figure class="highlight javascript"><figcaption><span>home.route.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">$stateProvider.state(<span class="string">'root.home'</span>, &#123;</span><br><span class="line">    url: <span class="string">'/'</span>,</span><br><span class="line">    views: &#123;</span><br><span class="line">        <span class="string">'sidebar@'</span>: &#123;&#125;,</span><br><span class="line">        <span class="string">'breadcrumb@'</span>: &#123;&#125;,</span><br><span class="line">        <span class="string">'main@'</span>: &#123;</span><br><span class="line">            templateUrl: <span class="string">'static/home/home.html'</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>注意state的名字，<code>parent.child</code>这种命名方式可以让ui-router知道state之间的继承关系。上面直接将Sidebar和Breadcrumb的模块赋空值，则这两个模块就不再显示了，而其他的模块如Header和Footer，则可以继承父state的定义，正常的显示。另外，我们在root这个state里没有定义Main的View模块，这是因为每个state的Main模块肯定是不一样的，所以属于非公用的模块，需要每个子state中自己来定义，可以看到上面的home state里自己定义了Main模块。</p>
+<p>还有两点也值得一提，一个是root state的<code>url</code>为空，这是因为子state的url会自动追加在父state的url上，则home这个state的最终url为<code>&#39;&#39; + &#39;/&#39;</code>。另外一个，注意到在子state中定义View时，ui-view的名字后面都加了<code>@</code>符号，这是ui-router约定俗成的写法：<code>viewname@statename</code>，称为“View绝对定位”。这里省略了后面的statename，代表的就是index页面定义的<code>ui-view=&quot;viewname&quot;</code>。当然，有“View绝对定位”，自然就有“View相对定位”，相对定位的方法就是只写一个viewname，此时这个View指的就是父state中指定的template里对应的<code>ui-view=viewname</code>。关于相对和绝对定位，可以看<a href="https://github.com/angular-ui/ui-router/wiki/Multiple-Named-Views#view-names---relative-vs-absolute-names" target="_blank" rel="noopener">官方WIKI中的介绍</a>。</p>
+<p>到这里大致的布局架子就搭起来了，每个页面可以定义一个自己的state继承自root，覆盖或添加新的View模块，同样子state还可以派生出另外的子state，非常灵活，整个布局结构也非常清晰。</p>
+<h3 id="ui-router带来的其他便利"><a href="#ui-router带来的其他便利" class="headerlink" title="ui-router带来的其他便利"></a>ui-router带来的其他便利</h3><p>除了简单的布局，ui-router还支持自定义data，这个data也是可以随state进行继承的。这就给了我们很多畅想，通过把一些配置放在这个data里可以实现很多有意思的应用。下面就简单讲几个<a href="https://github.com/PinkyJie/generator-aio-angular" target="_blank" rel="noopener">generator-aio-angular</a>里的应用场景。</p>
+<h4 id="页面的title和class"><a href="#页面的title和class" class="headerlink" title="页面的title和class"></a>页面的title和class</h4><p>单页面应用必然要解决的一个问题就是页面的title需要跟着不同的state进行变化，这就需要每次进行state切换时页面的标题需要跟着变化。而class的变化是同样的意思，我希望每次state变化时都能在页面的body标签上加一个顶级的class样式，这样同样的一个Header的ui-view，我就可以定义其在home页面和在dashboard页面不同的样式了。通常在index页面中需要这么写：</p>
+<figure class="highlight plain"><figcaption><span>index.jade</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">head</span><br><span class="line">    title(ng-bind&#x3D;&quot;title&quot;)</span><br><span class="line">body(ng-class&#x3D;&quot;_class + &#39;-page&#39;&quot;)</span><br></pre></td></tr></table></figure>
+<p>显然，这两个变量<code>title</code>和<code>_class</code>都需要定义在<code>$rootScope</code>上面，以前我都是在controller里做这个赋值的，但语义上讲它又不太属于controller的职责。有了ui-router的自定义data，可以把这两个变量放在state的config当中了：</p>
+<figure class="highlight javascript"><figcaption><span>home.route.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$stateProvider.state(<span class="string">'root.home'</span>, &#123;</span><br><span class="line">    data: &#123;</span><br><span class="line">        title: <span class="string">'Home'</span>,</span><br><span class="line">        _class: <span class="string">'home'</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>然后，在<code>$stateChangeSuccess</code>的事件响应中统一来将新state中的这两个变量赋值到<code>$rootScope</code>上去：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$rootScope.$on(<span class="string">'$stateChangeSuccess'</span>,</span><br><span class="line">    <span class="function"><span class="keyword">function</span> (<span class="params">event, toState, toParams, fromState, fromParams</span>) </span>&#123;</span><br><span class="line">        $rootScope.title = toState.data.title;</span><br><span class="line">        $rootScope._class = toState.data._class;</span><br><span class="line">    &#125;</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+<p>这样做代码的职责更加明确，集中在一个地方处理title和class的变动，也比分散在不同的controller中更加简洁，更有优势。前面也有说到，data里的变量是可以随state进行继承的，倘若一个子state想和父state的title保持一致，那就不用再次定义了。</p>
+<h4 id="Breadcrumb和Sidebar导航的实现"><a href="#Breadcrumb和Sidebar导航的实现" class="headerlink" title="Breadcrumb和Sidebar导航的实现"></a>Breadcrumb和Sidebar导航的实现</h4><p>说到导航，那肯定是与state有关的，与state有关的东西我们都可以尝试放到state的config定义中去。拿dashboard这个状态的定义来举例：</p>
+<figure class="highlight javascript"><figcaption><span>dashboard.route.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$stateProvider.state(<span class="string">'root.dashboard'</span>, &#123;</span><br><span class="line">    sidebar: &#123;</span><br><span class="line">        icon: <span class="string">'mdi-view-dashboard'</span>,</span><br><span class="line">        text: <span class="string">'Dashboard'</span></span><br><span class="line">    &#125;,</span><br><span class="line">    breadcrumb: <span class="string">'Dashboard'</span></span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>想要什么值就可以放什么值，上面的例子中我们放了要显示的文本和显示的图标样式。还要注意一点，这里我们并没有将这个两项定义在data之中，而是直接定义在config对象里。这是因为data是可继承的，而这两种导航我们显然不希望子状态将其继承过去。</p>
+<p>定义好了之后怎么使用呢？在BreadcrumbController和SidebarController中我们分别来处理这些逻辑。先来看看BreadcrumbController的实现：</p>
+<figure class="highlight javascript"><figcaption><span>breadcrumb.controller.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">init</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    _applyNewBreadcrumb($state.current, $state.params);</span><br><span class="line">    $rootScope.$on(<span class="string">'$stateChangeSuccess'</span>,</span><br><span class="line">        <span class="function"><span class="keyword">function</span> (<span class="params">event, toState, toParams, fromState, fromParams</span>) </span>&#123;</span><br><span class="line">            _applyNewBreadcrumb(toState, toParams);</span><br><span class="line">        &#125;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">_applyNewBreadcrumb</span> (<span class="params">state, params</span>) </span>&#123;</span><br><span class="line">    vm.breadcrumbs = [];</span><br><span class="line">    <span class="keyword">var</span> name = state.name;</span><br><span class="line">    <span class="keyword">var</span> stateNames = _getAncestorStates(name);</span><br><span class="line">    stateNames.forEach(<span class="function"><span class="keyword">function</span> (<span class="params">name</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">var</span> stateConfig = $state.get(name);</span><br><span class="line">        <span class="keyword">var</span> breadcrumb = &#123;</span><br><span class="line">            link: name,</span><br><span class="line">            text: stateConfig.breadcrumb</span><br><span class="line">        &#125;;</span><br><span class="line">        <span class="keyword">if</span> (params) &#123;</span><br><span class="line">            breadcrumb.link = name + <span class="string">'('</span> + <span class="built_in">JSON</span>.stringify(params) + <span class="string">')'</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        vm.breadcrumbs.push(breadcrumb);</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">_getAncestorStates</span> (<span class="params">stateName</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> ancestors = [];</span><br><span class="line">    <span class="keyword">var</span> pieces = stateName.split(<span class="string">'.'</span>);</span><br><span class="line">    <span class="keyword">if</span> (pieces.length &gt; <span class="number">1</span>) &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">1</span>; i &lt; pieces.length; i++) &#123;</span><br><span class="line">            <span class="keyword">var</span> name = pieces.slice(<span class="number">0</span>, i + <span class="number">1</span>);</span><br><span class="line">            ancestors.push(name.join(<span class="string">'.'</span>));</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> ancestors;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们需要在两个地方处理面包屑导航，一个是面包屑这块区域第一次初始化的时候，需要应用当前的state，另外当每次state发生变化时还需要应用最新的state。主要的逻辑都放在<code>_applyNewBreadcrumb</code>这个函数中实现，它先拿到自己的所有父state，然后从包括自身在内的所有state的config定义中提取信息，组装成breadcrumb对象最终应用于模板上。同样，SidebarController的实现与之类似，不同的是Sidebar只需要在第一次初始化时应用state即可：</p>
+<figure class="highlight javascript"><figcaption><span>sidebar.controller.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">init</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="comment">// generate sidebar nav menus</span></span><br><span class="line">    vm.navs = _getNavMenus();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">_getNavMenus</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> navs = [];</span><br><span class="line">    <span class="keyword">var</span> allStates = routerHelper.getStates();</span><br><span class="line">    allStates.forEach(<span class="function"><span class="keyword">function</span> (<span class="params">state</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (state.sidebar) &#123;</span><br><span class="line">            <span class="keyword">var</span> nav = state.sidebar;</span><br><span class="line">            nav.link = state.name;</span><br><span class="line">            navs.push(nav);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">    <span class="keyword">return</span> navs;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到，初始化时利用<code>routerHelper.getStates()</code>（即<code>$state.get()</code>）来拿到所有的state，然后将所有定义了sidebar的state应用于模板上。</p>
+<p>有了这些自定义的数据，导航的实现是不是非常的简洁呢？</p>
+<h4 id="简单的authentication和authorization"><a href="#简单的authentication和authorization" class="headerlink" title="简单的authentication和authorization"></a>简单的authentication和authorization</h4><p>传统的登录验证（authentication）和权限管理（authorization）都是通过route的resolve来实现的，有了ui-router，它们的实现还可以更简洁。直接来看一个例子，dashboard页面必须要登录以后才可以访问，那么它的state可以这样定义：</p>
+<figure class="highlight javascript"><figcaption><span>dashboard.route.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">routerHelper.configureStates(getStates());</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">getStates</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> [</span><br><span class="line">        &#123;</span><br><span class="line">            state: <span class="string">'root.dashboard'</span>,</span><br><span class="line">            config: &#123;</span><br><span class="line">                data: &#123;</span><br><span class="line">                    requireLogin: <span class="literal">true</span></span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    ];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们看到，直接在data里定义了一个自定义的属性<code>requireLogin</code>即可，是不是既简单又非常具有可读性。显然，ui-router自己并不知道这个requireLogin的属性应该怎么处理，所以这里我们并没有直接调用<code>$stateProvider.state()</code>来定义state，而是封装了一个自己的<code>configureStates</code>函数（参考了<a href="https://github.com/johnpapa/generator-hottowel" target="_blank" rel="noopener">John Papa的实现</a>）。在这个函数中我们来处理requireLogin属性：</p>
+<figure class="highlight javascript"><figcaption><span>route-helper.provider.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">configureStates</span> (<span class="params">states</span>) </span>&#123;</span><br><span class="line">    states.forEach(<span class="function"><span class="keyword">function</span> (<span class="params">state</span>) </span>&#123;</span><br><span class="line">        <span class="comment">// add login check if requireLogin is true</span></span><br><span class="line">        <span class="keyword">var</span> data = state.config.data;</span><br><span class="line">        <span class="keyword">if</span> (data &amp;&amp; data.requireLogin === <span class="literal">true</span>) &#123;</span><br><span class="line">            state.config.resolve = angular.extend(</span><br><span class="line">                state.config.resolve || &#123;&#125;,</span><br><span class="line">                &#123;<span class="string">'loginResolve'</span>: resolve.login&#125;</span><br><span class="line">            );</span><br><span class="line">        &#125;</span><br><span class="line">        state.config.resolve =</span><br><span class="line">            angular.extend(state.config.resolve || &#123;&#125;, config.resolveAlways);</span><br><span class="line">        $stateProvider.state(state.state, state.config);</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在这个函数中，我们先判断，如果一个state定义了requireLogin属性，则给它添加一个loginResolve检查它是否已经正常登录了。另外，有了这个自定义的函数，我们还可以为所有state添加统一的resolve（11、12行）。route-helper.provider.js的完整实现可以参见<a href="https://github.com/PinkyJie/generator-aio-angular/blob/master/app/templates/client/source/app/helper/router-helper.provider.js" target="_blank" rel="noopener">generator-aio-angular项目</a>，<a href="https://github.com/PinkyJie/generator-aio-angular/blob/master/app/templates/client/source/app/core/resolve.service.js" target="_blank" rel="noopener">loginResolve的实现</a>也在里面哟。</p>
+<p>同样，依葫芦画瓢，授权同样可以通过添加类似<code>onlyAllowed: &#39;admin&#39;</code>等类似的定义来实现。这里就不多谈了，值得一提的是resolve本身就是可以被子state继承的，这也是非常符合逻辑的，如果父state需要权限，那么子state也必然需要。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>可以看到，ui-router不仅让整个布局结构更加清晰，更加易于理解，还带来了很多其他有意思的便捷特性。它让我们把跟页面路由相关的配置都统一在一个地方管理，使整个程序更加的模块化。还在用老ngRoute的同学不妨一试，根本停不下来啊！</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/AngularJS/" rel="tag"># AngularJS</a>
+              <a href="/tags/generator-aio-angular/" rel="tag"># generator-aio-angular</a>
+              <a href="/tags/ui-router/" rel="tag"># ui-router</a>
+              <a href="/tags/breadcrumb/" rel="tag"># breadcrumb</a>
+              <a href="/tags/sidebar/" rel="tag"># sidebar</a>
+              <a href="/tags/authentication/" rel="tag"># authentication</a>
+              <a href="/tags/authorization/" rel="tag"># authorization</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2015/07/20/promise-actually-i-really-do-not-know-you/" rel="prev" title="Promise，其实我真的不懂你">
+      <i class="fa fa-chevron-left"></i> Promise，其实我真的不懂你
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2015/08/02/commonly-used-gulp-plugins-part-1/" rel="next" title="常用gulp插件介绍(一)">
+      常用gulp插件介绍(一) <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    
+  
+  <div class="comments">
+  <script src="https://utteranc.es/client.js" repo="PinkyJie/pinkyjie.github.com" issue-term="pathname" theme="github-light" crossorigin="anonymous" async></script>
+  </div>
+  
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#一个ui-view对应一块区域"><span class="nav-number">1.</span> <span class="nav-text">一个ui-view对应一块区域</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ui-router带来的其他便利"><span class="nav-number">2.</span> <span class="nav-text">ui-router带来的其他便利</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#页面的title和class"><span class="nav-number">2.1.</span> <span class="nav-text">页面的title和class</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Breadcrumb和Sidebar导航的实现"><span class="nav-number">2.2.</span> <span class="nav-text">Breadcrumb和Sidebar导航的实现</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#简单的authentication和authorization"><span class="nav-number">2.3.</span> <span class="nav-text">简单的authentication和authorization</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="马斯特"
+      src="/assets/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">马斯特</p>
+  <div class="site-description" itemprop="description">前端 | 溜冰 | Mac</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">55</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">186</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/PinkyJie" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;PinkyJie" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:pinkyjie.gn@gmail.com" title="E-Mail → mailto:pinkyjie.gn@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/PinkyJie" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;PinkyJie" rel="noopener" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://stackoverflow.com/users/689948/pinkyjie" title="StackOverflow → http:&#x2F;&#x2F;stackoverflow.com&#x2F;users&#x2F;689948&#x2F;pinkyjie" rel="noopener" target="_blank"><i class="fa fa-fw fa-stack-overflow"></i>StackOverflow</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">马斯特</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.7.0
+  </div>
+
+        
+
+
+  <div style="display: none;">
+    <script src="//s95.cnzz.com/z_stat.php?id=1253033676&web_id=1253033676"></script>
+  </div>
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  <script>
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install','8k3UxSuRWYkrhVg55bC3','2.0.0');
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

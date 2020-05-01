@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="o7yQBnLIoWby8Y5vNMQywBiMtev-ilWjXt89RQpTvVw">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('http://pinkyjie.com').hostname,
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.7.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":"utteranc","storage":true,"lazyload":false,"nav":null,"activeClass":"utteranc"},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="自打去年参加了 JSConf 后一直断断续续看了很多 React 的资料，不得不承认 React 确实在很多方面给人耳目一新的感觉，尤其是组件化的思想给我留下了很深的印象。JSX 的语法虽然一开始很难让人接受，但 React 将函数式编程的思维用在组件化上，确实值得借鉴。作为一个 Angular 死忠粉，自然很想把这种好的思维方式也用在 Angular 上了，于是就有了angular1-webpa">
+<meta property="og:type" content="article">
+<meta property="og:title" content="用 Angular 1.x 做组件式开发">
+<meta property="og:url" content="http://pinkyjie.com/2016/01/31/component-based-development-with-angular-1x/index.html">
+<meta property="og:site_name" content="进击的马斯特">
+<meta property="og:description" content="自打去年参加了 JSConf 后一直断断续续看了很多 React 的资料，不得不承认 React 确实在很多方面给人耳目一新的感觉，尤其是组件化的思想给我留下了很深的印象。JSX 的语法虽然一开始很难让人接受，但 React 将函数式编程的思维用在组件化上，确实值得借鉴。作为一个 Angular 死忠粉，自然很想把这种好的思维方式也用在 Angular 上了，于是就有了angular1-webpa">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://pinkyjie.com/assets/images/component-based-development-with-angular-1x-1.PNG">
+<meta property="article:published_time" content="2016-01-31T15:51:58.000Z">
+<meta property="article:modified_time" content="2020-05-01T01:47:54.590Z">
+<meta property="article:author" content="马斯特">
+<meta property="article:tag" content="AngularJS">
+<meta property="article:tag" content="ES6">
+<meta property="article:tag" content="angular1-webpack-starter">
+<meta property="article:tag" content="组件式开发">
+<meta property="article:tag" content="Webpack">
+<meta property="article:tag" content="directive">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://pinkyjie.com/assets/images/component-based-development-with-angular-1x-1.PNG">
+
+<link rel="canonical" href="http://pinkyjie.com/2016/01/31/component-based-development-with-angular-1x/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>用 Angular 1.x 做组件式开发 | 进击的马斯特</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">进击的马斯特</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">CODING MY LIFE</p>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://pinkyjie.com/2016/01/31/component-based-development-with-angular-1x/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/assets/images/avatar.jpg">
+      <meta itemprop="name" content="马斯特">
+      <meta itemprop="description" content="前端 | 溜冰 | Mac">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="进击的马斯特">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          用 Angular 1.x 做组件式开发
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2016-01-31 15:51:58" itemprop="dateCreated datePublished" datetime="2016-01-31T15:51:58+00:00">2016-01-31</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-05-01 01:47:54" itemprop="dateModified" datetime="2020-05-01T01:47:54+00:00">2020-05-01</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%89%8D%E7%AB%AF%E5%BC%80%E5%8F%91/" itemprop="url" rel="index">
+                    <span itemprop="name">前端开发</span>
+                  </a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>自打去年参加了 JSConf 后一直断断续续看了很多 React 的资料，不得不承认 React 确实在很多方面给人耳目一新的感觉，尤其是组件化的思想给我留下了很深的印象。JSX 的语法虽然一开始很难让人接受，但 React 将函数式编程的思维用在组件化上，确实值得借鉴。作为一个 Angular 死忠粉，自然很想把这种好的思维方式也用在 Angular 上了，于是就有了<a href="https://github.com/PinkyJie/angular1-webpack-starter" target="_blank" rel="noopener">angular1-webpack-starter</a>这个项目。这篇文章就来记录下用 Angular 来做纯组件式开发的一些尝试吧。</p>
+<a id="more"></a>
+<h3 id="文件夹结构"><a href="#文件夹结构" class="headerlink" title="文件夹结构"></a>文件夹结构</h3><p>文件夹结构怎么安排是每次新开一个项目必定要纠结的问题，社区在这个问题也有过很多思考，比如最初的按照文件类型划分，到后来按照 feature 来划分。</p>
+<figure class="highlight bash"><figcaption><span>按文件类型区分文件夹</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">app/</span><br><span class="line">-- controllers/</span><br><span class="line">---- homeController.js</span><br><span class="line">---- loginController.js</span><br><span class="line">-- services/</span><br><span class="line">---- userService.js</span><br><span class="line">-- directives/</span><br><span class="line">---- inputDirective.js</span><br><span class="line">-- other/</span><br><span class="line">---- xxx.js</span><br><span class="line">-- app.js</span><br><span class="line">-- routes.js</span><br><span class="line">images/</span><br><span class="line">-- xxx.png</span><br><span class="line">-- ...</span><br><span class="line">styles/</span><br><span class="line">-- xxx.css</span><br><span class="line">-- ...</span><br><span class="line">views/</span><br><span class="line">-- index.html</span><br><span class="line">-- ...</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><figcaption><span>按feature区分文件夹</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">app/</span><br><span class="line">-- core/</span><br><span class="line">---- userService.js</span><br><span class="line">---- inputDirective.js</span><br><span class="line">-- home/</span><br><span class="line">---- homeController.js</span><br><span class="line">---- homeRoute.js</span><br><span class="line">---- home.html</span><br><span class="line">---- home.css</span><br><span class="line">-- login/</span><br><span class="line">---- loginController.js</span><br><span class="line">---- loginRoute.js</span><br><span class="line">---- login.html</span><br><span class="line">---- login.css</span><br><span class="line">-- app.js</span><br><span class="line">assets/</span><br><span class="line">---- images/</span><br></pre></td></tr></table></figure>
+<p>为什么文件夹结构让人如此纠结？一个好的文件夹结构可以迅速让开发者明白项目的整体结构！更重要的是，在实际开发的过程中，好的文件夹结构可以迅速的让开发者将实际页面与页面对应的源文件对应起来，这可以极大的提高开发效率。从这个评判标准出发，我们可以发现最初的“按文件类型区分”显得稍显粗暴。项目小还好，一旦项目大起来，很难快速的找到与某个页面对应的相应源文件。并且，一个页面是由 JS、CSS、HTML 共同组成的，那么我要改一个页面，就需要从 3 个文件夹里找，稍显低效。一旦项目大了，参加项目的人一多，文件命名一乱，找起文件来非常繁琐。为了解决这个痛点，社区又提出了第二种方法：按 feature 来区分，将属于同一 feature（一般是一个页面或一组页面）的 JS、CSS、HTML 放在一起，将公用的文件放在单独的文件夹里。这样一来，结构分明，而且找起文件来也相对轻松。所以，目前这种文件夹结构及类似的衍生成为社区的主流。但这种结构是否真的适合组件式开发呢？通常一个 feature（页面）是由多个组件组成的，显然组件的粒度要比 feature 细的多。一种直接的想法就是我们将 feature 层级直接替换成组件，按组件区分文件夹，但这样一来，页面与组件的关系又很难从文件夹结构中反映出来。所以，我们需要这样一种新的文件夹组织方式：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">app/</span><br><span class="line">-- components/</span><br><span class="line">---- _core/</span><br><span class="line">---- _layout/</span><br><span class="line">---- home-hero/</span><br><span class="line">---- login-form/</span><br><span class="line">-- pages/</span><br><span class="line">---- home/</span><br><span class="line">---- login/</span><br><span class="line">index.html</span><br><span class="line">index.js</span><br></pre></td></tr></table></figure>
+<p>整个结构分为 pages 和 components，一目了然，属于一个组件的资源放在一起，而页面只是将这些组件“组合”起来。这个新的组织方式可以说就是为组件化而生，开发者一看就知道是怎么回事。关于这种文件夹结构的详细解释，可以参看<a href="https://github.com/fouber/blog/issues/10" target="_blank" rel="noopener">这篇文章</a>。</p>
+<h3 id="用函数式思维实现组件"><a href="#用函数式思维实现组件" class="headerlink" title="用函数式思维实现组件"></a>用函数式思维实现组件</h3><p>有了文件夹结构，剩下的就是如何实现组件和页面了。React 的一大思想就是将函数式编程的思维引入到组件开发上来：<code>UI = f(states)</code> 一个组件就是一个函数。函数有三个要素：输入参数，实现逻辑和返回值。对应到组件上来说，这三要素就变成：</p>
+<ul>
+<li>输入参数<code>states</code> =&gt; 将组件渲染到页面上需要的数据，使用这个组件（模仿函数的概念可以称之为“调用者”）需要将数据源传入组件。</li>
+<li>实现逻辑<code>f()</code> =&gt; 组件内部的交互逻辑。</li>
+<li>返回值<code>UI</code> =&gt; 组件渲染后的页面。</li>
+</ul>
+<p>具体到 Angular 框架上来讲，组件有其对应的概念——<code>directive</code>，那么我们就来看看这三个要素要怎么应用到 directive 上来。我们来思考一个具体的例子，比如我们有一个<code>phone-form</code>的表单组件，它允许用户查看、编辑、新增一款手机的型号、品牌、价格、系统等参数，如下图所示。</p>
+<p><img src="/assets/images/component-based-development-with-angular-1x-1.PNG" alt="图1"></p>
+<p>为了让一个组件具备这三种功能，那么它的输入参数需要点什么呢？</p>
+<ul>
+<li><code>state</code>变量，指明当前表单处于什么状态：查看、编辑还是新增。</li>
+<li><code>phone</code>变量，充当传入的 model，在查看和编辑状态下需传入当前的 phone，新增状态下传空。</li>
+<li><code>cancel()</code>函数和<code>submit()</code>函数，作为组件本身它不知道这两个 button 需要干什么，需要外部调用者来告诉组件。</li>
+</ul>
+<p>关于参数的传入，directive 上又有很多讲究了。首先，为了让我们的 directive 尽可能的通用和可重用，必须使用独立的 scope（<a href="https://docs.angularjs.org/guide/directive#isolating-the-scope-of-a-directive" target="_blank" rel="noopener">isolate scope</a>），也就是定义 directive 的时候使用<code>scope: {}</code>配置。独立 scope 可以让 directive 的 scope 脱离当前的父 scope（这里称为父 scope 并不是说独立 scope 派生自它，而是说 DOM 树关系），防止不小心对父 scope 的数据进行更改。确立了使用独立 scope，我们还需要思考使用哪种绑定方式来传值。Angular 提供了<code>=</code>、<code>@</code>、<code>&amp;</code>三种方式，关于三者的区别可以参见 StackOverflow 上的<a href="http://stackoverflow.com/questions/14050195/angularjs-what-is-the-difference-between-and-in-directive-scope" target="_blank" rel="noopener">这个回答</a>，这里简单解释一下：</p>
+<ul>
+<li><code>=</code>: 双向绑定，建立起父 scope 和 directive 独立 scope 的双向联系，如果 directive 中需要更改传入的变量，并且这个更改要传回父 scope，则使用这种绑定。</li>
+<li><code>@</code>: 字符串绑定，它是将父 scope 的字符串传入独立 scope，比如<code>aaa=&quot;bbb&quot;</code>则传入 bbb 这个字面字符串，`aaa={{bbb}}`则传入 bbb 变量在父 scope 上的值，总之它的结果是字符串。很多地方将其解释为单向绑定是不对的，因为它只能绑定字符串。</li>
+<li><code>&amp;</code>: 表达式绑定，简单来说就是将传入的表达式在父 scope 上执行，一般用于传入函数表达式，它将一个函数绑定在独立 scope 上。也可以将<code>&amp;</code>用于单向绑定，如<code>aaa=bbb</code>则会将一个<code>aaa()</code>函数绑定在独立 scope 上，它的返回值是父 scope 上的 bbb 属性值（相当于一个 getter 函数），但 aaa()函数返回的仅仅是初始化 directive 时计算得到的 bbb 的值，后续父 scope 对 bbb 的更改不会反应到独立 scope 上。</li>
+</ul>
+<p>具体到我们的例子上，<code>state</code>变量只是告诉当前组件应处于<code>view/edit/new</code>三种状态中的哪一种，完全可以使用<code>@</code>绑定。而<code>phone</code>变量仅需要将 phone 从父 scope 传入 directive 的 scope，directive 里对 phone 的更改不需要传回父 scope，所以是单向绑定，可以使用<code>&amp;</code>。最后，两个函数自然是使用<code>&amp;</code>绑定了。从“输入参数”这个层面上来看，一旦要“调用”某个组件，你就必须负责提供这个组件需要的各种数据，这些数据有些可能必须通过异步请求才能拿到。所以在将组件组合成页面时，这些数据一般由页面的 controller 准备好然后传递给组件。</p>
+<p>说完了“输入参数”，来说说后两项。“实现逻辑”自然是放在 directive 的 controller 里实现了（用于 UI 组件时建议不要使用 link 函数，使用 controller 在语义上更好），看似没啥可说的，但其实这一块也有很多讲究。函数式编程中一个重要的概念就是“纯函数”（<a href="https://en.wikipedia.org/wiki/Pure_function" target="_blank" rel="noopener">pure function</a>）。简单的说，就是纯函数不会产生很多副作用，比如说它不能更改传入的参数本身，它不能依赖一些全局变量，不能有异步的 HTTP 请求或 DB 请求。举个例子，JS 中操作数组的<code>slice</code>和<code>splice</code>，前者就是个纯函数，而后者不是，因为它会改变调用者本身。那么把这种理念用在组件开发上，就要求组件在自己的 controller 实现逻辑中，要注意一下几点：</p>
+<ol>
+<li>即便采用<code>=</code>绑定了也不能直接修改传入的值，否则就会影响父 scope 的值，函数不纯了，或者干脆永远不要使用<code>=</code>绑定。</li>
+<li>不能有异步的 HTTP 调用，意味着组件不能调用 service 进行 HTTP 请求。</li>
+<li>想要改变数据，只能 fire 事件。</li>
+</ol>
+<p>所以，组件里如果需要改变 model 的值就需要 fire 一个 change 事件，service 里响应事件后更新 model，然后 fire 一个 update 事件，父 scope 响应这个事件，再更新自己的 model。这也正是<a href="https://facebook.github.io/flux/" target="_blank" rel="noopener">Flux 架构</a>提出的原因，没有了副作用，整个程序的状态改变就变得可控，出现问题后也比较好追溯。当然，它也确实增加了编写程序的复杂度，是否需要全盘应用它还是视具体的项目而定了。</p>
+<p>最后，“返回值”这项就不用说了，直接在 HTML 里“调用”这个组件即可，组件就可以渲染到最终的页面上去了。</p>
+<blockquote>
+<p>（整个组件的具体实现可以<a href="https://github.com/PinkyJie/angular1-webpack-starter/tree/master/source/app/components/phone-form" target="_blank" rel="noopener">参见 Github</a>，值得一提的是，实际项目中<code>phone-form</code>组件上 phone 的绑定并没有使用<code>&amp;</code>，而是使用了<code>=</code>，因为父 scope 中的 phone 是异步 service 得到的，初始化 directive 时得到的 phone 是空值。）</p>
+</blockquote>
+<h3 id="将组件“组合”成页面"><a href="#将组件“组合”成页面" class="headerlink" title="将组件“组合”成页面"></a>将组件“组合”成页面</h3><p>采用上述的文件夹结构后，一个很自然的想法是：我们可以模拟 node 的 commonJS 模块那样，每个 component 文件夹有一个<code>index.js</code>来将这个组件的各个资源粘合在一起（需配合 Webpack），然后将 component 这个模块暴露出去。来看看上面的<code>phone-form</code>这个组件的<code>index.js</code>的实现（采用 ES6）：</p>
+<figure class="highlight javascript"><figcaption><span>index.js for phone-form component</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> angular <span class="keyword">from</span> <span class="string">"angular"</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> PhoneFormController <span class="keyword">from</span> <span class="string">"./phone-form.controller"</span>;</span><br><span class="line"><span class="keyword">import</span> PhoneFromDirective <span class="keyword">from</span> <span class="string">"./phone-form.directive"</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> phoneForm = angular</span><br><span class="line">  .module(<span class="string">"app.components.phoneForm"</span>, [])</span><br><span class="line">  .controller(PhoneFormController.name, PhoneFormController)</span><br><span class="line">  .directive(<span class="string">`aioPhoneForm`</span>, PhoneFromDirective);</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> phoneForm;</span><br></pre></td></tr></table></figure>
+<p>那么在 phone-detail 页面我们需要“调用”这个 component 时怎么写呢？同样，每个 page 文件夹里也有一个<code>index.js</code>来将这个页面需要的各个组件引用进来，然后将这个页面暴露出去给整个程序的入口<code>index.js</code>来引用。来看看<code>phone-detail</code>这个页面的<code>index.js</code>的实现（采用 ES6）：</p>
+<figure class="highlight javascript"><figcaption><span>index.js for phone-detail component</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> angular <span class="keyword">from</span> <span class="string">"angular"</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> PhoneDetailController <span class="keyword">from</span> <span class="string">"./detail/phone-detail.controller"</span>;</span><br><span class="line"><span class="keyword">import</span> phoneForm <span class="keyword">from</span> <span class="string">"../../components/phone-form"</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> angular</span><br><span class="line">  .module(<span class="string">"app.pages.phone-detail"</span>, [phoneForm.name])</span><br><span class="line">  .controller(PhoneDetailController.name, PhoneDetailController);</span><br></pre></td></tr></table></figure>
+<p>可以看到，页面只需要将组件所在的 Angular module 声明为依赖就可以了。这样在页面的 HTML 中就可以直接使用这个组件了：</p>
+
+
+<figure class="highlight plain"><figcaption><span>phone-detai.jade</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">.phone-detail-view.full-width</span><br><span class="line">    .card</span><br><span class="line">        .card-header.p2</span><br><span class="line">            h5.title &#123;&#123;::vm.phone.model&#125;&#125;</span><br><span class="line">            button.btn-floating.blue(ng-show&#x3D;&quot;vm.state &#x3D;&#x3D;&#x3D; &#39;view&#39;&quot;, ng-click&#x3D;&quot;vm.beginEdit()&quot;)</span><br><span class="line">                i.mdi-image-edit</span><br><span class="line">        .card-content</span><br><span class="line">            aio-phone-form(</span><br><span class="line">                phone&#x3D;&quot;vm.phone&quot;,</span><br><span class="line">                state&#x3D;&quot;&#123;&#123;vm.state&#125;&#125;&quot;,</span><br><span class="line">                submit&#x3D;&quot;vm.updatePhone(phone)&quot;,</span><br><span class="line">                cancel&#x3D;&quot;vm.cancelUpdate()&quot;</span><br><span class="line">            )</span><br></pre></td></tr></table></figure>
+
+
+<p>注意上面在传递<code>submit</code>的时候，参数<code>phone</code>有些奇怪，它没有挂在<code>vm</code>下，说明它不是父 scope 上的变量，那这个传递进去的 phone 是什么呢？要解决这个疑问，我们就要来分析分析组件间的通信了。</p>
+<h3 id="组件间通信"><a href="#组件间通信" class="headerlink" title="组件间通信"></a>组件间通信</h3><p>说到组件间通信，我们可以简单的分为：</p>
+<ul>
+<li>外部向组件内传递数据（父 scope =&gt; directive）</li>
+<li>组件向外部传递数据（directive =&gt; 父 scope）</li>
+<li>组件与组件间传递数据（directive A &lt;=&gt; directive B）</li>
+</ul>
+<p>显然，我们还是可以像 Angular 中不同 controller 间的通信方法一样，使用 service 作为中间层来交换数据，或者使用事件来传递，这两种方法在此不再赘述。我们来看看其他两种方式。</p>
+<h4 id="通过属性传参（即前面提到的“输入参数”）"><a href="#通过属性传参（即前面提到的“输入参数”）" class="headerlink" title="通过属性传参（即前面提到的“输入参数”）"></a>通过属性传参（即前面提到的“输入参数”）</h4><p>前面有讲到，父 scope 给 directive 的独立 scope 传参时有三种绑定方式，采用<code>=</code>绑定时可以在父 scope 和独立 scope 之间建立双向通信，<code>@</code>只是单向的向 directive 中传递字符串。<code>&amp;</code>就比较有意思了，一方面，前面讲过，它可以实现单向绑定，将一个 getter 函数绑定在 directive 的独立 scope 上，这相当于将父 scope 的变量单向传递给独立 scope。另一方面，它允许 directive 调用外部定义好的函数，通过这个函数我们其实可以<strong>将 directive 的独立 scope 里的变量传递给父 scope</strong>。我们回到上部分最后提到的问题，使用<code>submit=&quot;vm.updatePhone(phone)&quot;</code>传入函数时，这里的 phone 其实并不是父 scope 的变量（其实也没必要显式的传入父 scope 的变量，因为这个函数定义在父 scope 上，里面你是可以任意访问父 scope 的变量和其他函数的），它只是一个<strong>形参</strong>，而这个形参的具体值可以由 directive 中调用时来填充。有了这个形参，我们就可以在 directive 的 controller 中将独立 scope 上的变量传递给父 scope 的函数调用。但注意在 directive 中的 controller 调用 submit 方法时，也需要采取特殊的语法：<code>this.submit({phone: phoneData})</code>，我们需要传入一个 object，key 就是形参名，value 就是我们要传入的真正值。通过这么两种<code>&amp;</code>的不同用法我们可以看到，<code>&amp;</code>是可以用来建立双向通信的，下面这个小 demo 能帮助你更好的理解这种双向通信：</p>
+<p><a class="jsbin-embed" href="http://jsbin.com/xucexi/embed?html,js,console" target="_blank" rel="noopener">JS Bin on jsbin.com</a><script src="http://static.jsbin.com/js/embed.min.js?3.35.9"></script></p>
+<p>上面的代码中，属性<code>getVar</code>和<code>func</code>采用的都是<code>&amp;</code>绑定，属性<code>getVar</code>将一个 getter 函数绑定到 directive 上，directive 通过这个函数获得从父 scope 单向传递过来的变量，而属性<code>func</code>将另一个函数绑定到 directive 上，directive 通过这个函数将自己的变量传递出去。</p>
+<h4 id="通过-directive-的require配置"><a href="#通过-directive-的require配置" class="headerlink" title="通过 directive 的require配置"></a>通过 directive 的<code>require</code>配置</h4><p><code>require</code>配置相信大家都见到过，一般在使用 directive 进行自定义表单校验时，肯定会接触到<code>require: &#39;ngModel&#39;</code>：在带有<code>ng-modal</code>属性的 input 标签上定义 directiveA，并且在在 directiveA 的配置中加上<code>require: &#39;ngModal&#39;</code>，那么在 directiveA 的 link 函数中就可以获得第 4 个参数，这个参数通常命名为<code>ngModelController</code>，也就是定义在<code>ng-model</code>这个框架自带的 directive 上的 controller 函数。这表明，通过<code>require</code>配置可以在 directiveA 的 link 函数中访问到另一个 directiveB 的 controller 函数，也就是说 directiveA 的实现依赖 directiveB，这对于实现类似 Tab 这种 container 的 UI 组件非常有用。另外，require 还支持很多前缀，可以指定要依赖的 controller 的搜索路径，可以参考<a href="https://demisx.github.io/angularjs/directives/2014/11/25/angular-directive-require-property-options.html" target="_blank" rel="noopener">这篇文章</a>。值得注意的是，一旦使用<code>require</code>，directiveA 的定义只能使用 link 函数，directiveB 只能使用 controller 函数，相当于 directiveB 通过 controller 函数将自己的 API 暴露出去了。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>可以看到，Angular 作为一个不是那么 opinionated 的框架，写法有很多，我们完全可以把 React 倡导的一些概念给融合进来取长补短。最后再安利一下<a href="https://github.com/PinkyJie/angular1-webpack-starter" target="_blank" rel="noopener">angular1-webpack-starter</a>这个项目，后面应该还会围绕这个项目的实践写一些其他文章吧。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/AngularJS/" rel="tag"># AngularJS</a>
+              <a href="/tags/ES6/" rel="tag"># ES6</a>
+              <a href="/tags/angular1-webpack-starter/" rel="tag"># angular1-webpack-starter</a>
+              <a href="/tags/%E7%BB%84%E4%BB%B6%E5%BC%8F%E5%BC%80%E5%8F%91/" rel="tag"># 组件式开发</a>
+              <a href="/tags/Webpack/" rel="tag"># Webpack</a>
+              <a href="/tags/directive/" rel="tag"># directive</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2015/08/26/thoughts-from-jsconf-2015-in-shenzhen/" rel="prev" title="JSConf2015（ShenJS）深圳之行有感">
+      <i class="fa fa-chevron-left"></i> JSConf2015（ShenJS）深圳之行有感
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2016/02/11/angular-1-x-with-es6/" rel="next" title="ES6与Angular 1.x">
+      ES6与Angular 1.x <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    
+  
+  <div class="comments">
+  <script src="https://utteranc.es/client.js" repo="PinkyJie/pinkyjie.github.com" issue-term="pathname" theme="github-light" crossorigin="anonymous" async></script>
+  </div>
+  
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#文件夹结构"><span class="nav-number">1.</span> <span class="nav-text">文件夹结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#用函数式思维实现组件"><span class="nav-number">2.</span> <span class="nav-text">用函数式思维实现组件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#将组件“组合”成页面"><span class="nav-number">3.</span> <span class="nav-text">将组件“组合”成页面</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#组件间通信"><span class="nav-number">4.</span> <span class="nav-text">组件间通信</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#通过属性传参（即前面提到的“输入参数”）"><span class="nav-number">4.1.</span> <span class="nav-text">通过属性传参（即前面提到的“输入参数”）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#通过-directive-的require配置"><span class="nav-number">4.2.</span> <span class="nav-text">通过 directive 的require配置</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="马斯特"
+      src="/assets/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">马斯特</p>
+  <div class="site-description" itemprop="description">前端 | 溜冰 | Mac</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">55</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">186</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/PinkyJie" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;PinkyJie" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:pinkyjie.gn@gmail.com" title="E-Mail → mailto:pinkyjie.gn@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/PinkyJie" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;PinkyJie" rel="noopener" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://stackoverflow.com/users/689948/pinkyjie" title="StackOverflow → http:&#x2F;&#x2F;stackoverflow.com&#x2F;users&#x2F;689948&#x2F;pinkyjie" rel="noopener" target="_blank"><i class="fa fa-fw fa-stack-overflow"></i>StackOverflow</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">马斯特</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.7.0
+  </div>
+
+        
+
+
+  <div style="display: none;">
+    <script src="//s95.cnzz.com/z_stat.php?id=1253033676&web_id=1253033676"></script>
+  </div>
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  <script>
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install','8k3UxSuRWYkrhVg55bC3','2.0.0');
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

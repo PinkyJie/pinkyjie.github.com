@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="o7yQBnLIoWby8Y5vNMQywBiMtev-ilWjXt89RQpTvVw">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('http://pinkyjie.com').hostname,
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.7.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":"utteranc","storage":true,"lazyload":false,"nav":null,"activeClass":"utteranc"},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="第一次关注Yeoman这玩意大概是在去年七月份的时候吧，那个时候偶然发现了Google的AngularJS，然后顺便发现了Yeoman。看Logo第一感觉很像是Jenkins，一个仆人的样子，当时也就只当是一个快速生成网站原型的工具，没细细研究过。直到最近又在很多文章中看到它的身影，决定小试一把。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Yeoman初体验">
+<meta property="og:url" content="http://pinkyjie.com/2013/11/24/first-look-at-yeoman/index.html">
+<meta property="og:site_name" content="进击的马斯特">
+<meta property="og:description" content="第一次关注Yeoman这玩意大概是在去年七月份的时候吧，那个时候偶然发现了Google的AngularJS，然后顺便发现了Yeoman。看Logo第一感觉很像是Jenkins，一个仆人的样子，当时也就只当是一个快速生成网站原型的工具，没细细研究过。直到最近又在很多文章中看到它的身影，决定小试一把。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2013-11-24T13:20:00.000Z">
+<meta property="article:modified_time" content="2020-05-01T01:47:54.590Z">
+<meta property="article:author" content="马斯特">
+<meta property="article:tag" content="AngularJS">
+<meta property="article:tag" content="Yeoman">
+<meta property="article:tag" content="BackboneJS">
+<meta property="article:tag" content="Bower">
+<meta property="article:tag" content="Grunt">
+<meta property="article:tag" content="RequireJS">
+<meta property="article:tag" content="Addy Osmani">
+<meta property="article:tag" content="前端自动化">
+<meta property="article:tag" content="Javascript">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://pinkyjie.com/2013/11/24/first-look-at-yeoman/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>Yeoman初体验 | 进击的马斯特</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">进击的马斯特</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">CODING MY LIFE</p>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://pinkyjie.com/2013/11/24/first-look-at-yeoman/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/assets/images/avatar.jpg">
+      <meta itemprop="name" content="马斯特">
+      <meta itemprop="description" content="前端 | 溜冰 | Mac">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="进击的马斯特">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Yeoman初体验
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2013-11-24 13:20:00" itemprop="dateCreated datePublished" datetime="2013-11-24T13:20:00+00:00">2013-11-24</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-05-01 01:47:54" itemprop="dateModified" datetime="2020-05-01T01:47:54+00:00">2020-05-01</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%89%8D%E7%AB%AF%E5%BC%80%E5%8F%91/" itemprop="url" rel="index">
+                    <span itemprop="name">前端开发</span>
+                  </a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>第一次关注<a href="http://yeoman.io/" target="_blank" rel="noopener">Yeoman</a>这玩意大概是在去年七月份的时候吧，那个时候偶然发现了Google的<a href="http://angularjs.org/" target="_blank" rel="noopener">AngularJS</a>，然后顺便发现了Yeoman。看Logo第一感觉很像是Jenkins，一个仆人的样子，当时也就只当是一个快速生成网站原型的工具，没细细研究过。直到最近又在很多文章中看到它的身影，决定小试一把。</p>
+<a id="more"></a>
+<h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><p>Yeoman的安装基于npm，所以需要先安装好Node.js，另外如果需要使用Sass来写CSS的话，需要安装Ruby和Compass工具，这个不细说了，很简单的。完事以后在命令行运行<code>npm install -g yo</code>即可，如果用Linux的话记得<code>sudo</code>啊。如果一切顺利，Yeoman的3个工具：<code>yo</code>，<code>bower</code>和<code>grunt</code>就安装好了。当然这步也可能会报错，比如我自己在windows上就遇到<code>Error: No compatible version found: yo</code>的报错。出现这个问题请检查你的Node.js的版本，如我的是<code>v0.6.15</code>，太老了，升级到最新版<code>v0.10.22</code>再重新执行安装命令即可。安装成功后我们先来看看这3个工具吧：</p>
+<ul>
+<li>yo：主要负责一些scaffolding的工作，配合各种框架的generator快速生成一个web app所需的各种基础文件。顺便吐槽一句，scaffolding这个词翻译成脚手架我实在不明所以。</li>
+<li><a href="http://bower.io/" target="_blank" rel="noopener">bower</a>：Twitter出品，类似于npm，用于前端各种第三方库的包管理工具。</li>
+<li><a href="http://gruntjs.com/" target="_blank" rel="noopener">grunt</a>：大名鼎鼎的前端自动化工具，可以把它理解成make命令，简单的配置即可自动帮你完成诸如连接js，编译coffeescript，编译scss，跑测试啊等繁琐的工具。</li>
+</ul>
+<p>Yeoman就是利用这三个工具来为我们服务的。第一次在命令行运行<code>yo</code>命令会看到一张Yeoman的“吉祥物”形象，然后是：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[?] What would you like to <span class="keyword">do</span>? (Use arrow keys)</span><br><span class="line">  --------</span><br><span class="line">&gt; Install a generator</span><br><span class="line">  Find some <span class="built_in">help</span></span><br><span class="line">  Get me out of here!</span><br></pre></td></tr></table></figure>
+<p>从这里我们就要开始适应Yeoman这种问答的服务方式，每次你运行一些命令，它就会给出一些选项让你选择。我们看到第一项就是安装generator。下面就以Backbone的项目为例来看看如何利用Yeoman来快速生成框架吧。</p>
+<h3 id="Backbone的generator"><a href="#Backbone的generator" class="headerlink" title="Backbone的generator"></a>Backbone的generator</h3><p>以往我们要写开始一个Backbone的Web工程，免不了先下载jQuery，Backbone，Underscore，然后CSS上下载个Bootstrap一类的，如果要用模块化的写法的话还要下载RequireJS，然后写RequireJS的初始配置等等等等，非常繁琐。我想牛人应该都有自己的一套脚本去生成这些基本框架吧，作为非牛人的我们有了Yeoman，全交给它就行了。首先，安装Yeoman为Backbone适配的generator：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install -g generator-backbone</span><br></pre></td></tr></table></figure>
+<p>然后新建一个项目文件夹，使用Yeoman初始化项目。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mkdir yeoman-backbone-project</span><br><span class="line">yo backbone</span><br></pre></td></tr></table></figure>
+<p>问答式服务又来了，Yeoman会询问你：是否包含Bootstrap for Sass和CoffeeScript，如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">     _-----_</span><br><span class="line">    |       |</span><br><span class="line">    |--(o)--|   .--------------------------.</span><br><span class="line">   `---------´  |    Welcome to Yeoman,    |</span><br><span class="line">    ( _´U`_ )   |   ladies and gentlemen!  |</span><br><span class="line">    /___A___\   <span class="string">'__________________________'</span></span><br><span class="line">     |  ~  |</span><br><span class="line">   __<span class="string">'.___.'</span>__</span><br><span class="line"> ´   `  |° ´ Y `</span><br><span class="line"></span><br><span class="line">Out of the box I include HTML5 Boilerplate, jQuery, Backbone.js and Modernizr.</span><br><span class="line">[?] What more would you like?</span><br><span class="line">&gt;[X] Twitter Bootstrap <span class="keyword">for</span> Sass</span><br><span class="line"> [ ] Use CoffeeScript</span><br></pre></td></tr></table></figure>
+<p>非常可爱的Yeoman吉祥物，使用空格键来选定或取消选项前面的x，这里我选择使用Twitter Bootstrap for Sass，不使用CoffeeScript。选定后回车，然后问你是否包含RequireJS，我选择包含。这时Yeoman会自动帮你搭好工程的架构，包括文件夹结构和一些必须的文件，然后会自动执行<code>bower install &amp;&amp; npm install</code>，前者安装各种前端依赖，如前面说的jQuery、Bootstrap、Backbone、Underscore、RequireJS等等，后者安装Grunt需要的一些依赖包，用于完成各种自动化任务。这里可能会比较慢，并且可能出现问题，如果报错，你可以直接手动执行<code>bower install</code>和<code>npm install</code>。其实<code>bower install</code>会查找当前目录下的<code>bower.json</code>文件，安装里面生命的各种依赖，而<code>npm install</code>会查找当前目录下的<code>package.json</code>安装里面的各种依赖，做过Node开发的应该不会陌生吧。<code>bower install</code>通常不会出什么问题，问题都出在<code>npm install</code>里面，如果有些依赖没安装成功，先删除工程目录下的的<code>node_modules</code>文件夹，然后重新执行<code>npm install</code>。比如我在Windows上碰到了如下问题：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">pre-build <span class="built_in">test</span> failed, compiling from <span class="built_in">source</span>...</span><br><span class="line">building is not supported on win32</span><br></pre></td></tr></table></figure>
+<p>这是在安装<code>grunt-contrib-imagemin</code>这个依赖的时候报的错，经过一番搜索，是因为这个<code>imagemin</code>又依赖<code>jpegtran-bin</code>，这个项目的0.2.0以上的版本在Windows上的build有问题导致的，Github上面有很多讨论，见<a href="https://github.com/yeoman/node-jpegtran-bin/issues/37" target="_blank" rel="noopener">1</a>，<a href="https://github.com/gruntjs/grunt-contrib-imagemin/issues/108" target="_blank" rel="noopener">2</a>，<a href="https://github.com/gruntjs/grunt-contrib-imagemin/issues/109" target="_blank" rel="noopener">3</a>，网上有很多解决方案，比如进入工程目录下的<code>node_modules/grunt-contrib-imagemin/</code>，修改<code>package.json</code>将其对<code>jpegtran-bin</code>的依赖版本修改为<code>0.2.0</code>，但经过尝试，我发现最简单的方式就是直接修改工程目录下的<code>package.json</code>，将<code>grunt-contrib-iamgemin</code>的版本修改为<code>0.2.0</code>，即去掉这一行<code>&quot;grunt-contrib-imagemin&quot;: &quot;~0.2.0&quot;,</code>中的<code>~</code>号即可。修改好后，按前面你说的，删除<code>node_modules</code>文件夹，重新执行<code>npm install</code>这次应该成功了吧！目前好像官方已经修复了这个问题，如果一切正常就不用管了。</p>
+<p>在开始Code之前，我们先来看看Yeoman帮我们干了些什么。除了刚才提到的用来管理前端依赖的<code>bower.json</code>，用来管理Grunt依赖的<code>package.json</code>，以及用来配置Grunt任务的<code>Gruntfile.js</code>，我们还发现主要的文件夹有<code>app</code>，<code>test</code>，<code>node_modules</code>，后两个就不用说了，一个存放测试的文件，一个用来存放Grunt的依赖。主要的项目文件都放在app目录下了，打开看看，熟悉的images、scripts、styles文件夹和idnex.html，这个不必多说，除此之外还有一个<code>bower_components</code>文件夹，这里面就是我们的前端依赖文件了，里面各种文件夹：jquery，backbone啊等等，都安装在这里了。由于我们主要使用Backbone+RequireJS，我们重点关注scripts文件夹。打开里面的<code>main.js</code>，可以发现里面已经为我们生成好了RequireJS的初始配置：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">require</span>.config(&#123;</span><br><span class="line">    shim: &#123;</span><br><span class="line">        underscore: &#123;</span><br><span class="line">            exports: <span class="string">'_'</span></span><br><span class="line">        &#125;,</span><br><span class="line">        backbone: &#123;</span><br><span class="line">            deps: [</span><br><span class="line">                <span class="string">'underscore'</span>,</span><br><span class="line">                <span class="string">'jquery'</span></span><br><span class="line">            ],</span><br><span class="line">            exports: <span class="string">'Backbone'</span></span><br><span class="line">        &#125;,</span><br><span class="line">        bootstrap: &#123;</span><br><span class="line">            deps: [<span class="string">'jquery'</span>],</span><br><span class="line">            exports: <span class="string">'jquery'</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    paths: &#123;</span><br><span class="line">        jquery: <span class="string">'../bower_components/jquery/jquery'</span>,</span><br><span class="line">        backbone: <span class="string">'../bower_components/backbone/backbone'</span>,</span><br><span class="line">        underscore: <span class="string">'../bower_components/underscore/underscore'</span>,</span><br><span class="line">        bootstrap: <span class="string">'vendor/bootstrap'</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="built_in">require</span>([</span><br><span class="line">    <span class="string">'backbone'</span></span><br><span class="line">], <span class="function"><span class="keyword">function</span> (<span class="params">Backbone</span>) </span>&#123;</span><br><span class="line">    Backbone.history.start();</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>是不是很方便啊！！！现在我们的项目已经是可运行状态了！</p>
+<h3 id="Grunt与LiveReload"><a href="#Grunt与LiveReload" class="headerlink" title="Grunt与LiveReload"></a>Grunt与LiveReload</h3><p>让我们先来看看Yeoman为我们初始化的工程什么样子吧。运行<code>grunt server</code>命令将启动一个简单的server来跑我们的工程，可以看到，grunt执行了各种任务，而这些任务都是可以在<code>Gruntfile.js</code>配置的，可以看这一行<code>grunt.registerTask(&#39;server&#39;, function (target) {</code>，运行<code>grunt server</code>执行的操作都可以在这个函数里配置。如果一切正常，会调用Chrome浏览器打开你的项目，在开启server的同时，更令人激动的是还开启了一个LiveReload的服务器，只要你在编辑器里修改源文件并保存，Chrome会自动加载改变，这对于调试是非常有用的。如果你没有装Compass可能会报错，安装一下即可。</p>
+<h3 id="使用Yeoman生成Model-View-Collection"><a href="#使用Yeoman生成Model-View-Collection" class="headerlink" title="使用Yeoman生成Model/View/Collection"></a>使用Yeoman生成Model/View/Collection</h3><p>Backbone的generator还提供了很多有用的功能，可以帮你生成指定的Model/View/Collection，这个有点类似Ruby On Rails。以有名的<a href="http://todomvc.com/" target="_blank" rel="noopener">TodoMVC</a>项目为例，我们要生成一个Todo的Model，一个Todos的Collection，以及相应的View，可以使用如下命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">yo backbone:model Todo</span><br><span class="line">yo backbone:colleciton Todos</span><br><span class="line">yo backbone:view Todo</span><br><span class="line">yo backbone:view Todos</span><br></pre></td></tr></table></figure>
+<p>Yeoman会在相应的model/collection/view文件夹下生成相应的js文件，并写好框架给你填空，如<code>app\scripts\models\Todo.js</code>：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">define([</span><br><span class="line">    <span class="string">'underscore'</span>,</span><br><span class="line">    <span class="string">'backbone'</span></span><br><span class="line">], <span class="function"><span class="keyword">function</span> (<span class="params">_, Backbone</span>) </span>&#123;</span><br><span class="line"><span class="meta">    'use strict'</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> TodoModel = Backbone.Model.extend(&#123;</span><br><span class="line">        defaults: &#123;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> TodoModel;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>另外，生成View还会帮你自动生成模板，如<code>app/scripts/templates/Todo.ejs</code>文件，并在相应的View文件Todo.js配置好：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> TodoView = Backbone.View.extend(&#123;</span><br><span class="line">    template: JST[<span class="string">'app/scripts/templates/Todo.ejs'</span>]</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>除此之外，我们知道TodoMVC里面是将LocalStorage作为存储的，那还需要安装Backbone的LocalStorage适配器，这不还是要自己下载相应的js吗？NO,NO,NO! 这次该Bower出场了。</p>
+<h3 id="利用Bower自动管理和安装依赖"><a href="#利用Bower自动管理和安装依赖" class="headerlink" title="利用Bower自动管理和安装依赖"></a>利用Bower自动管理和安装依赖</h3><p>Bower的使用和npm很像，利用<code>bower search backbone.localstorage</code>来搜索有没有这个库，答案是肯定的！然后运行</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bower install backbone.localstorage --save</span><br></pre></td></tr></table></figure>
+<p>则指定的库会自动下载到刚才的<code>bower_components</code>文件夹中，后面的参数<code>--save</code>则是将这个依赖自动添加到<code>bower.json</code>中，方便下次自动安装，因为<code>bower_components</code>文件夹一般是不在代码库中的。这里我认为Yeoman应该自动将这个新的依赖添加到<code>main.js</code>中的RequireJS配置中去，但是它没有这么做，还是需要手动来操作，这一点有点令我失望。找到<code>main.js</code>，在<code>shim</code>块中添加</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">backboneLocalstorage: &#123;</span><br><span class="line">    deps: [<span class="string">'backbone'</span>],</span><br><span class="line">    exports: <span class="string">'Store'</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在<code>path</code>块中添加：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">backboneLocalstorage: <span class="string">'../bower_components/backbone.localStorage/backbone.localStorage'</span>,</span><br></pre></td></tr></table></figure>
+<p>大功告成，在需要LocalStorage的地方引用即可。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>Yeoman的初体验就到这里了，经过体验，基本上3个小工具的作用和基本功能都已经有所了解。如果你想继续Code一个完整的Todo应用，参考<a href="https://github.com/tastejs/todomvc/tree/gh-pages/dependency-examples/backbone_require" target="_blank" rel="noopener">TodoMVC的官方Github</a>。当然，除了Backbone，Yeoman还支持目前各种主流的框架，如Google自家的AngularJS，Ember等等，如果都没法满足需要，也可以参考<a href="http://yeoman.io/generators.html" target="_blank" rel="noopener">官方文档</a>自己编写generator。总之，Yeoman是一个不可多得的开发工具，可以极大的提高效率，大家不妨来试试吧！</p>
+<p>P.S. 在接触Yeoman的过程中我发现了<a href="https://github.com/addyosmani" target="_blank" rel="noopener">大神Addy Osmani</a>，他不仅是Google Chrome的开发人员，而且参与多个开源项目，如Yeoman、TodoMVC等等，他还出了两本书，一本关于<a href="http://addyosmani.com/resources/essentialjsdesignpatterns/book/" target="_blank" rel="noopener">Javascript设计模式</a>，一本关于<a href="http://addyosmani.github.io/backbone-fundamentals/" target="_blank" rel="noopener">Backbone</a>，值得一读，前面那本在OSChina上有<a href="http://www.oschina.net/translate/learning-javascript-design-patterns" target="_blank" rel="noopener">中译本</a>，后面那本我刚买了，准备好好拜读。另外，我在Speckerdeck上看到了一份大神的<a href="https://speakerdeck.com/addyosmani/automating-front-end-workflow" target="_blank" rel="noopener">关于前端自动化的PPT</a>，其中介绍了包括Yeoman在内的各种工具以及很多非常实用的Sublime插件，相信看了以后会让你打开眼界，吐血推荐！</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/AngularJS/" rel="tag"># AngularJS</a>
+              <a href="/tags/Yeoman/" rel="tag"># Yeoman</a>
+              <a href="/tags/BackboneJS/" rel="tag"># BackboneJS</a>
+              <a href="/tags/Bower/" rel="tag"># Bower</a>
+              <a href="/tags/Grunt/" rel="tag"># Grunt</a>
+              <a href="/tags/RequireJS/" rel="tag"># RequireJS</a>
+              <a href="/tags/Addy-Osmani/" rel="tag"># Addy Osmani</a>
+              <a href="/tags/%E5%89%8D%E7%AB%AF%E8%87%AA%E5%8A%A8%E5%8C%96/" rel="tag"># 前端自动化</a>
+              <a href="/tags/Javascript/" rel="tag"># Javascript</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2013/10/24/migrate-from-wordpress-to-jekyll/" rel="prev" title="从 Wordpress 迁移到 Jekyll">
+      <i class="fa fa-chevron-left"></i> 从 Wordpress 迁移到 Jekyll
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2013/11/30/understand-backbone-extend/" rel="next" title="理解Backbone中extend的实现">
+      理解Backbone中extend的实现 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    
+  
+  <div class="comments">
+  <script src="https://utteranc.es/client.js" repo="PinkyJie/pinkyjie.github.com" issue-term="pathname" theme="github-light" crossorigin="anonymous" async></script>
+  </div>
+  
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#安装"><span class="nav-number">1.</span> <span class="nav-text">安装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Backbone的generator"><span class="nav-number">2.</span> <span class="nav-text">Backbone的generator</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Grunt与LiveReload"><span class="nav-number">3.</span> <span class="nav-text">Grunt与LiveReload</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用Yeoman生成Model-View-Collection"><span class="nav-number">4.</span> <span class="nav-text">使用Yeoman生成Model&#x2F;View&#x2F;Collection</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#利用Bower自动管理和安装依赖"><span class="nav-number">5.</span> <span class="nav-text">利用Bower自动管理和安装依赖</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-number">6.</span> <span class="nav-text">总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="马斯特"
+      src="/assets/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">马斯特</p>
+  <div class="site-description" itemprop="description">前端 | 溜冰 | Mac</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">55</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">186</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/PinkyJie" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;PinkyJie" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:pinkyjie.gn@gmail.com" title="E-Mail → mailto:pinkyjie.gn@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/PinkyJie" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;PinkyJie" rel="noopener" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://stackoverflow.com/users/689948/pinkyjie" title="StackOverflow → http:&#x2F;&#x2F;stackoverflow.com&#x2F;users&#x2F;689948&#x2F;pinkyjie" rel="noopener" target="_blank"><i class="fa fa-fw fa-stack-overflow"></i>StackOverflow</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">马斯特</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.7.0
+  </div>
+
+        
+
+
+  <div style="display: none;">
+    <script src="//s95.cnzz.com/z_stat.php?id=1253033676&web_id=1253033676"></script>
+  </div>
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  <script>
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install','8k3UxSuRWYkrhVg55bC3','2.0.0');
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

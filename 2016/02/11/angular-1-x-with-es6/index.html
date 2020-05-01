@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="o7yQBnLIoWby8Y5vNMQywBiMtev-ilWjXt89RQpTvVw">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('http://pinkyjie.com').hostname,
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.7.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":"utteranc","storage":true,"lazyload":false,"nav":null,"activeClass":"utteranc"},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="ES6出来也很长时间了，把ES6应用在Angular 1.x的文章也不少，有了class这个语法糖Angular里的很多东西都可以写的比较规范了，但很多文章非要把Angular里的所有概念都写成class，这我就觉得没啥必要了。这篇文章就谈谈我自己在ES6和Angular 1.x上的一些实践。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ES6与Angular 1.x">
+<meta property="og:url" content="http://pinkyjie.com/2016/02/11/angular-1-x-with-es6/index.html">
+<meta property="og:site_name" content="进击的马斯特">
+<meta property="og:description" content="ES6出来也很长时间了，把ES6应用在Angular 1.x的文章也不少，有了class这个语法糖Angular里的很多东西都可以写的比较规范了，但很多文章非要把Angular里的所有概念都写成class，这我就觉得没啥必要了。这篇文章就谈谈我自己在ES6和Angular 1.x上的一些实践。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2016-02-11T21:17:20.000Z">
+<meta property="article:modified_time" content="2020-05-01T01:47:54.590Z">
+<meta property="article:author" content="马斯特">
+<meta property="article:tag" content="AngularJS">
+<meta property="article:tag" content="ES6">
+<meta property="article:tag" content="ESLint">
+<meta property="article:tag" content="angular1-webpack-starter">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://pinkyjie.com/2016/02/11/angular-1-x-with-es6/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>ES6与Angular 1.x | 进击的马斯特</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">进击的马斯特</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">CODING MY LIFE</p>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://pinkyjie.com/2016/02/11/angular-1-x-with-es6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/assets/images/avatar.jpg">
+      <meta itemprop="name" content="马斯特">
+      <meta itemprop="description" content="前端 | 溜冰 | Mac">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="进击的马斯特">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          ES6与Angular 1.x
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2016-02-11 21:17:20" itemprop="dateCreated datePublished" datetime="2016-02-11T21:17:20+00:00">2016-02-11</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-05-01 01:47:54" itemprop="dateModified" datetime="2020-05-01T01:47:54+00:00">2020-05-01</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%89%8D%E7%AB%AF%E5%BC%80%E5%8F%91/" itemprop="url" rel="index">
+                    <span itemprop="name">前端开发</span>
+                  </a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>ES6出来也很长时间了，把ES6应用在Angular 1.x的文章也不少，有了<code>class</code>这个语法糖Angular里的很多东西都可以写的比较规范了，但很多文章非要把Angular里的所有概念都写成class，这我就觉得没啥必要了。这篇文章就谈谈我自己在ES6和Angular 1.x上的一些实践。</p>
+<a id="more"></a>
+<h3 id="Angular中的那些概念放在ES6中怎么写"><a href="#Angular中的那些概念放在ES6中怎么写" class="headerlink" title="Angular中的那些概念放在ES6中怎么写"></a>Angular中的那些概念放在ES6中怎么写</h3><h4 id="controller"><a href="#controller" class="headerlink" title="controller"></a>controller</h4><p>controller的作用是把一些变量和函数绑定在<code>$scope</code>上，但controllerAs的出现，改变了controller对<code>$scope</code>的强依赖（除非需要绑定事件），使得变量和函数可以绑定在<code>this</code>上了（如果对controllerAs不熟悉的可以看<a href="2015/02/09/controller-as-vs-scope/">这篇文章</a>），这使得我们可以轻易的将controller写成class。一个controller肯定少不了依赖其他的service，在ES6中这些依赖自然是通过controller的构造函数传进来了。来看一个简单的例子（完整实现看<a href="https://github.com/PinkyJie/angular1-webpack-starter/blob/master/source/app/components/login-form/login-form.controller.js" target="_blank" rel="noopener">这里</a>）：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">LoginFormController</span> </span>&#123;</span><br><span class="line">    <span class="keyword">constructor</span> (UserAPI, $state) &#123;</span><br><span class="line">        <span class="keyword">this</span>.UserAPI = UserAPI;</span><br><span class="line">        <span class="keyword">this</span>.$state = $state;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    login (credential) &#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">this</span>.loginForm.$invalid) &#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">this</span>.UserAPI.login(credential.email, credential.password)</span><br><span class="line">            .then(<span class="function"><span class="params">()</span> =&gt;</span> &#123;...&#125;)</span><br><span class="line">            .catch(<span class="function"><span class="params">()</span> =&gt;</span> &#123;...&#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到controller的构造函数首先要做的就是把这些service依赖全部挂在<code>this</code>上（line 3-4 ），这样一来，在别的函数中才能够使用这些service（line 11）。另外，ES6中的箭头函数也可以让我们写起匿名函数来更加的方便，不用每次都敲function这个关键字了（line 12-13）。从上面看，controller的定义就是一个普通的class，与Angular框架本身分开了，需要这个controller时直接调用<code>.controller(LoginFormController.name, LoginFormController)</code>即可。这给单元测试带来了非常大的方便，不用再去费劲mock一堆Angular自身的东西，只要单独的去测这个class即可。</p>
+<p>另外还有一个问题也值得一说：代码压缩后参数改名导致依赖注入失效的情况。尽管有很多插件可以在build的时候自动做这个事，但我还是比较喜欢自己手写的。ES5中常用这样的写法：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">.controller(<span class="string">'LoginFormController'</span>, [<span class="string">'UserAPI'</span>, <span class="string">'$state'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">UserAPI, $state</span>) </span>&#123;&#125;])</span><br></pre></td></tr></table></figure>
+<p>这种称为“inline array annotation”的写法将controller的定义与实现绑在一起，直接套用在class定义上显得不太合适。我们需要将controller的依赖直接反映在controller的class定义上，这就需要<code>$inject</code>出马了。看下面这个例子：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">LoginFormController.$inject = [<span class="string">'UserAPI'</span>, <span class="string">'$state'</span>];</span><br></pre></td></tr></table></figure>
+<p>我们可以直接把这句话写在class定义的下面，一目了然。关于<code>$inject</code>，可以看<a href="https://docs.angularjs.org/guide/di#-inject-property-annotation" target="_blank" rel="noopener">官方文档</a>里的讲解。</p>
+<h4 id="service-factory"><a href="#service-factory" class="headerlink" title="service/factory"></a>service/factory</h4><p>service就是天生的class，在ES5中我们也是直接把它作为构造函数来进行类比的。service的写法与上面的controller是类似的，看这个例子（完整实现看<a href="https://github.com/PinkyJie/angular1-webpack-starter/blob/master/source/app/pages/phone/phone.service.js" target="_blank" rel="noopener">这里</a>）：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">PhoneService</span> </span>&#123;</span><br><span class="line">    <span class="keyword">constructor</span> ($http, $q, AjaxError) &#123;</span><br><span class="line">        <span class="keyword">this</span>.$http = $http;</span><br><span class="line">        <span class="keyword">this</span>.$q = $q;</span><br><span class="line">        <span class="keyword">this</span>.AjaxError = AjaxError;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    getPhones () &#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    getPhoneDetail (id) &#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    addNewPhone (phone) &#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    updatePhone (id, phone) &#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    removePhone (id) &#123;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">PhoneService.$inject = [<span class="string">'$http'</span>, <span class="string">'$q'</span>, <span class="string">'AjaxErrorHandler'</span>];</span><br></pre></td></tr></table></figure>
+<p>和controller的套路是完全一致的。说完了service来说说factory，我们知道factory和service的区别就是它的定义需要返回一个对象。如果拿构造函数来类比service的话，那么factory就是一个需要返回一个普通对象的函数，也就是说，在真正实例化的时候，内部是类似这样的实现：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> a = factoryA();</span><br><span class="line"><span class="keyword">var</span> b = <span class="keyword">new</span> serviceB()</span><br></pre></td></tr></table></figure>
+<p>从这个意义上来讲，factory它本质上就不是一个类，虽然有很多文章用一些根本不直观的方法在ES6中把factory封装成class，我认为是根本没必要的。更进一步讲，我认为没必要使用factory，我没有觉得哪个场景是必须使用factory而不能使用service的，两者在除了定义时的方式不同，使用起来没有任何的区别。所以我个人的建议是在ES6中统统使用service。</p>
+<h4 id="provider"><a href="#provider" class="headerlink" title="provider"></a>provider</h4><p>provider与service的区别是，它有一个<code>$get()</code>函数，这个函数会返回一个service的实例（即<code>new serviceB()</code>过后的实例）。除此之外，它还提供一些函数用来配置这个返回的service。显然，它也是一个class，一个必须带有<code>$get()</code>方法的class。我们来看一个provider的例子（完整实现看<a href="https://github.com/PinkyJie/angular1-webpack-starter/blob/master/source/app/components/_common/services/router-helper.provider.js" target="_blank" rel="noopener">这里</a>）：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">RouterHelperProvider</span> </span>&#123;</span><br><span class="line">    <span class="keyword">constructor</span> ($locationProvider, $stateProvider, $urlRouterProvider) &#123;</span><br><span class="line">        <span class="keyword">this</span>.$locationProvider = $locationProvider;</span><br><span class="line">        <span class="keyword">this</span>.$stateProvider = $stateProvider;</span><br><span class="line">        <span class="keyword">this</span>.$urlRouterProvider = $urlRouterProvider;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">this</span>.config = &#123;</span><br><span class="line">            mainTitle: <span class="string">''</span>,</span><br><span class="line">            resolveAlways: &#123;&#125;</span><br><span class="line">        &#125;;</span><br><span class="line">        <span class="keyword">this</span>.$locationProvider.html5Mode(<span class="literal">true</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    configure (cfg) &#123;</span><br><span class="line">        angular.extend(<span class="keyword">this</span>.config, cfg);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    $<span class="keyword">get</span> ($rootScope, $state, Logger, Resolve) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> RouterHelper(</span><br><span class="line">            <span class="keyword">this</span>.config, <span class="keyword">this</span>.$stateProvider, <span class="keyword">this</span>.$urlRouterProvider,</span><br><span class="line">            $rootScope, $state, Logger, Resolve);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">RouterHelperProvider.prototype.$<span class="keyword">get</span>.$inject = [</span><br><span class="line">    '$rootScope', '$state', 'Logger', 'Resolve'</span><br><span class="line">];</span><br><span class="line"></span><br><span class="line">RouterHelperProvider.$inject = ['$locationProvider', '$stateProvider', '$urlRouterProvider'];</span><br></pre></td></tr></table></figure>
+<p>这时一个典型的provider的实现：</p>
+<ul>
+<li>它依赖其他三个provider，通过构造函数传入。</li>
+<li>它内部有一个<code>config</code>对象用来存储一些配置。</li>
+<li>它有一个<code>configure()</code>函数暴露给外面，这样在app的config阶段可以传入object进行配置。</li>
+<li>它有一个<code>$get()</code>函数，这个函数返回一个实例，这个实例是由另一个称为<code>RouterHelper</code>的class定义好的，并且在初始化这个实例的时候，将自己的config对象传入，这样config对象就可以应用在实例化后的结果上了。</li>
+</ul>
+<p>同样我们要使用<code>$inject</code>来处理依赖注入的问题，但这里有一点不一样的地方，对于<code>$get()</code>函数我们也要处理依赖注入，因为真正返回的service实例的依赖是通过这里传入的，而不是通过<code>RouterHelper</code>这个class定义时候注入的，所以在第25行我们需要使用<code>prototype.$get</code>去拿到这个函数，然后定义上面的<code>$inject</code>属性。然后在定义<code>RouterHelper</code>这个class时我们不需要进行依赖注入，因为它的构造函数里的参数都是<code>$get()</code>函数里传给它的。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">RouterHelper</span> </span>&#123;</span><br><span class="line">    <span class="keyword">constructor</span> (config, $stateProvider, $urlRouterProvider,</span><br><span class="line">        $rootScope, $state, Logger, Resolve) &#123;</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>进一步，这个class根本没必要暴露给外面，因为Angular框架到时调用的是provider里的<code>$get()</code>来生成这个实例的，而不是直接调用这个class，我们只需要将provider的定义暴露给外面即可，最终在定义这个provider时只需要调用<code>.provider(&#39;RouterHelper&#39;, RouterHelperProvider)</code>。这样一句，我们便同时拥有了<code>RouterHelperProvider</code>这个provider和<code>RouterHelper</code>这个service，两者分别在config阶段和run阶段进行注入，这是由Angular框架自己来保证的。</p>
+<h4 id="directive"><a href="#directive" class="headerlink" title="directive"></a>directive</h4><p>directive是返回一个键值对配置的函数，显然，它也不是一个class，同样没必要花心思把它封装成class。来看一个例子（完整实现看<a href="https://github.com/PinkyJie/angular1-webpack-starter/blob/master/source/app/components/phone-form/phone-form.directive.js" target="_blank" rel="noopener">这里</a>）：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> PhoneFormController <span class="keyword">from</span> <span class="string">'./phone-form.controller'</span>;</span><br><span class="line"><span class="keyword">import</span> phoneFormHtml <span class="keyword">from</span> <span class="string">'./phone-form.jade'</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">PhoneFormDirective</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">        restrict: <span class="string">'AE'</span>,</span><br><span class="line">        scope: &#123;&#125;,</span><br><span class="line">        controller: PhoneFormController.name,</span><br><span class="line">        controllerAs: <span class="string">'form'</span>,</span><br><span class="line">        bindToController: &#123;</span><br><span class="line">            phone: <span class="string">'='</span>,</span><br><span class="line">            state: <span class="string">'@'</span>,</span><br><span class="line">            submit: <span class="string">'&amp;'</span>,</span><br><span class="line">            cancel: <span class="string">'&amp;'</span></span><br><span class="line">        &#125;,</span><br><span class="line">        template: phoneFormHtml</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>directive里的逻辑可以放在它的controller里实现，可以看到它也是支持controllerAs语法的。注意这里的<code>bindToController</code>选项，它是1.3引入的用来解决<a href="http://blog.thoughtram.io/angularjs/2015/01/02/exploring-angular-1.3-bindToController.html" target="_blank" rel="noopener">传入<code>=</code>绑定时属性不更新的问题</a>。很多人对它的认识是传一个true即可，其实从1.4开始它是支持传入一个对象的，这个对象和传给<code>scope</code>配置的对象是一样的，用来指定directive的属性是什么绑定的。这样，<code>scope: {}</code>配置只需要传空就可以。这样的写法更加直观，因为这些属性本来就是绑定在controller的<code>this</code>上的，而不是<code>scope</code>上，这样写更有意义。</p>
+<p>当然，如果使用link而不使用controller的话，可以看这个例子（完整实现看<a href="https://github.com/PinkyJie/angular1-webpack-starter/blob/master/source/app/components/_common/directives/datepicker-init.directive.js" target="_blank" rel="noopener">这里</a>）：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">DatepickerInitDirective</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">        <span class="built_in">require</span>: <span class="string">'ngModel'</span>,</span><br><span class="line">        restrict: <span class="string">'A'</span>,</span><br><span class="line">        link</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">link</span> (<span class="params">scope, element, attrs, ngModelCtrl</span>) </span>&#123;</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">DatepickerInitDirective.$inject = [];</span><br></pre></td></tr></table></figure>
+<p>注意这种情况下需要处理依赖注入，而使用controller的话，依赖注入在controller上解决即可。另外，这里的第5行使用的是ES6中的新语法，即如果对象的key和value名字一样的话，可以使用只写key的简写形式。</p>
+<h3 id="ES6的小tip"><a href="#ES6的小tip" class="headerlink" title="ES6的小tip"></a>ES6的小tip</h3><p>最后讲一些写ES6时的tip，有些问题可能在ES5中不是问题，但ES6中反而成了闹心的问题了。</p>
+<h4 id="闹心的构造函数参数赋值"><a href="#闹心的构造函数参数赋值" class="headerlink" title="闹心的构造函数参数赋值"></a>闹心的构造函数参数赋值</h4><p>可以看到，上面所有class定义的构造函数中，第一步都是要将传入的参数全部赋值到<code>this</code>上来。既然这是一种必需，那有没有简单的方法来处理这种繁琐的写法呢？答案是肯定有的哇！那就是ES6中新引入的<code>Object.assign</code>方法，比如：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// method 1</span></span><br><span class="line"><span class="built_in">Object</span>.assign(<span class="keyword">this</span>, &#123;UserAPI, $state&#125;);</span><br><span class="line"><span class="comment">// method 2</span></span><br><span class="line"><span class="keyword">this</span>.UserAPI = UserAPI;</span><br><span class="line"><span class="keyword">this</span>.$state = $state;</span><br></pre></td></tr></table></figure>
+<p>上面两种写法是等价的。<code>Object.assign</code>会把第二个参数传入的对象属性赋值在第一个参数上。另外，这里同样使用了上面提到的object简写方法，因为key和value是一样的。</p>
+<h4 id="能用const就用const"><a href="#能用const就用const" class="headerlink" title="能用const就用const"></a>能用const就用const</h4><p>ES6中引入了<code>let</code>和<code>const</code>关键字来定义变量和常量，根据个人经验，90%以上的变量定义其实都是常量。这里的常量说的是变量本身，比如一个object是常量，你照样是可以修改这个object上面的属性的。</p>
+<h4 id="this不是万能的"><a href="#this不是万能的" class="headerlink" title="this不是万能的"></a>this不是万能的</h4><p>箭头函数可以保持上下文this不变，这样可以让我们少写很多<code>const self = this;</code>这样的语句。但注意，只有箭头函数能达到这样的效果，在很多别的地方还是需要把this赋值留到后面待用的。比如：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">UserSerivce</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    getProductSummary () &#123;</span><br><span class="line">        <span class="keyword">const</span> self = <span class="keyword">this</span>;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.$http.get(<span class="string">'api/user/products'</span>)</span><br><span class="line">            .then(_success)</span><br><span class="line">            .catch(<span class="keyword">this</span>.AjaxError.catcher.bind(<span class="keyword">this</span>.AjaxError));</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">function</span> <span class="title">_success</span> (<span class="params">response</span>) </span>&#123;</span><br><span class="line">            <span class="keyword">const</span> data = response.data;</span><br><span class="line">            <span class="keyword">if</span> (response.status === <span class="number">200</span> &amp;&amp; data.code === <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="keyword">return</span> data.result.summary;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> self.$q.reject(data.message);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到，在class的一个方法中定义函数，这里的this是无法保持的。所以在方法中调用函数需要传入其他函数时，要么通过提前保存this这种做法，要么就要使用bind函数来手动的改变context。</p>
+<h4 id="私有变量-函数的实现"><a href="#私有变量-函数的实现" class="headerlink" title="私有变量/函数的实现"></a>私有变量/函数的实现</h4><p>ES6的语法中并没有给出私有变量或函数的实现，没有了private关键字，class里不同方法需要共享变量就必须把变量绑定在this上，而一旦绑在this上，外部就可以访问，这还是有些不便的。一种很自然的想法是，把不想让外部访问的变量和函数写在class外：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> _foo;</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">_bar</span> (<span class="params"></span>) </span>&#123;&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ClassA</span> </span>&#123;&#125;</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> ClassA;</span><br></pre></td></tr></table></figure>
+<p>上面的变量<code>_foo</code>和函数<code>_bar()</code>只有本文件里的<code>ClassA</code>才能访问的到，由于export出去的只是<code>ClassA</code>，外部是没法访问到这两个东西的，这在一定程度上实现了私有。当然，这种实现显得有些强求，不太面向对象。</p>
+<p>另一种方法就是借助ES6中的<code>Symbol()</code>函数，<code>Symbol()</code>函数会生成一个唯一的随机字符串，我们可以用这个随机字符串来当做私有变量和私有函数的名字。看这个例子：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> [foo, bar] = [<span class="built_in">Symbol</span>(), <span class="built_in">Symbol</span>()];</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ClassA</span> </span>&#123;</span><br><span class="line">    <span class="keyword">constructor</span> () &#123;</span><br><span class="line">        <span class="keyword">this</span>[foo] = <span class="string">'aaa'</span>;</span><br><span class="line">        <span class="keyword">this</span>[bar] = <span class="function"><span class="params">()</span> =&gt;</span> &#123;&#125;;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> ClassA;</span><br></pre></td></tr></table></figure>
+<p>注意第一行使用了ES6中的“赋值展开”。可以看到，变量<code>foo</code>和<code>bar</code>虽然都定义在this上，但由于外部（本文件以外）都不知道这两个变量代表的字符串是什么，所以外部是无法访问的。这相当于，外部根本不知道私有变量和私有函数的变量名和函数名，自然无法访问的到了，这种实现方法更加面向对象一点。</p>
+<h4 id="使用ESLint"><a href="#使用ESLint" class="headerlink" title="使用ESLint"></a>使用ESLint</h4><p>在ES5阶段我们有JSHint和JSCS来进行静态检查和规范代码风格，但两者对于ES6的支持都不是那么的完善。而<a href="http://eslint.org/" target="_blank" rel="noopener">ESLint</a>对ES6的支持非常完善，你甚至可以指定只用ES6的代码风格来写（比如只使用<code>let</code>和<code>const</code>而不使用<code>var</code>）。很多编辑器都有ESLint的<a href="http://eslint.org/docs/user-guide/integrations" target="_blank" rel="noopener">插件</a>，可以在书写的时候就进行检查和警告。ESLint有<a href="http://eslint.org/docs/rules/" target="_blank" rel="noopener">非常多的Rule</a>可供使用，基本可以涵盖JSHint和JSCS的所有规范。如果你觉得ESLint的Rule比较多，不知道每个都干啥用的，那么我有一个方法：把所有Rule都打开，按自己的风格写代码，一旦你的风格和Rule冲突就会报错，这个时候你再选择是否关掉这个Rule。ESLint可以帮助我们做很多静态检查，比如上面提到的const的问题，一旦ESLint发现你定义了一个<code>let</code>变量但没有改变其值，就会提示你将<code>let</code>改成<code>const</code>。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/AngularJS/" rel="tag"># AngularJS</a>
+              <a href="/tags/ES6/" rel="tag"># ES6</a>
+              <a href="/tags/ESLint/" rel="tag"># ESLint</a>
+              <a href="/tags/angular1-webpack-starter/" rel="tag"># angular1-webpack-starter</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2016/01/31/component-based-development-with-angular-1x/" rel="prev" title="用 Angular 1.x 做组件式开发">
+      <i class="fa fa-chevron-left"></i> 用 Angular 1.x 做组件式开发
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2016/02/20/separation-of-concerns-in-unit-test/" rel="next" title="谈谈单元测试中的关注分离">
+      谈谈单元测试中的关注分离 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    
+  
+  <div class="comments">
+  <script src="https://utteranc.es/client.js" repo="PinkyJie/pinkyjie.github.com" issue-term="pathname" theme="github-light" crossorigin="anonymous" async></script>
+  </div>
+  
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Angular中的那些概念放在ES6中怎么写"><span class="nav-number">1.</span> <span class="nav-text">Angular中的那些概念放在ES6中怎么写</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#controller"><span class="nav-number">1.1.</span> <span class="nav-text">controller</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#service-factory"><span class="nav-number">1.2.</span> <span class="nav-text">service&#x2F;factory</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#provider"><span class="nav-number">1.3.</span> <span class="nav-text">provider</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#directive"><span class="nav-number">1.4.</span> <span class="nav-text">directive</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ES6的小tip"><span class="nav-number">2.</span> <span class="nav-text">ES6的小tip</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#闹心的构造函数参数赋值"><span class="nav-number">2.1.</span> <span class="nav-text">闹心的构造函数参数赋值</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#能用const就用const"><span class="nav-number">2.2.</span> <span class="nav-text">能用const就用const</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#this不是万能的"><span class="nav-number">2.3.</span> <span class="nav-text">this不是万能的</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#私有变量-函数的实现"><span class="nav-number">2.4.</span> <span class="nav-text">私有变量&#x2F;函数的实现</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#使用ESLint"><span class="nav-number">2.5.</span> <span class="nav-text">使用ESLint</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="马斯特"
+      src="/assets/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">马斯特</p>
+  <div class="site-description" itemprop="description">前端 | 溜冰 | Mac</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">55</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">186</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/PinkyJie" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;PinkyJie" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:pinkyjie.gn@gmail.com" title="E-Mail → mailto:pinkyjie.gn@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/PinkyJie" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;PinkyJie" rel="noopener" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://stackoverflow.com/users/689948/pinkyjie" title="StackOverflow → http:&#x2F;&#x2F;stackoverflow.com&#x2F;users&#x2F;689948&#x2F;pinkyjie" rel="noopener" target="_blank"><i class="fa fa-fw fa-stack-overflow"></i>StackOverflow</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">马斯特</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.7.0
+  </div>
+
+        
+
+
+  <div style="display: none;">
+    <script src="//s95.cnzz.com/z_stat.php?id=1253033676&web_id=1253033676"></script>
+  </div>
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  <script>
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install','8k3UxSuRWYkrhVg55bC3','2.0.0');
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

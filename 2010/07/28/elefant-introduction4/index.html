@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="o7yQBnLIoWby8Y5vNMQywBiMtev-ilWjXt89RQpTvVw">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('http://pinkyjie.com').hostname,
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.7.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":"utteranc","storage":true,"lazyload":false,"nav":null,"activeClass":"utteranc"},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="看完前面三篇文章，相信大家对elefant都有一个比较初步的认识了。那么这节我们来看看怎样将自己的算法作为新组件添加到GUI中去，这才是我们最想要的。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="elefant使用心得(四)">
+<meta property="og:url" content="http://pinkyjie.com/2010/07/28/elefant-introduction4/index.html">
+<meta property="og:site_name" content="进击的马斯特">
+<meta property="og:description" content="看完前面三篇文章，相信大家对elefant都有一个比较初步的认识了。那么这节我们来看看怎样将自己的算法作为新组件添加到GUI中去，这才是我们最想要的。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://pinkyjie.com/assets/images/elefant-introduction4-1.png">
+<meta property="article:published_time" content="2010-07-28T13:35:19.000Z">
+<meta property="article:modified_time" content="2020-05-01T01:47:54.590Z">
+<meta property="article:author" content="马斯特">
+<meta property="article:tag" content="elefant">
+<meta property="article:tag" content="nicta">
+<meta property="article:tag" content="入门">
+<meta property="article:tag" content="教程">
+<meta property="article:tag" content="机器学习">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://pinkyjie.com/assets/images/elefant-introduction4-1.png">
+
+<link rel="canonical" href="http://pinkyjie.com/2010/07/28/elefant-introduction4/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>elefant使用心得(四) | 进击的马斯特</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">进击的马斯特</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">CODING MY LIFE</p>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://pinkyjie.com/2010/07/28/elefant-introduction4/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/assets/images/avatar.jpg">
+      <meta itemprop="name" content="马斯特">
+      <meta itemprop="description" content="前端 | 溜冰 | Mac">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="进击的马斯特">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          elefant使用心得(四)
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2010-07-28 13:35:19" itemprop="dateCreated datePublished" datetime="2010-07-28T13:35:19+00:00">2010-07-28</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-05-01 01:47:54" itemprop="dateModified" datetime="2020-05-01T01:47:54+00:00">2020-05-01</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%A8%A1%E5%BC%8F%E8%AF%86%E5%88%AB/" itemprop="url" rel="index">
+                    <span itemprop="name">模式识别</span>
+                  </a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>看完前面三篇文章，相信大家对elefant都有一个比较初步的认识了。那么这节我们来看看怎样将自己的算法作为新组件添加到GUI中去，这才是我们最想要的。</p>
+<a id="more"></a>
+<h3 id="加入自己的算法"><a href="#加入自己的算法" class="headerlink" title="加入自己的算法"></a>加入自己的算法</h3><p>如何加入自己的算法，<a href="http://elefant.developer.nicta.com.au/Getting_started/component-manual" target="_blank" rel="noopener">官方文档</a>里有简单的说明，但不完整，我是通过看一个<a href="http://videolectures.net/mlss08au_webers_mll/" target="_blank" rel="noopener">NICTA的暑期学校视频</a>(页面点进去一个老头讲的，有三段)而明白的。首先，我们需要找到Elefant的安装路径，为了找这个我费了半天劲，最后动用了终端的find命令，终于找到奔图下的路径为:<br><code>/usr/local/lib/python2.6/dist-packages/elefant</code><br>在这个目录下我们可以发现一个components子目录，其下有一个user目录，我们以后自己添加的组件(即py文件)就需要放在这里。注意到这里有一个叫example.py的文件，这就是官方给我们的例子了。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> elefant.framework.core.ports <span class="keyword">import</span> IN_PORT, OUT_PORT</span><br><span class="line"><span class="keyword">from</span> elefant.framework.core.component <span class="keyword">import</span> CComponent</span><br><span class="line"><span class="keyword">from</span> elefant.framework.core.customProperties <span class="keyword">import</span> CCustomProperty</span><br><span class="line"></span><br><span class="line"><span class="comment"># CompA class</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CompA</span><span class="params">(CComponent)</span>:</span></span><br><span class="line">    __comp_name__ = <span class="string">"Component A"</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># Define the properties for the component</span></span><br><span class="line">    <span class="comment"># Property for matrix Rows</span></span><br><span class="line">    rows = CCustomProperty(int, <span class="number">100</span>, (<span class="number">10</span>, <span class="number">2000</span>), <span class="string">"Number of rows"</span>)</span><br><span class="line">    <span class="comment"># Property for number of columns for Matrix X</span></span><br><span class="line">    matXcols = CCustomProperty(int, <span class="number">10</span>, (<span class="number">1</span>, <span class="number">100</span>), <span class="string">"Number of columns for matrix X"</span>)</span><br><span class="line">    <span class="comment"># Property for number of columns for Matrix X</span></span><br><span class="line">    matYcols = CCustomProperty(int, <span class="number">2</span>, (<span class="number">1</span>, <span class="number">100</span>), <span class="string">"Number of columns for matrix Y"</span>)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="comment"># Call init method of base class CComponent</span></span><br><span class="line">        CComponent.__init__(self)</span><br><span class="line">        <span class="comment"># Add port as myPort1</span></span><br><span class="line">        myPort1 = self.AddPort(<span class="string">"MatrixX"</span>, OUT_PORT)</span><br><span class="line">        <span class="comment"># Add port as myPort2</span></span><br><span class="line">        myPort2 = self.AddPort(<span class="string">"MatrixY"</span>, OUT_PORT)</span><br><span class="line">        <span class="comment"># Define protocol for ports</span></span><br><span class="line">        self.matX = myPort1.AddProtocol(<span class="string">"DenseMatrix"</span>)</span><br><span class="line">        self.matY = myPort2.AddProtocol(<span class="string">"DenseMatrix"</span>)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">LoadData</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="comment"># Create numpy random array</span></span><br><span class="line">        <span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line">        <span class="comment"># Create random numpy matrix</span></span><br><span class="line">        x = np.random.sample((self.rows, self.matXcols))</span><br><span class="line">        <span class="comment"># Create a random numpy matrix</span></span><br><span class="line">        y = np.random.sample((self.rows, self.matXcols))</span><br><span class="line">        <span class="comment"># Set data to protocol of port</span></span><br><span class="line">        self.matX.SetData(x)</span><br><span class="line">        self.matY.SetData(y)</span><br><span class="line"></span><br><span class="line"><span class="comment"># CompB class</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CompB</span><span class="params">(CComponent)</span>:</span></span><br><span class="line">    __comp_name__ = <span class="string">"Component B"</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="comment"># Call init method of base class CComponent</span></span><br><span class="line">        CComponent.__init__(self)</span><br><span class="line">        <span class="comment"># Add port for Matrix A</span></span><br><span class="line">        A = self.AddPort(<span class="string">"MatrixA"</span>, IN_PORT)</span><br><span class="line">        <span class="comment"># Add port for Matrix B</span></span><br><span class="line">        B = self.AddPort(<span class="string">"MatrixB"</span>, IN_PORT)</span><br><span class="line">        <span class="comment"># Add output port for Matrix C = A x B</span></span><br><span class="line">        C = self.AddPort(<span class="string">"MatrixC"</span>, OUT_PORT)</span><br><span class="line">        <span class="comment"># Define protocol for ports</span></span><br><span class="line">        self.MatA = A.AddProtocol(<span class="string">"DenseMatrix"</span>)</span><br><span class="line">        self.MatB = B.AddProtocol(<span class="string">"DenseMatrix"</span>)</span><br><span class="line">        self.MatC = C.AddProtocol(<span class="string">"DenseMatrix"</span>)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">DoProduct</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="comment"># Perform matrix multiplication</span></span><br><span class="line">        c = self.MatA.GetData() * self.MatB.GetData()</span><br><span class="line">        <span class="comment"># Now set result Matrix C to output port</span></span><br><span class="line">        self.MatC.SetData(c)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Class for display information</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Display</span><span class="params">(CComponent)</span>:</span></span><br><span class="line">    __comp_name__ = <span class="string">"Component A"</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="comment"># Call init method of base class CComponent</span></span><br><span class="line">        CComponent.__init__(self)</span><br><span class="line">        <span class="comment"># Add port as Buffer</span></span><br><span class="line">        port = self.AddPort(<span class="string">"Buffer"</span>, IN_PORT)</span><br><span class="line">        self.buff = port.AddProtocol(<span class="string">"DenseMatrix"</span>)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">myprint</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="keyword">print</span> self.buff.GetData()</span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> elefant.framework.core.ports <span class="keyword">import</span> Connect</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">main</span><span class="params">()</span>:</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># Create components objects</span></span><br><span class="line">    a = CompA()</span><br><span class="line">    a.rows = <span class="number">1000</span></span><br><span class="line">    a.matXCols = <span class="number">20</span></span><br><span class="line">    a.matYCols = <span class="number">3</span></span><br><span class="line">    b = CompB()</span><br><span class="line">    display = Display()</span><br><span class="line">    <span class="comment"># Now connect these components</span></span><br><span class="line">    Connect(a, <span class="string">"MatrixX"</span>, b, <span class="string">"MatrixA"</span>, <span class="string">"DenseMatrix"</span>)</span><br><span class="line">    Connect(a, <span class="string">"MatrixY"</span>, b, <span class="string">"MatrixB"</span>, <span class="string">"DenseMatrix"</span>)</span><br><span class="line">    Connect(b, <span class="string">"MatrixC"</span>, display, <span class="string">"Buffer"</span>, <span class="string">"DenseMatrix"</span>)</span><br><span class="line">    <span class="comment"># print the information about components</span></span><br><span class="line">    <span class="keyword">print</span> <span class="string">"Comp A Information"</span></span><br><span class="line">    a.Show()</span><br><span class="line">    <span class="keyword">print</span> <span class="string">"\nComp B Information"</span></span><br><span class="line">    b.Show()</span><br><span class="line">    <span class="keyword">print</span> <span class="string">"\nDisplay Component"</span></span><br><span class="line">    display.Show()</span><br><span class="line">    <span class="comment"># Now perfrom matrix product and display result</span></span><br><span class="line">    a.LoadData()</span><br><span class="line">    b.DoProduct()</span><br><span class="line">    display.myprint()</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</span><br><span class="line">    main()</span><br></pre></td></tr></table></figure>
+<p>相信有了前面的基础，再看这段代码应该不算太烦吧。首当其冲的是把需要的类Import进来。我们看这个py文件声明了两个组件CompA和CompB，我们发现是以类的形式出现的。通过<strong>comp_name</strong>属性为组件定义名称，即在GUI里显示的名称，通过CCustomProperty()我们可以为组件定义属性，四个参数分别是：类型，默认值，大小范围，说明。在<strong>init</strong>方法中为组件添加端口及协议，我们必须牢记：### 端口之上有协议，协议之上绑定数据。组件A提供两个矩阵。组件B中定义了一个非私有的方法(Python中以双下划线开头的都是私有的)：DoProduct()，这个方法计算两个矩阵的乘积。在mian()方法中进行测试，当然，你也可以写到别的py文件中去。可以看到，依然是老套路：实例化组件—-&gt;Connect端口—-&gt;调用各个组件的方法。</p>
+<p>在这个文件夹下我们还能发现一个<code>__init__.py</code>的文件[注意该文件为只读的，改动时需要使用chmod命令改成可写]，如果我们添加自定义的组件，这个文件起着至关重要的作用：我们必须将自定义组件的名称写进这个文件中去，打开文件，我们可以看到只能一行：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">__GUI_PKG__ = [<span class="string">'example'</span>,<span class="string">'MHKS'</span>,<span class="string">'MatMHKS'</span>]</span><br></pre></td></tr></table></figure>
+<p>结果很简单，我们需要将自己添加的py文件的文件名添加到中括号内，上面本人已经添加了两个算法，即MHKS和MatMHKS [貌似example加不加都可以]。然后我们打开GUI，在算法菜单下的user algorithms子菜单项中，我们可以发现刚才example中的组件A和B了。</p>
+<p><img src="/assets/images/elefant-introduction4-1.png" alt=""></p>
+<p>总结一下，添加自己的组件有两个要点：一，py文件放到指定文件夹中；二，改动<code>__init__.py</code>文件内容。有的时候我们发现新添加组件后GUI无法执行了，这时我们可以在终端里执行<code>launchelefant.py</code>命令打开GUI，如果无法启动会报错，一般的错误就是你新添加的组件的<code>__inti__.py</code>文件出错；有时还会碰到这样的情况，打开了GUI但打不开自己的组件，这是因为你的组件中<code>__init__()</code>方法出错，因为当你点击组件时会调用该组件的<code>__init__()</code>方法组件才能显示出来，无法显示时请检查你的<code>__init__()</code>方法方法。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/elefant/" rel="tag"># elefant</a>
+              <a href="/tags/nicta/" rel="tag"># nicta</a>
+              <a href="/tags/%E5%85%A5%E9%97%A8/" rel="tag"># 入门</a>
+              <a href="/tags/%E6%95%99%E7%A8%8B/" rel="tag"># 教程</a>
+              <a href="/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" rel="tag"># 机器学习</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2010/07/28/elefant-introduction3/" rel="prev" title="elefant使用心得(三)">
+      <i class="fa fa-chevron-left"></i> elefant使用心得(三)
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2010/08/02/website-moved/" rel="next" title="网站迁移完毕">
+      网站迁移完毕 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    
+  
+  <div class="comments">
+  <script src="https://utteranc.es/client.js" repo="PinkyJie/pinkyjie.github.com" issue-term="pathname" theme="github-light" crossorigin="anonymous" async></script>
+  </div>
+  
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#加入自己的算法"><span class="nav-number">1.</span> <span class="nav-text">加入自己的算法</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="马斯特"
+      src="/assets/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">马斯特</p>
+  <div class="site-description" itemprop="description">前端 | 溜冰 | Mac</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">55</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">186</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/PinkyJie" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;PinkyJie" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:pinkyjie.gn@gmail.com" title="E-Mail → mailto:pinkyjie.gn@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/PinkyJie" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;PinkyJie" rel="noopener" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://stackoverflow.com/users/689948/pinkyjie" title="StackOverflow → http:&#x2F;&#x2F;stackoverflow.com&#x2F;users&#x2F;689948&#x2F;pinkyjie" rel="noopener" target="_blank"><i class="fa fa-fw fa-stack-overflow"></i>StackOverflow</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">马斯特</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.7.0
+  </div>
+
+        
+
+
+  <div style="display: none;">
+    <script src="//s95.cnzz.com/z_stat.php?id=1253033676&web_id=1253033676"></script>
+  </div>
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  <script>
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install','8k3UxSuRWYkrhVg55bC3','2.0.0');
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

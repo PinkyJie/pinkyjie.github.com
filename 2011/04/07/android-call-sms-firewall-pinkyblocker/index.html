@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="o7yQBnLIoWby8Y5vNMQywBiMtev-ilWjXt89RQpTvVw">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('http://pinkyjie.com').hostname,
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.7.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":"utteranc","storage":true,"lazyload":false,"nav":null,"activeClass":"utteranc"},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="最近研究了下 Android 下的开发，搞出了这么一个东西。 软件名称：PinkyBlocker (以后咱开发的东西都以 Pinky 开头好了) 软件版本：v 1.0 (测试版本) 适用系统：Android 1.6 及以上">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PinkyBlocker -- 简易的 Android 来电短信防火墙">
+<meta property="og:url" content="http://pinkyjie.com/2011/04/07/android-call-sms-firewall-pinkyblocker/index.html">
+<meta property="og:site_name" content="进击的马斯特">
+<meta property="og:description" content="最近研究了下 Android 下的开发，搞出了这么一个东西。 软件名称：PinkyBlocker (以后咱开发的东西都以 Pinky 开头好了) 软件版本：v 1.0 (测试版本) 适用系统：Android 1.6 及以上">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://pinkyjie.com/assets/images/android-call-sms-firewall-pinkyblocker-1.png">
+<meta property="og:image" content="http://pinkyjie.com/assets/images/android-call-sms-firewall-pinkyblocker-2.png">
+<meta property="og:image" content="http://pinkyjie.com/assets/images/android-call-sms-firewall-pinkyblocker-3.png">
+<meta property="og:image" content="http://pinkyjie.com/assets/images/android-call-sms-firewall-pinkyblocker-4.png">
+<meta property="og:image" content="http://pinkyjie.com/assets/images/android-call-sms-firewall-pinkyblocker-5.png">
+<meta property="og:image" content="http://pinkyjie.com/assets/images/android-call-sms-firewall-pinkyblocker-6.png">
+<meta property="og:image" content="http://pinkyjie.com/assets/images/android-call-sms-firewall-pinkyblocker-7.png">
+<meta property="og:image" content="http://pinkyjie.com/assets/images/android-call-sms-firewall-pinkyblocker-8.png">
+<meta property="og:image" content="http://pinkyjie.com/assets/images/android-call-sms-firewall-pinkyblocker-9.png">
+<meta property="og:image" content="http://pinkyjie.com/assets/images/android-call-sms-firewall-pinkyblocker-10.png">
+<meta property="article:published_time" content="2011-04-07T12:08:39.000Z">
+<meta property="article:modified_time" content="2020-05-01T01:47:54.590Z">
+<meta property="article:author" content="马斯特">
+<meta property="article:tag" content="Android">
+<meta property="article:tag" content="PinkyBlocker">
+<meta property="article:tag" content="拦截">
+<meta property="article:tag" content="来电防火墙">
+<meta property="article:tag" content="短信防火墙">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://pinkyjie.com/assets/images/android-call-sms-firewall-pinkyblocker-1.png">
+
+<link rel="canonical" href="http://pinkyjie.com/2011/04/07/android-call-sms-firewall-pinkyblocker/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>PinkyBlocker -- 简易的 Android 来电短信防火墙 | 进击的马斯特</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">进击的马斯特</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">CODING MY LIFE</p>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://pinkyjie.com/2011/04/07/android-call-sms-firewall-pinkyblocker/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/assets/images/avatar.jpg">
+      <meta itemprop="name" content="马斯特">
+      <meta itemprop="description" content="前端 | 溜冰 | Mac">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="进击的马斯特">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          PinkyBlocker -- 简易的 Android 来电短信防火墙
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2011-04-07 12:08:39" itemprop="dateCreated datePublished" datetime="2011-04-07T12:08:39+00:00">2011-04-07</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-05-01 01:47:54" itemprop="dateModified" datetime="2020-05-01T01:47:54+00:00">2020-05-01</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android-%E5%BC%80%E5%8F%91/" itemprop="url" rel="index">
+                    <span itemprop="name">Android 开发</span>
+                  </a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>最近研究了下 Android 下的开发，搞出了这么一个东西。</p>
+<p>软件名称：PinkyBlocker (以后咱开发的东西都以 Pinky 开头好了)</p>
+<p>软件版本：v 1.0 (测试版本)</p>
+<p>适用系统：Android 1.6 及以上</p>
+<a id="more"></a>
+<hr>
+<h3 id="Update-2011-4-12"><a href="#Update-2011-4-12" class="headerlink" title="Update 2011-4-12"></a>Update 2011-4-12</h3><p>添加从通讯录和通话记录中选择号码的功能(仅当选择的规则类型为“特定号码”时才会出现)，截图如下：</p>
+<p><img src="/assets/images/android-call-sms-firewall-pinkyblocker-1.png" alt=""></p>
+<p><img src="/assets/images/android-call-sms-firewall-pinkyblocker-2.png" alt=""></p>
+<hr>
+<p>PinkyBlocker 是一款简单实用的来电和短信防火墙，通过简单的规则设置即可轻松拦截短信，拒接电话，让你的世界从此清静！</p>
+<h3 id="功能特性："><a href="#功能特性：" class="headerlink" title="功能特性："></a>功能特性：</h3><ul>
+<li>支持两种方式添加来电拦截：</li>
+</ul>
+<ol>
+<li>【以某几个数字开头的号码来电】 添加区号即可拦截对应城市的市话</li>
+</ol>
+<p>2) 【特定号码的来电】 即传统的黑名单</p>
+<ul>
+<li>支持三种方式添加短信拦截：</li>
+</ul>
+<ol>
+<li>【以某几个数字开头的号码发来的短信】</li>
+</ol>
+<p>2) 【特定号码发来的短信】</p>
+<ol>
+<li>【包含某些内容的短信】即传统的关键字内容过滤</li>
+</ol>
+<ul>
+<li>拦截后可以设置状态栏提醒和声音提醒</li>
+</ul>
+<ul>
+<li>退出后依然可以正常拦截</li>
+</ul>
+<h3 id="软件截图："><a href="#软件截图：" class="headerlink" title="软件截图："></a>软件截图：</h3><p><img src="/assets/images/android-call-sms-firewall-pinkyblocker-3.png" alt=""></p>
+<blockquote><p>软件安装界面和关于界面，这里的“拨打电话”权限是为了拦截电话，本软件不会自动往外拨电话。</p>
+</blockquote>
+<p><img src="/assets/images/android-call-sms-firewall-pinkyblocker-4.png" alt=""></p>
+<blockquote><p>软件主界面，由两个 tab 主成，一个是拦截规则，一个是拦截记录。</p>
+</blockquote>
+<p><img src="/assets/images/android-call-sms-firewall-pinkyblocker-5.png" alt=""></p>
+<blockquote><p>添加来电拦截规则的页面，有两种选择，拦截特定的号码或者拦截以某些数字开头的号码。</p>
+</blockquote>
+<p><img src="/assets/images/android-call-sms-firewall-pinkyblocker-6.png" alt=""></p>
+<blockquote><p>添加短信拦截规则的页面，有三种选择，前两种和来电的一样，最后还可以拦截包含某些字词的短信。</p>
+</blockquote>
+<p><img src="/assets/images/android-call-sms-firewall-pinkyblocker-7.png" alt=""></p>
+<blockquote><p>软件的主菜单，以及长按规则列表出现的上下文菜单。哥有退出菜单，看到没，没有退出菜单和一按返回键就退出神马的最讨厌啦~</p>
+</blockquote>
+<p><img src="/assets/images/android-call-sms-firewall-pinkyblocker-8.png" alt=""></p>
+<blockquote><p>拦截后会出现状态栏提醒，点击后直接进入拦截日志界面。</p>
+</blockquote>
+<p><img src="/assets/images/android-call-sms-firewall-pinkyblocker-9.png" alt=""></p>
+<blockquote><p>软件的设置界面，通过设置菜单可以设置是否打开拦截服务，拦截后是否出现状态栏提醒，是否有拦截声音等。</p>
+</blockquote>
+<p><img src="/assets/images/android-call-sms-firewall-pinkyblocker-10.png" alt=""></p>
+<blockquote><p>退出程序时的提示，按返回键或退出菜单都会出现该提示，退出后依然可以正常的拦截。</p>
+</blockquote>
+<h3 id="操作视频："><a href="#操作视频：" class="headerlink" title="操作视频："></a>操作视频：</h3><p>我用模拟器录制了一段操作视频，不太清晰，大家凑合看看吧，一看就懂的！</p>
+<p>
+<embed src="http://player.youku.com/player.php/sid/XMjU2NzU4MzE2/v.swf" allowFullScreen="true" quality="high" width="480" height="400" align="middle" allowScriptAccess="always" type="application/x-shockwave-flash"></embed>
+</p>
+
+<h3 id="已知问题："><a href="#已知问题：" class="headerlink" title="已知问题："></a>已知问题：</h3><p>由于手头只有 G1 和模拟器，测试范围很窄，模拟器的效果参见上面的视频，各项功能还是很正常的。至于在我的 G1 上的测试结果，有以下几个问题：</p>
+<ul>
+<li>来电拦截时有延迟，会出现像响一声才被挂断的情况，貌似是 Android 上的通病</li>
+</ul>
+<ul>
+<li>来电拦截的时候，有时会出现拦截一个电话记录多次，提醒多次的情况，不知是我的 G1 太慢还是什么别的原因</li>
+</ul>
+<p>总之，基本不影响使用吧！</p>
+<h3 id="想添加的功能："><a href="#想添加的功能：" class="headerlink" title="想添加的功能："></a>想添加的功能：</h3><p>在清除 bug 的同时，近期还想添加一些实用的功能：</p>
+<ul>
+<li><del>添加号码时可以选择从通话记录或联系人添加</del>（已添加）</li>
+</ul>
+<ul>
+<li>考虑实现同时满足多个规则时才拦截</li>
+</ul>
+<h3 id="最后放上下载链接-点我下载，有兴趣的可以用下试试，有问题向我反馈！"><a href="#最后放上下载链接-点我下载，有兴趣的可以用下试试，有问题向我反馈！" class="headerlink" title="最后放上下载链接 点我下载，有兴趣的可以用下试试，有问题向我反馈！"></a>最后放上下载链接 <a href="/assets/files/PinkyBlocker.apk1">点我下载</a>，有兴趣的可以用下试试，有问题向我反馈！</h3><blockquote>
+<p>下载后请自行修改扩展名为 apk</p>
+</blockquote>
+<h3 id="（刚刚-fix-了一个-bug，大分辨率的机器伤不起啊，增加了大图标支持高分辨率机器，排版不错乱了-）"><a href="#（刚刚-fix-了一个-bug，大分辨率的机器伤不起啊，增加了大图标支持高分辨率机器，排版不错乱了-）" class="headerlink" title="（刚刚 fix 了一个 bug，大分辨率的机器伤不起啊，增加了大图标支持高分辨率机器，排版不错乱了~）"></a>（刚刚 fix 了一个 bug，大分辨率的机器伤不起啊，增加了大图标支持高分辨率机器，排版不错乱了~）</h3>
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Android/" rel="tag"># Android</a>
+              <a href="/tags/PinkyBlocker/" rel="tag"># PinkyBlocker</a>
+              <a href="/tags/%E6%8B%A6%E6%88%AA/" rel="tag"># 拦截</a>
+              <a href="/tags/%E6%9D%A5%E7%94%B5%E9%98%B2%E7%81%AB%E5%A2%99/" rel="tag"># 来电防火墙</a>
+              <a href="/tags/%E7%9F%AD%E4%BF%A1%E9%98%B2%E7%81%AB%E5%A2%99/" rel="tag"># 短信防火墙</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2011/03/15/i-love-the-2b-taiwan-idol-play/" rel="prev" title="我就爱2B台湾偶像剧">
+      <i class="fa fa-chevron-left"></i> 我就爱2B台湾偶像剧
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2011/04/09/build-nginx_webpy_on_amazon_ec2/" rel="next" title="在Amazon的EC2上部署nginx+web.py">
+      在Amazon的EC2上部署nginx+web.py <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    
+  
+  <div class="comments">
+  <script src="https://utteranc.es/client.js" repo="PinkyJie/pinkyjie.github.com" issue-term="pathname" theme="github-light" crossorigin="anonymous" async></script>
+  </div>
+  
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Update-2011-4-12"><span class="nav-number">1.</span> <span class="nav-text">Update 2011-4-12</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#功能特性："><span class="nav-number">2.</span> <span class="nav-text">功能特性：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#软件截图："><span class="nav-number">3.</span> <span class="nav-text">软件截图：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#操作视频："><span class="nav-number">4.</span> <span class="nav-text">操作视频：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#已知问题："><span class="nav-number">5.</span> <span class="nav-text">已知问题：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#想添加的功能："><span class="nav-number">6.</span> <span class="nav-text">想添加的功能：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#最后放上下载链接-点我下载，有兴趣的可以用下试试，有问题向我反馈！"><span class="nav-number">7.</span> <span class="nav-text">最后放上下载链接 点我下载，有兴趣的可以用下试试，有问题向我反馈！</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#（刚刚-fix-了一个-bug，大分辨率的机器伤不起啊，增加了大图标支持高分辨率机器，排版不错乱了-）"><span class="nav-number">8.</span> <span class="nav-text">（刚刚 fix 了一个 bug，大分辨率的机器伤不起啊，增加了大图标支持高分辨率机器，排版不错乱了~）</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="马斯特"
+      src="/assets/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">马斯特</p>
+  <div class="site-description" itemprop="description">前端 | 溜冰 | Mac</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">55</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">186</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/PinkyJie" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;PinkyJie" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:pinkyjie.gn@gmail.com" title="E-Mail → mailto:pinkyjie.gn@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/PinkyJie" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;PinkyJie" rel="noopener" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://stackoverflow.com/users/689948/pinkyjie" title="StackOverflow → http:&#x2F;&#x2F;stackoverflow.com&#x2F;users&#x2F;689948&#x2F;pinkyjie" rel="noopener" target="_blank"><i class="fa fa-fw fa-stack-overflow"></i>StackOverflow</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">马斯特</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.7.0
+  </div>
+
+        
+
+
+  <div style="display: none;">
+    <script src="//s95.cnzz.com/z_stat.php?id=1253033676&web_id=1253033676"></script>
+  </div>
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  <script>
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install','8k3UxSuRWYkrhVg55bC3','2.0.0');
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

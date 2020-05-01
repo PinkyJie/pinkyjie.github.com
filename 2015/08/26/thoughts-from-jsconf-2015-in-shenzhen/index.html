@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="o7yQBnLIoWby8Y5vNMQywBiMtev-ilWjXt89RQpTvVw">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('http://pinkyjie.com').hostname,
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.7.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":"utteranc","storage":true,"lazyload":false,"nav":null,"activeClass":"utteranc"},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="上个月11、12号飞深圳参加了今年的JS开发者大会，头一次参加这种大会还是挺兴奋的，见到了一些以前只知道名字的大牛，也开阔了视野。前段时间在公司分别给组内和全公司做了分享，PPT做的老累了，就拿劳动成果凑一篇博客吧。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JSConf2015（ShenJS）深圳之行有感">
+<meta property="og:url" content="http://pinkyjie.com/2015/08/26/thoughts-from-jsconf-2015-in-shenzhen/index.html">
+<meta property="og:site_name" content="进击的马斯特">
+<meta property="og:description" content="上个月11、12号飞深圳参加了今年的JS开发者大会，头一次参加这种大会还是挺兴奋的，见到了一些以前只知道名字的大牛，也开阔了视野。前段时间在公司分别给组内和全公司做了分享，PPT做的老累了，就拿劳动成果凑一篇博客吧。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://pinkyjie.com/assets/images/thoughts-from-jsconf-2015-1.JPG">
+<meta property="og:image" content="http://pinkyjie.com/assets/images/thoughts-from-jsconf-2015-2.PNG">
+<meta property="article:published_time" content="2015-08-26T20:42:31.000Z">
+<meta property="article:modified_time" content="2020-05-01T01:47:54.590Z">
+<meta property="article:author" content="马斯特">
+<meta property="article:tag" content="JS开发者大会">
+<meta property="article:tag" content="JSConf">
+<meta property="article:tag" content="ShenJS">
+<meta property="article:tag" content="React">
+<meta property="article:tag" content="ES6">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://pinkyjie.com/assets/images/thoughts-from-jsconf-2015-1.JPG">
+
+<link rel="canonical" href="http://pinkyjie.com/2015/08/26/thoughts-from-jsconf-2015-in-shenzhen/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>JSConf2015（ShenJS）深圳之行有感 | 进击的马斯特</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">进击的马斯特</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">CODING MY LIFE</p>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://pinkyjie.com/2015/08/26/thoughts-from-jsconf-2015-in-shenzhen/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/assets/images/avatar.jpg">
+      <meta itemprop="name" content="马斯特">
+      <meta itemprop="description" content="前端 | 溜冰 | Mac">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="进击的马斯特">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          JSConf2015（ShenJS）深圳之行有感
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2015-08-26 20:42:31" itemprop="dateCreated datePublished" datetime="2015-08-26T20:42:31+00:00">2015-08-26</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-05-01 01:47:54" itemprop="dateModified" datetime="2020-05-01T01:47:54+00:00">2020-05-01</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%89%8D%E7%AB%AF%E5%BC%80%E5%8F%91/" itemprop="url" rel="index">
+                    <span itemprop="name">前端开发</span>
+                  </a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>上个月11、12号飞深圳参加了今年的JS开发者大会，头一次参加这种大会还是挺兴奋的，见到了一些以前只知道名字的大牛，也开阔了视野。前段时间在公司分别给组内和全公司做了分享，PPT做的老累了，就拿劳动成果凑一篇博客吧。</p>
+<a id="more"></a>
+<h3 id="直接上PPT"><a href="#直接上PPT" class="headerlink" title="直接上PPT"></a>直接上PPT</h3><script async class="speakerdeck-embed" data-id="7b304d03016341fc9da77908a4b300b8" data-ratio="1.33333333333333" src="//speakerdeck.com/assets/embed.js"></script>
+
+<p>PPT里大致讲了三部分：前端、后端、不知道什么端。其实大会的topic整体来说是比较偏后端（Node.js）的，涉及到前端的不多，对于纯前端的我来说其实很多东西是比较陌生的。所以在这个PPT里我其实把大会涉及到的一些前端话题做了延伸和展开，讲了一些自己的认识以及在项目中的实践。对于后端我基本上一笔带过了，因为确实接触不深。“不知道什么端”包含了一些利用JS做的非常有意思的应用，也包含大会期间的一些Lighting Talk。</p>
+<h3 id="谈谈React"><a href="#谈谈React" class="headerlink" title="谈谈React"></a>谈谈React</h3><p>React可以说是今年前端最火的话题之一了，借用一位演讲者的话说：“现在不谈React都不好意思说自己是前端”。其实在去深圳参加大会之前，也在上海的很多Meetup上听过不少React的分享。最先听到的点就是：“React比Angular要快好多”，对于深受Angular效率之痛的我还是挺有吸引力的。可是深入了解了以后发现其实这种“快”也是要看场景的，特别是前几天看了<a href="http://www.zhihu.com/question/31809713/answer/53544875" target="_blank" rel="noopener">知乎的这个回答</a>后，体会更深。即便如此，不得不说React的很多想法很新颖，对于现在前端存在的不少问题也有自己独特的解决方案，这些特性（JSX，Virtual DOM）以及衍生的思想（Immutable Data，GraphQL）也是我在PPT里重点介绍的。说到底React其实只是View，与Angular这种大而全的framework不同，它只能算得上是library，要用React写应用还是得上Flux。Flux不是一种框架，它是一种与MVC同级的编程思想。</p>
+<p>关于是否将React应用于公司的项目我也有一些想法，公司的项目现在是基于Angular的，全部用React重写短时间内不太现实，但React的很多思路可以用到Angular上来，比如Immutable Data，比如Flux提倡的单向数据流。Angular作为一个不那么opinionated的框架在这方便还是很开放的，我觉得完全可以将这些思想加进来，目前也已经看到有人在尝试这么做了，比如<a href="http://blog.mgechev.com/2015/03/02/immutability-in-angularjs-immutablejs/" target="_blank" rel="noopener">Boost the Performance of an AngularJS Application Using Immutable Data</a>，<a href="http://victorsavkin.com/post/99998937651/building-angular-apps-using-flux-architecture" target="_blank" rel="noopener">BUILDING ANGULAR APPS USING FLUX ARCHITECTURE</a>。有时间也想做些类似的尝试，毕竟这种渐进式的改进对于大的项目来说比较能接受。再者说了，相对于React，我内心其实还是更期待Angular 2，很多改进还是挺吸引人的，决定最近有时间好好看看ngConf 2015的视频。</p>
+<h3 id="关于ES6"><a href="#关于ES6" class="headerlink" title="关于ES6"></a>关于ES6</h3><p>ES6无疑是另一个最火的话题。我在PPT里把ES6的特性总结为两点：1.修复自身的缺陷，2.把别的语言里经久考验的优秀特性偷过来。诸如类以及模块的一些支持还是很吸引人的，感觉JS原来越像一门“正统”的语言。想要对ES6有一个大致的认识，除了看PPT里的<a href="https://github.com/lukehoban/es6features" target="_blank" rel="noopener">那个repo</a>之外，还可以看看这两个系列：一个是阮一峰老师的<a href="http://es6.ruanyifeng.com/" target="_blank" rel="noopener">《ECMAScript 6入门》</a>，另外是Mozilla出的<a href="https://hacks.mozilla.org/category/es6-in-depth/" target="_blank" rel="noopener">ES6 In Depth</a>系列。大会上有一个session讲的就是generator的使用，其实之前我想当然的认为ES6其实就是把别的语言里的generator概念偷过来嘛，貌似没什么神奇的，跟以前用过的Python里的generator没啥区别嘛。后来看了ES6入门书中的介绍后感觉有了新的认识，JS的generator函数中使用<code>yield</code>将值往调用者那里传，然后调用者使用<code>next(xxx)</code>将值往generator函数中传，这样其实打通了一个回路，而这个回路就是generator改变JS异步调用写法的关键。有兴趣的可以看看<a href="http://es6.ruanyifeng.com/#docs/async" target="_blank" rel="noopener">阮一峰书中关于异步调用的讲解</a>以及<a href="http://slides.com/eiriklv/taming-async-talk#/" target="_blank" rel="noopener">Slides网站上的这个PPT</a>。</p>
+<h3 id="与大牛们合照"><a href="#与大牛们合照" class="headerlink" title="与大牛们合照"></a>与大牛们合照</h3><p>这次深圳之行一个挺大的收获就是终于见到真人大牛了，以前都只是网上看到过名字，这次终于看到活的了。不仅看到人了，还有幸与大牛们一起聚餐聊天，学到了一些新名词，也了解了他们所在公司的技术现状。</p>
+<p><img src="/assets/images/thoughts-from-jsconf-2015-1.JPG" alt="图1"></p>
+<p>说到这张照片，还有一个段子，当时阴明开玩笑说：“如果这两桌的人都饿死了，中国的前端要倒退好几年”，哈哈！桌上见到了小鱼、尤小右，以及在上海的Meetup上就见到过的达峰和hax。小鱼我关注蛮久的，怎么也没法把网上的他跟广东人联系在一起，不过真人一看就知道是广东人。还有稀土的阴明，就是中午找他聊天才知道晚上这个聚餐的事，阴明说话超级逗，关键是真人跟头像真的一模一样，所以我才能在大会现场直接认出了他。</p>
+<h3 id="吐槽深圳"><a href="#吐槽深圳" class="headerlink" title="吐槽深圳"></a>吐槽深圳</h3><p>说起深圳，我脑海里第一反应就是那句歌词，上签到图：</p>
+<p><img src="/assets/images/thoughts-from-jsconf-2015-2.PNG" alt="图2"></p>
+<p>到了以后才发现，深圳跟我想象中完全不是一回事啊，我要开启吐槽模式了！</p>
+<ul>
+<li>关于定额发票：吃饭居然只能开定额发票！由于这次开会全程都是公司报销的，干啥都要开发票。10号晚上到了以后，在酒店附近找吃饭的地，走了两条街也没问到能开机打发票的店，当时我就震惊了，上海是个大点的店都能开机打发票啊，定额发票算怎么回事。。。在上海貌似只有交通卡充值发票是定额的吧。。。不过拿到定额发票看了看感觉也挺正规的，后来在机场吃了顿饭也是定额发票，猜想可能深圳的规定就是这样吧。</li>
+<li>关于关内关外：刚出机场打车的时候就挺奇怪的，出租车分两种，一种只去周边的几个区，另一种去市区，当时我就迷茫了。后来听人介绍才知道，这都是历史遗留问题啊！当时划经济特区的圈，只划了一部分，圈中的部分靠近香港，是关内，其他部分是关外。关内关外经济发展差距可想而知，最令我震惊的时当时关内关外居然架设铁丝网强行分割，还设有检查站，进出关都要查验证件。。。同城不同命啊，这社会能稳定吗。。。铁丝网据说这几年才真正的撤掉，但关内外的经济差距一时半会是无法补平的。出租车的区分也是因为以前一些只跑关内，一些只跑关外的历史遗留问题。对这段感兴趣的可以自行搜索“深圳关内关外”。</li>
+<li>关于粤语：虽然听不懂，但真的是一种TVB即视感啊，挺羡慕会粤语的孩子的，听/唱粤语歌都毫无障碍啊。</li>
+<li>关于“破”：可能是魔都呆多了，觉得深圳好像有点破，可能所住的那块区域恰好发展一般吧，貌似附近都在搞开发。但有一点，<strong>空气确实比上海好</strong>！说到这里其实也挺遗憾的，由于会议日程安排太紧，这两天除了开会基本啥也没干，都没有在深圳好好逛逛。小时候就听说得“世界之窗”也来得及去瞧瞧，有机会再去吧。</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/JS%E5%BC%80%E5%8F%91%E8%80%85%E5%A4%A7%E4%BC%9A/" rel="tag"># JS开发者大会</a>
+              <a href="/tags/JSConf/" rel="tag"># JSConf</a>
+              <a href="/tags/ShenJS/" rel="tag"># ShenJS</a>
+              <a href="/tags/React/" rel="tag"># React</a>
+              <a href="/tags/ES6/" rel="tag"># ES6</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2015/08/12/commonly-used-gulp-plugins-part-2/" rel="prev" title="常用gulp插件介绍(二)">
+      <i class="fa fa-chevron-left"></i> 常用gulp插件介绍(二)
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2016/01/31/component-based-development-with-angular-1x/" rel="next" title="用 Angular 1.x 做组件式开发">
+      用 Angular 1.x 做组件式开发 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    
+  
+  <div class="comments">
+  <script src="https://utteranc.es/client.js" repo="PinkyJie/pinkyjie.github.com" issue-term="pathname" theme="github-light" crossorigin="anonymous" async></script>
+  </div>
+  
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#直接上PPT"><span class="nav-number">1.</span> <span class="nav-text">直接上PPT</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#谈谈React"><span class="nav-number">2.</span> <span class="nav-text">谈谈React</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#关于ES6"><span class="nav-number">3.</span> <span class="nav-text">关于ES6</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#与大牛们合照"><span class="nav-number">4.</span> <span class="nav-text">与大牛们合照</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#吐槽深圳"><span class="nav-number">5.</span> <span class="nav-text">吐槽深圳</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="马斯特"
+      src="/assets/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">马斯特</p>
+  <div class="site-description" itemprop="description">前端 | 溜冰 | Mac</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">55</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">186</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/PinkyJie" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;PinkyJie" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:pinkyjie.gn@gmail.com" title="E-Mail → mailto:pinkyjie.gn@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/PinkyJie" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;PinkyJie" rel="noopener" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://stackoverflow.com/users/689948/pinkyjie" title="StackOverflow → http:&#x2F;&#x2F;stackoverflow.com&#x2F;users&#x2F;689948&#x2F;pinkyjie" rel="noopener" target="_blank"><i class="fa fa-fw fa-stack-overflow"></i>StackOverflow</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">马斯特</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.7.0
+  </div>
+
+        
+
+
+  <div style="display: none;">
+    <script src="//s95.cnzz.com/z_stat.php?id=1253033676&web_id=1253033676"></script>
+  </div>
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  <script>
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install','8k3UxSuRWYkrhVg55bC3','2.0.0');
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

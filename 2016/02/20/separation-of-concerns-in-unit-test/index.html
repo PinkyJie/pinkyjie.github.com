@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="o7yQBnLIoWby8Y5vNMQywBiMtev-ilWjXt89RQpTvVw">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('http://pinkyjie.com').hostname,
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.7.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":"utteranc","storage":true,"lazyload":false,"nav":null,"activeClass":"utteranc"},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="前端的单元测试越来越受到重视，网上也有很多讲解Angular中如何写好单元测试的文章，我自己在最近的angular1-webpack-starter项目中也写了很多单元测试。单元测试的一个核心理念就是对“单元”进行隔离，然后单独测试。可是网上的很多教程存在不少误区：比如在controller的测试中去使用$httpBackend，在引入第三方service的时候使用真实的service等等，说到底">
+<meta property="og:type" content="article">
+<meta property="og:title" content="谈谈单元测试中的关注分离">
+<meta property="og:url" content="http://pinkyjie.com/2016/02/20/separation-of-concerns-in-unit-test/index.html">
+<meta property="og:site_name" content="进击的马斯特">
+<meta property="og:description" content="前端的单元测试越来越受到重视，网上也有很多讲解Angular中如何写好单元测试的文章，我自己在最近的angular1-webpack-starter项目中也写了很多单元测试。单元测试的一个核心理念就是对“单元”进行隔离，然后单独测试。可是网上的很多教程存在不少误区：比如在controller的测试中去使用$httpBackend，在引入第三方service的时候使用真实的service等等，说到底">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2016-02-20T12:34:34.000Z">
+<meta property="article:modified_time" content="2020-05-01T01:47:54.590Z">
+<meta property="article:author" content="马斯特">
+<meta property="article:tag" content="AngularJS">
+<meta property="article:tag" content="ES6">
+<meta property="article:tag" content="angular1-webpack-starter">
+<meta property="article:tag" content="单元测试">
+<meta property="article:tag" content="关注分离">
+<meta property="article:tag" content="jasmine">
+<meta property="article:tag" content="karma-coverage">
+<meta property="article:tag" content="isparta">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://pinkyjie.com/2016/02/20/separation-of-concerns-in-unit-test/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>谈谈单元测试中的关注分离 | 进击的马斯特</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">进击的马斯特</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">CODING MY LIFE</p>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://pinkyjie.com/2016/02/20/separation-of-concerns-in-unit-test/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/assets/images/avatar.jpg">
+      <meta itemprop="name" content="马斯特">
+      <meta itemprop="description" content="前端 | 溜冰 | Mac">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="进击的马斯特">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          谈谈单元测试中的关注分离
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2016-02-20 12:34:34" itemprop="dateCreated datePublished" datetime="2016-02-20T12:34:34+00:00">2016-02-20</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-05-01 01:47:54" itemprop="dateModified" datetime="2020-05-01T01:47:54+00:00">2020-05-01</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%89%8D%E7%AB%AF%E5%BC%80%E5%8F%91/" itemprop="url" rel="index">
+                    <span itemprop="name">前端开发</span>
+                  </a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>前端的单元测试越来越受到重视，网上也有很多讲解Angular中如何写好单元测试的文章，我自己在最近的<a href="https://github.com/PinkyJie/angular1-webpack-starter" target="_blank" rel="noopener">angular1-webpack-starter</a>项目中也写了很多单元测试。单元测试的一个核心理念就是对“单元”进行隔离，然后单独测试。可是网上的很多教程存在不少误区：比如在controller的测试中去使用$httpBackend，在引入第三方service的时候使用真实的service等等，说到底都是没有实现“关注分离”（Separation of Concerns），“单元”没有真正的被隔离。这篇文章就谈谈Angular的单元测试中如何更好的实现关注分离。</p>
+<a id="more"></a>
+<h3 id="文件结构上的隔离"><a href="#文件结构上的隔离" class="headerlink" title="文件结构上的隔离"></a>文件结构上的隔离</h3><p>好的实践应该是Angular中一个单独的controller/service/provider/directive对应一个单独的spec文件，这是“大单元”的隔离，而每个单元又是由很多“小单元”（函数）组成的，而“小单元”同样需要隔离，那么每个函数可以对应一个spec文件里的describe块。看下面这个service的例子：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// user.service.js</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">UserSerivce</span> </span>&#123;</span><br><span class="line">    <span class="keyword">constructor</span> ($http, $q, $rootScope, Event, AjaxError) &#123;...&#125;</span><br><span class="line"></span><br><span class="line">    checkLoggedInStatus () &#123;...&#125;</span><br><span class="line"></span><br><span class="line">    login (email, password) &#123;...&#125;</span><br><span class="line"></span><br><span class="line">    logout () &#123;...&#125;</span><br><span class="line">&#125;</span><br><span class="line">UserSerivce.$inject = [<span class="string">'$http'</span>, <span class="string">'$q'</span>, <span class="string">'$rootScope'</span>, <span class="string">'Event'</span>, <span class="string">'AjaxErrorHandler'</span>];</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> UserSerivce;</span><br><span class="line"></span><br><span class="line"><span class="comment">// user.service.spec.js</span></span><br><span class="line"><span class="keyword">import</span> UserService <span class="keyword">from</span> <span class="string">'./user.service'</span>;</span><br><span class="line"></span><br><span class="line">describe(<span class="string">'User Service'</span>, () =&gt; &#123;</span><br><span class="line"></span><br><span class="line">    beforeEach(...);</span><br><span class="line"></span><br><span class="line">    describe(<span class="string">'constructor function'</span>, () =&gt; &#123;...&#125;);</span><br><span class="line"></span><br><span class="line">    describe(<span class="string">'checkLoggedInStatus function'</span>, () =&gt; &#123;...&#125;);</span><br><span class="line"></span><br><span class="line">    describe(<span class="string">'login function'</span>, () =&gt; &#123;...&#125;);</span><br><span class="line"></span><br><span class="line">    describe(<span class="string">'logout function'</span>, () =&gt; &#123;...&#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>可以看到在测试的spec文件中，一个“大单元”对应顶层的describe，而“小单元”也有自己对应的子describe，这就从文件结构上保证了单元的隔离。当然这只是表面功夫，要做到更好的关注分离，我觉得要做到以下几点：</p>
+<ul>
+<li>让测试尽量脱离Angular框架本身。</li>
+<li>能mock的依赖全mock，而且只mock需要直接依赖的部分。</li>
+<li>对于外部依赖和内部依赖（比如controller的一个函数调用自己的另一个函数），直接spy。</li>
+</ul>
+<p>下面就以controller/service/provider的测试为例，来讲讲如何贯彻上面几点。需要说明的是，下面的代码都是基于jasmine和ES6的，但是一些思路和想法也同样适用于ES5。</p>
+<h3 id="简单controller-service的测试可以脱离框架本身"><a href="#简单controller-service的测试可以脱离框架本身" class="headerlink" title="简单controller/service的测试可以脱离框架本身"></a>简单controller/service的测试可以脱离框架本身</h3><p>对于很多简单的controller和service，它不依赖Angular本身的特殊service（如<code>$rootScope</code>，<code>$http</code>等等），这个时候我们就可以甩开Angular测试里的<code>angular.mock.module</code>和<code>angular.mock.inject</code>这类框架特有的函数，直接在测试中mock它的构造函数的参数，然后new这个class进行测试即可。我们来看一个例子：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">AjaxErrorHandlerService</span> </span>&#123;</span><br><span class="line">    <span class="keyword">constructor</span> (Error, $q) &#123;</span><br><span class="line">        <span class="built_in">Object</span>.assign(<span class="keyword">this</span>, &#123;<span class="built_in">Error</span>, $q&#125;);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// directly reject with the human readable error message</span></span><br><span class="line">    catcher (reason) &#123;</span><br><span class="line">        <span class="keyword">const</span> type = <span class="keyword">typeof</span> reason;</span><br><span class="line">        <span class="keyword">let</span> code = <span class="string">'$UNEXPECTED'</span>;</span><br><span class="line">        <span class="keyword">if</span> (reason) &#123;</span><br><span class="line">            <span class="keyword">if</span> (type === <span class="string">'object'</span>) &#123;</span><br><span class="line">                code = reason.message;</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (type === <span class="string">'string'</span>) &#123;</span><br><span class="line">                code = reason;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.$q.reject(&#123;</span><br><span class="line">            code,</span><br><span class="line">            text: <span class="keyword">this</span>.Error.getErrorMessage(code)</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">AjaxErrorHandlerService.$inject = [<span class="string">'Error'</span>, <span class="string">'$q'</span>];</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> AjaxErrorHandlerService;</span><br></pre></td></tr></table></figure>
+<p>可以看到这个<code>AjaxErrorHandlerService</code>提供了一个统一的函数用来处理所有Ajax请求失败的情况，它有两个依赖：定义在其他文件中的名叫<code>Error</code>的service，以及Angular自身的<code>$q</code>。按照传统的Angular单元测试流程，我们需要这么写：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">describe(<span class="string">'AjaxErrorHandler Service'</span>, () =&gt; &#123;</span><br><span class="line">    <span class="keyword">let</span> ErrorService;</span><br><span class="line">    <span class="keyword">let</span> $q;</span><br><span class="line">    <span class="keyword">let</span> ajaxErrorHandler;</span><br><span class="line"></span><br><span class="line">    beforeEach(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">        angular.mock.module(<span class="string">'theModuleContainsThisService'</span>);</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    beforeEach(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">        angular.mock.inject(<span class="function">(<span class="params">_Error_, _$q_, _AjaxErrorHandler_</span>) =&gt;</span> &#123;</span><br><span class="line">            <span class="built_in">Error</span> = _Error_;</span><br><span class="line">            $q = _$q_;</span><br><span class="line">            ajaxErrorHandler = _AjaxErrorHandler_;</span><br><span class="line">            spyOn(<span class="built_in">Error</span>, <span class="string">'getErrorMessage'</span>);</span><br><span class="line">            spyOn($q, <span class="string">'reject'</span>);</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;);</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>在上面的测试中，我们先使用angular-mock模块提供的module函数来加载service所在的module，然后使用inject来引入真实的<code>Error</code>和<code>$q</code>，spy其中的方法，最后再进行我们自己的测试。这里面的误区有两个：</p>
+<ol>
+<li>这个测试根本不需要使用Angular自身的module和inject</li>
+<li>没必要引入真实的service依赖</li>
+</ol>
+<p>我们来看看修改后的测试(省略describe头)：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> AjaxErrorHandlerService <span class="keyword">from</span> <span class="string">'./ajax-error-handler.service'</span>;</span><br><span class="line"><span class="comment">// describe ...</span></span><br><span class="line">beforeEach(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    ErrorService = jasmine.createSpyObj(<span class="string">'Error'</span>, [<span class="string">'getErrorMessage'</span>]);</span><br><span class="line">    $q = jasmine.createSpyObj(<span class="string">'$q'</span>, [<span class="string">'reject'</span>]);</span><br><span class="line">    ajaxErrorHandler = <span class="keyword">new</span> AjaxErrorHandlerService(ErrorService, $q);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>修改后的测试看起来简洁多了。首先，ES6中service的定义已经是class了，我们可以自行初始化它，没必要使用框架的inject。其次，它的所有依赖我们都可以直接使用mock的object，jasmine的<code>createSpyObj</code>可以创建一个mock的object，并且数组里指定的函数都自动被spy了，这也是我们为什么可以直接省略<code>spyOn()</code>调用的原因。可以看到，这个测试脱离了Angular框架本身，其次它没有真的引入真实的依赖，而是mock了它们，并且只mock自己需要的那部分函数（中括号里的部分）。这样，单元被彻底的隔离开了：</p>
+<ul>
+<li>即便以后这段代码用于非Angular框架了，测试依然有效。</li>
+<li>就算其它的service的实现有问题，也不会影响这个测试。</li>
+</ul>
+<p>那有人要问了，我就是想要测A的时候发现A的依赖B有问题，好吧，那就从根本上违背了单元测试的初衷，不叫单元测试！关于<code>AjaxErrorHandlerService</code>的完整测试可以看<a href="https://github.com/PinkyJie/angular1-webpack-starter/blob/master/source/app/components/_common/services/ajax-error-handler.service.spec.js" target="_blank" rel="noopener">这里</a>。</p>
+<p>还有一个例子也很常见，那就是我们常常需要测试<code>$rootScope.$on(xxx, xxx)</code>，也就是需要测试Angular里的事件响应。看下面这个例子：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    $rootScope.$on(<span class="string">'$stateChangeSuccess'</span>, (event, toState) =&gt; &#123; ... &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>当我们要测试这个<code>foo</code>函数的时候，我们很自然的想到可以调用<code>$rootScope.$broadcast(&#39;$stateChangeSuccess&#39;);</code>，这样就可以fire一个事件，foo函数里定义的事件回调就可以触发了。这样一来，又出现了需要依赖Angular框架的情况。其实，这种情况下我们依然可以杜绝这种依赖。回到测试本身，其实我们需要测试的是后面的回调函数，因为<code>$on</code>这个机制是由框架本身保证的，我们不应该去测这个机制，我们只要保证回调里的逻辑就好了。那么我们可以这么测：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">it (<span class="string">'should work'</span>, () =&gt; &#123;</span><br><span class="line">    foo();</span><br><span class="line">    <span class="comment">// 假设前面已经mock一个假的$rootScope</span></span><br><span class="line">    expect($rootScope.$on).toHaveBeenCalled();</span><br><span class="line">    expect($rootScope.$on.calls.argsFor(<span class="number">0</span>)[<span class="number">0</span>]).toBe(<span class="string">'$stateChangeSuccess'</span>);</span><br><span class="line">    <span class="keyword">const</span> callback = $rootScope.$on.calls.argsFor(<span class="number">0</span>)[<span class="number">1</span>];</span><br><span class="line">    callback(&#123;...&#125;, &#123;...&#125;);</span><br><span class="line">    <span class="comment">// expect logic in callback</span></span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>上面的测试并没有引入真正的<code>$rootScope</code>，它只验证<code>$on</code>被调用过（第4行），并且第一个参数是<code>$stateChangeSuccess</code>（第5行），然后通过jasmine的<code>argsFor(0)[1]</code>拿到callback（第6行），意思就是第1次调用时的第2个参数，显然，第2个参数就是我们要测的回调函数本身。拿到了回调函数，我们只要给定参数执行它，然后在expect里面的一些逻辑即可。在这个例子里，我们再次做到了关注分离，我们的关注点只放在了自己实现的回调上，而框架本身的事件机制我们选择忽略。</p>
+<p>当然，有些情况下我们无法脱离Angular框架，必须要引入真实的service，我总结了一下大概有以下几种情况：</p>
+<ul>
+<li>测试directive时需要<code>$compile</code>和<code>$rootScope</code>：<ul>
+<li>用<code>$compile</code>来编译含有directive的HTML代码。</li>
+<li>用<code>$rootScope.$new()</code>来生成directive的scope（用于link函数里）。</li>
+</ul>
+</li>
+<li>测含有HTTP请求的service时需要使用<code>$httpBackend</code>：使用<code>$httpBackend.expectXXX(xxx)</code>来模拟HTTP请求的返回。</li>
+<li>测promise的时候需要<code>$q</code>和<code>$rootScope</code>：（下一节会详细讲到）<ul>
+<li>使用<code>const deferred = $q.defer()</code>来生成一个deferred的对象，然后在需要promise的地方使用<code>deferred.promise</code>代替。</li>
+<li>使用<code>$rootScope.$digest()</code>来使promise的结果生效。</li>
+</ul>
+</li>
+</ul>
+<h3 id="controller的测试里不要出现-httpBackend，测service时才需要它"><a href="#controller的测试里不要出现-httpBackend，测service时才需要它" class="headerlink" title="controller的测试里不要出现$httpBackend，测service时才需要它"></a>controller的测试里不要出现$httpBackend，测service时才需要它</h3><p>这是我一开头就提到的问题，我们来看下面这个controller和service：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// user.service.js</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">UserSerivce</span> </span>&#123;</span><br><span class="line">    login (email, password) &#123;</span><br><span class="line">        <span class="keyword">const</span> self = <span class="keyword">this</span>;</span><br><span class="line">        <span class="keyword">const</span> req = &#123;</span><br><span class="line">            email,</span><br><span class="line">            password</span><br><span class="line">        &#125;;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.$http.post(<span class="string">'api/user/login'</span>, req)</span><br><span class="line">            .then(<span class="function">(<span class="params">response</span>) =&gt;</span> &#123;</span><br><span class="line">                <span class="keyword">const</span> data = response.data;</span><br><span class="line">                <span class="keyword">if</span> (response.status === <span class="number">200</span> &amp;&amp; data.code === <span class="number">0</span>) &#123;</span><br><span class="line">                    <span class="keyword">return</span> data.result.user;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">return</span> self.$q.reject(data.message);</span><br><span class="line">            &#125;)</span><br><span class="line">            .catch(<span class="function">(<span class="params">reason</span>) =&gt;</span> &#123;</span><br><span class="line">                <span class="keyword">return</span> self.$q.reject(reason);</span><br><span class="line">            &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// login.controller.js</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">LoginController</span> </span>&#123;</span><br><span class="line">    login (credential) &#123;</span><br><span class="line">        <span class="keyword">this</span>.User.login(credential.email, credential.password)</span><br><span class="line">            .then(...)</span><br><span class="line">            .catch(...);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在测试这个controller时，很多文章直接这样写：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$httpBackend.expectPOST(<span class="string">'api/user/login'</span>).respond(&#123;<span class="attr">code</span>: <span class="number">0</span>, <span class="attr">result</span>: &#123;<span class="attr">user</span>: <span class="string">'user'</span>&#125;&#125;);</span><br><span class="line">controller.login(...);</span><br><span class="line">$httpBackend.flush();</span><br><span class="line">expect(...) <span class="comment">// check logic in controller then branch</span></span><br></pre></td></tr></table></figure>
+<p>然后到了测试service时，还是这么写：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$httpBackend.expectPOST(<span class="string">'api/user/login'</span>).respond(&#123;<span class="attr">code</span>: <span class="number">0</span>, <span class="attr">result</span>: &#123;<span class="attr">user</span>: <span class="string">'user'</span>&#125;&#125;);</span><br><span class="line">UserService.login(...);</span><br><span class="line">$httpBackend.flush();</span><br><span class="line">expect(...) <span class="comment">// check logic in service then branch</span></span><br></pre></td></tr></table></figure>
+<p>请问有什么区别吗？service这么写无可厚非，因为它依赖<code>$http</code>，所以测试的时候拿<code>$httpBackend</code>去mock是合理的，可是controller的直接依赖是service而不是<code>$http</code>，为什么也要这么mock呢？这就有点越俎代庖的意思，你不mock你的直接依赖，而是去mock你的依赖的依赖。显然，这不是一种好的隔离。</p>
+<p>那么回到controller来说，它的直接依赖是<code>User.login</code>这个函数，那么我们只需要去mock这个函数就好，那么这个函数返回的是什么呢？没错，是一个promise。那么测controller的时候我们只需要去mock这个promise就好了，看下面的代码（变量定义已省略，完整的代码见<a href="https://github.com/PinkyJie/angular1-webpack-starter/blob/master/source/app/components/login-form/login-form.controller.spec.js" target="_blank" rel="noopener">这里</a>）：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">beforeEach(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    angular.mock.inject(<span class="function">(<span class="params">_$q_, _$rootScope_</span>) =&gt;</span> &#123;</span><br><span class="line">        $q = _$q_;</span><br><span class="line">        $rootScope = _$rootScope_;</span><br><span class="line">        UserAPI = jasmine.createSpyObj(<span class="string">'UserAPI'</span>, [<span class="string">'login'</span>]);</span><br><span class="line">        controller = <span class="keyword">new</span> LoginController(UserAPI);</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">describe(<span class="string">'login function'</span>, () =&gt; &#123;</span><br><span class="line">    beforeEach(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">        deferred = $q.defer();</span><br><span class="line">        UserAPI.login.and.returnValue(deferred.promise);</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    it(<span class="string">'should success'</span>, () =&gt; &#123;</span><br><span class="line">        deferred.resolve(...);</span><br><span class="line">        controller.login(...);</span><br><span class="line">        $rootScope.$digest();</span><br><span class="line">        expect(...) <span class="comment">// check logic in then branch</span></span><br><span class="line">    &#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>上面的测试中引入了真实的<code>$q</code>和<code>$rootScope</code>，这就是我们上一小节提到的测试promise时需要的。第12、13行我们使用<code>$q</code>构造一个promise对象，让mock后的login函数返回这个promise，然后在后面的测试中，我们直接控制这个promise是resolve还是reject即可（第17行）。注意，第19行的<code>$rootScope.$digest()</code>是框架本身的要求，我们需要这行代码让promise的结果生效。这样一来，controller的测试就与它背后的HTTP请求隔离开了，因为它只关心promise的resolve或reject，只有service才需要去关注HTTP的返回。</p>
+<p>这里顺带一提，测试service的时候需要让<code>$httpBackend</code>模拟返回3个结果：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">apiResponse.respond(&#123;<span class="attr">code</span>: <span class="number">0</span>, <span class="attr">result</span>: &#123;<span class="attr">user</span>: <span class="string">'user'</span>&#125;&#125;);</span><br><span class="line">apiResponse.respond(&#123;<span class="attr">code</span>: <span class="number">1</span>, <span class="attr">message</span>: <span class="string">'error'</span>&#125;);</span><br><span class="line">apiResponse.respond(<span class="function"><span class="params">()</span> =&gt;</span> &#123;<span class="keyword">return</span> [<span class="number">500</span>];&#125;);</span><br></pre></td></tr></table></figure>
+<p>这是基于测试覆盖率的考量，因为可以看到service的实现逻辑中，2xx的返回会进入then分支，非2xx的返回进入catch分支，而在then分支中手动执行<code>$q.reject()</code>也会进入catch分支。而测试controller时，因为它关心的只是promise，所以只需要模拟resolve和reject两种结果即可。</p>
+<h3 id="让module-inject引入我们mock过的provider-service"><a href="#让module-inject引入我们mock过的provider-service" class="headerlink" title="让module/inject引入我们mock过的provider/service"></a>让module/inject引入我们mock过的provider/service</h3><p>有些情况下，我们必须使用inject来引入一些provider和service，比如在测试provider的时候，因为provider的初始化并不像controller或service那样可以直接new，它是由框架本身来初始化的，并且<code>.provider(&#39;RouterHelper&#39;, RouterHelperProvider)</code>的定义会同时得到一个<code>RouterHelperProvider</code>的provider和一个<code>RouterHelper</code>的service。所以在测provider的时候我们只能通过module来实现，但即便这样我们依然可以让module/inject加载我们已经mock过的provider和service。我们来看下面这个provider的实现：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">RouterHelperProvider</span> </span>&#123;</span><br><span class="line">    <span class="keyword">constructor</span> ($locationProvider, $stateProvider, $urlRouterProvider) &#123;</span><br><span class="line">        <span class="built_in">Object</span>.assign(<span class="keyword">this</span>, &#123;$locationProvider, $stateProvider, $urlRouterProvider&#125;);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">this</span>.config = &#123;</span><br><span class="line">            mainTitle: <span class="string">''</span>,</span><br><span class="line">            resolveAlways: &#123;&#125;</span><br><span class="line">        &#125;;</span><br><span class="line">        <span class="keyword">this</span>.$locationProvider.html5Mode(<span class="literal">true</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    configure (cfg) &#123;</span><br><span class="line">        angular.extend(<span class="keyword">this</span>.config, cfg);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    $<span class="keyword">get</span> ($rootScope, $state, Logger, Resolve) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> RouterHelper(</span><br><span class="line">            <span class="keyword">this</span>.config, <span class="keyword">this</span>.$stateProvider, <span class="keyword">this</span>.$urlRouterProvider,</span><br><span class="line">            $rootScope, $state, Logger, Resolve);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">RouterHelperProvider.prototype.$<span class="keyword">get</span>.$inject = [</span><br><span class="line">    '$rootScope', '$state', 'Logger', 'Resolve'</span><br><span class="line">];</span><br><span class="line"></span><br><span class="line">RouterHelperProvider.$inject = ['$locationProvider', '$stateProvider', '$urlRouterProvider'];</span><br></pre></td></tr></table></figure>
+<p>对于RouterHelperProvider和RouterHelper的依赖我们都需要来mock，要实现这一点其实我们只要<strong>在运行<code>angular.mock.module(&#39;xxx&#39;)</code>之前进行provider的mock</strong>即可：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> RouterHelperProvider <span class="keyword">from</span> <span class="string">'./router-helper.provider'</span>;</span><br><span class="line"></span><br><span class="line">beforeEach(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    angular.module(<span class="string">'test'</span>, [])</span><br><span class="line">        .provider(<span class="string">'RouterHelper'</span>, RouterHelperProvider);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">beforeEach(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="comment">// function passed to module() does not get called until inject() does it's thing</span></span><br><span class="line">    angular.mock.module(<span class="function">(<span class="params">$provide</span>) =&gt;</span> &#123;</span><br><span class="line">        <span class="comment">// provider needs to be mocked before module load</span></span><br><span class="line">        $provide.provider(<span class="string">'$location'</span>, jasmine.createSpyObj(<span class="string">'$locationProvider'</span>, [<span class="string">'html5Mode'</span>, <span class="string">'$get'</span>]));</span><br><span class="line">        $provide.provider(<span class="string">'$urlRouter'</span>, jasmine.createSpyObj(<span class="string">'$urlRouterProvider'</span>, [<span class="string">'otherwise'</span>, <span class="string">'$get'</span>]));</span><br><span class="line">        $provide.provider(<span class="string">'$state'</span>, jasmine.createSpyObj(<span class="string">'$stateProvider'</span>, [<span class="string">'state'</span>, <span class="string">'$get'</span>]));</span><br><span class="line">        $provide.value(<span class="string">'$rootScope'</span>, jasmine.createSpyObj(<span class="string">'$rootScope'</span>, [<span class="string">'$on'</span>]));</span><br><span class="line">        $provide.value(<span class="string">'Logger'</span>, jasmine.createSpyObj(<span class="string">'Logger'</span>, [<span class="string">'warning'</span>]));</span><br><span class="line">        $provide.value(<span class="string">'Resolve'</span>, jasmine.createSpyObj(<span class="string">'Resolve'</span>, [<span class="string">'login'</span>]));</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">beforeEach(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    angular.mock.module(<span class="string">'test'</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">beforeEach(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    angular.mock.module((_$locationProvider_, _$stateProvider_,</span><br><span class="line">        _$urlRouterProvider_, _RouterHelperProvider_) =&gt; &#123;</span><br><span class="line">        $locationProvider = _$locationProvider_;</span><br><span class="line">        $stateProvider = _$stateProvider_;</span><br><span class="line">        $stateProvider.$<span class="keyword">get</span>.and.returnValue(jasmine.createSpyObj('$<span class="keyword">get</span>', ['<span class="keyword">get</span>', 'go']));</span><br><span class="line">        $urlRouterProvider = _$urlRouterProvider_;</span><br><span class="line">        provider = _RouterHelperProvider_;</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">beforeEach(() =&gt; &#123;</span><br><span class="line">    angular.mock.inject(<span class="function">(<span class="params">_$rootScope_, _$state_, _Logger_, _Resolve_</span>) =&gt;</span> &#123;</span><br><span class="line">        $rootScope = _$rootScope_;</span><br><span class="line">        $state = _$state_;</span><br><span class="line">        Logger = _Logger_;</span><br><span class="line">        Resolve = _Resolve_;</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>上面的测试包含5块beforeEach，每一块都有自己的分工：</p>
+<ol>
+<li>定义我们自己的provider，我们把它定义在自己的<code>test</code>module上而不是真实的module上，这样可以更好的隔离。</li>
+<li>mock需要的各种provider，我们知道provider是带有<code>$get</code>函数的特殊的class，所以我们只需要保证mock后的provider包含<code>$get</code>及我们要用的其他函数即可。</li>
+<li>加载这个<code>test</code>的module。</li>
+<li>引入我们mock过的provider依赖，注意第30行有些特殊。我们的目标是mock<code>$state</code>这个service里的<code>get</code>和<code>go</code>函数，但这个<code>$state</code>service是我们mock的<code>$stateProvider</code>这个provider的<code>$get</code>函数生成的，所以我们需要直接mock这个<code>$get</code>的返回值，让其继续返回一个可以spy的object。如果我们不这样做，而是直接在inject函数里尝试<code>spyOn($state, &#39;get&#39;)</code>的话就会报错，因为这里的<code>$state</code>是没有<code>get</code>这个函数的。</li>
+<li>引入我们mock过的service依赖。</li>
+</ol>
+<p>这样，所有的依赖虽然都是通过module/inject引入进来的，但是它依然是我们mock过的。这里的顺序值得注意，对于provider的mock必须在调用<code>angular.mock.module(&#39;test&#39;);</code>（第3个beforeEach块）之前，否则得到的就不是你mock过的provider，而是框架自带的provider。如果是第3方的provider如<code>$stateProvider</code>，如果放在module加载之后再mock，加载module时就会报错：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Error: [$injector:modulerr] Failed to instantiate module test due to:</span><br><span class="line">Error: [$injector:unpr] Unknown provider: $stateProvider</span><br></pre></td></tr></table></figure>
+<p>这是因为其实<code>$stateProvider</code>根本就不在<code>test</code>这个module里，我们必须在加载module之前mock它，所以必须保证自定义provider的其它provider依赖都mock好了才能初始化这个module。但是service的mock就不需要这么做，我们把第15-17行移动到第3个beforeEach后面也是可行的。</p>
+<h3 id="其它小tip"><a href="#其它小tip" class="headerlink" title="其它小tip"></a>其它小tip</h3><p>最后讲一些单元测试里其它的小tip。</p>
+<h4 id="整合jquey插件的directive的测试流程"><a href="#整合jquey插件的directive的测试流程" class="headerlink" title="整合jquey插件的directive的测试流程"></a>整合jquey插件的directive的测试流程</h4><p>我们先来看一个简单的directive，它的link函数里只做一件事，调用jquery插件的dropdown函数：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">DropdownInitDirective</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">        restrict: <span class="string">'A'</span>,</span><br><span class="line">        link</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">link</span> (<span class="params">scope, element</span>) </span>&#123;</span><br><span class="line">        element.dropdown();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">DropdownInitDirective.$inject = [];</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> DropdownInitDirective;</span><br></pre></td></tr></table></figure>
+<p>再来看看如何测试它：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> DropdownInitDirective <span class="keyword">from</span> <span class="string">'./dropdown-init.directive'</span>;</span><br><span class="line"></span><br><span class="line">describe(<span class="string">'DropdownInit Directive'</span>, () =&gt; &#123;</span><br><span class="line">    <span class="keyword">let</span> scope;</span><br><span class="line"></span><br><span class="line">    beforeEach(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">        angular.module(<span class="string">'test'</span>, [])</span><br><span class="line">            .directive(<span class="string">'aioDropdownInit'</span>, DropdownInitDirective);</span><br><span class="line">        angular.mock.module(<span class="string">'test'</span>);</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    beforeEach(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">        angular.mock.inject(<span class="function">(<span class="params">$rootScope, $compile</span>) =&gt;</span> &#123;</span><br><span class="line">            scope = $rootScope.$<span class="keyword">new</span>();</span><br><span class="line">            spyOn($.fn, <span class="string">'dropdown'</span>).and.callThrough();</span><br><span class="line">            $compile(<span class="string">'&lt;a aio-dropdown-init&gt;&lt;/a&gt;'</span>)(scope);</span><br><span class="line">            scope.$digest();</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    it(<span class="string">'should call dropdown function when initialization'</span>, () =&gt; &#123;</span><br><span class="line">        expect($.fn.dropdown).toHaveBeenCalled();</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>directive的一般测试流程是：</p>
+<ol>
+<li>使用$rootScope来生成新的scope作为directive的scope（第14行）</li>
+<li>使用$compile来编译HTML代码并绑定scope（第16行）</li>
+<li>执行<code>scope.$diget()</code>使绑定的scope生效</li>
+</ol>
+<p>这里有一点特殊的地方就是第15行，实现代码里是调用的<code>element.dropdown</code>，但我们spy的却是jquery的<code>$.fn.dropdown</code>，这是因为element元素是$compile后才能返回的（第16行），而一旦返回，它的link函数就已经被立即调用了。所以，在第16行后去执行<code>spyOn(element, &#39;dropdown&#39;)</code>已经来不及，而在第16行之前执行呢，这时element还没有dropdown这个函数。所以对<code>$.fn</code>进行spy是一个折衷的方法，因为所有的jquey插件最终都是定义在<code>$.fn</code>上的。但是这么一来有些违反单元测试的原则，目前我也没想到更好的方案。</p>
+<h4 id="将重复的测试代码重构成函数"><a href="#将重复的测试代码重构成函数" class="headerlink" title="将重复的测试代码重构成函数"></a>将重复的测试代码重构成函数</h4><p>这一点不用所说，将重用的代码提取出来是编程中最常见的重构。单元测试中也存在很多这样的重复代码，一个最常见的例子就是在测试service的时候，2xx和非2xx的返回都有可能进入reject分支，所以在验证reject分支逻辑的时候就需要写两次，这时就可以把这些重复的代码提出来变成函数。看下面这个例子：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">describe(<span class="string">'login function'</span>, () =&gt; &#123;</span><br><span class="line">    <span class="keyword">let</span> apiResponse;</span><br><span class="line">    beforeEach(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">        spyOn(User, <span class="string">'_setUser'</span>);</span><br><span class="line">        spyOn(User, <span class="string">'_clearUser'</span>);</span><br><span class="line">        apiResponse = $httpBackend.expectPOST(<span class="string">'api/user/login'</span>);</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">assertError</span> (<span class="params">error</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">            expect(User._setUser).not.toHaveBeenCalled();</span><br><span class="line">            expect($rootScope.$broadcast).not.toHaveBeenCalled();</span><br><span class="line">            expect($q.reject).toHaveBeenCalledWith(error);</span><br><span class="line">            expect(User._clearUser).toHaveBeenCalled();</span><br><span class="line">            expect(AjaxErrorHandler.catcher).toHaveBeenCalledWith(error);</span><br><span class="line">        &#125;;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    it(<span class="string">'should not login user when API returns error result'</span>, () =&gt; &#123;</span><br><span class="line">        apiResponse.respond(&#123;<span class="attr">code</span>: <span class="number">1</span>, <span class="attr">message</span>: <span class="string">'error'</span>&#125;);</span><br><span class="line">        User.login(<span class="string">'a'</span>, <span class="string">'b'</span>).catch(assertError(<span class="string">'error'</span>));</span><br><span class="line">        $httpBackend.flush();</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    it(<span class="string">'should not login user when API returns 500'</span>, () =&gt; &#123;</span><br><span class="line">        apiResponse.respond(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> [<span class="number">500</span>];</span><br><span class="line">        &#125;);</span><br><span class="line">        User.login(<span class="string">'a'</span>, <span class="string">'b'</span>).catch(assertError(<span class="literal">null</span>));</span><br><span class="line">        $httpBackend.flush();</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<h4 id="测试覆盖率"><a href="#测试覆盖率" class="headerlink" title="测试覆盖率"></a>测试覆盖率</h4><p>一旦开始写测试就一定要加入测试覆盖率的统计，它不光是一个“看自己到底写了百分之多少的测试”的提醒，更重要的是它绝壁是写测试的最大动力。想想游戏里的成就系统，有时为了拿100%物品搜集成就即便通关了也要重来一遍。单元测试里的覆盖率统计也有同样的作用，有的时候不为别的，就想看那个数字跑到100%。ES5中我们有<a href="https://github.com/karma-runner/karma-coverage" target="_blank" rel="noopener">karma-coverage</a>配合<a href="https://github.com/gotwarlost/istanbul" target="_blank" rel="noopener">istanbul</a>，ES6中karma-coverage依然有效，但是我们需要<a href="https://github.com/douglasduteil/isparta" target="_blank" rel="noopener">isparta</a>——一个针对ES6的代码覆盖工具。你需要做的就是把它配置到karma的配置文件中，具体可以参考angular1-webpack-starter项目的<a href="https://github.com/PinkyJie/angular1-webpack-starter/blob/master/karma.config.js" target="_blank" rel="noopener">karma.conf.js</a>。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/AngularJS/" rel="tag"># AngularJS</a>
+              <a href="/tags/ES6/" rel="tag"># ES6</a>
+              <a href="/tags/angular1-webpack-starter/" rel="tag"># angular1-webpack-starter</a>
+              <a href="/tags/%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95/" rel="tag"># 单元测试</a>
+              <a href="/tags/%E5%85%B3%E6%B3%A8%E5%88%86%E7%A6%BB/" rel="tag"># 关注分离</a>
+              <a href="/tags/jasmine/" rel="tag"># jasmine</a>
+              <a href="/tags/karma-coverage/" rel="tag"># karma-coverage</a>
+              <a href="/tags/isparta/" rel="tag"># isparta</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2016/02/11/angular-1-x-with-es6/" rel="prev" title="ES6与Angular 1.x">
+      <i class="fa fa-chevron-left"></i> ES6与Angular 1.x
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2016/02/21/e2e-testing-in-angular/" rel="next" title="Angular 里的 E2E 测试">
+      Angular 里的 E2E 测试 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    
+  
+  <div class="comments">
+  <script src="https://utteranc.es/client.js" repo="PinkyJie/pinkyjie.github.com" issue-term="pathname" theme="github-light" crossorigin="anonymous" async></script>
+  </div>
+  
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#文件结构上的隔离"><span class="nav-number">1.</span> <span class="nav-text">文件结构上的隔离</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#简单controller-service的测试可以脱离框架本身"><span class="nav-number">2.</span> <span class="nav-text">简单controller&#x2F;service的测试可以脱离框架本身</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#controller的测试里不要出现-httpBackend，测service时才需要它"><span class="nav-number">3.</span> <span class="nav-text">controller的测试里不要出现$httpBackend，测service时才需要它</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#让module-inject引入我们mock过的provider-service"><span class="nav-number">4.</span> <span class="nav-text">让module&#x2F;inject引入我们mock过的provider&#x2F;service</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#其它小tip"><span class="nav-number">5.</span> <span class="nav-text">其它小tip</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#整合jquey插件的directive的测试流程"><span class="nav-number">5.1.</span> <span class="nav-text">整合jquey插件的directive的测试流程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#将重复的测试代码重构成函数"><span class="nav-number">5.2.</span> <span class="nav-text">将重复的测试代码重构成函数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#测试覆盖率"><span class="nav-number">5.3.</span> <span class="nav-text">测试覆盖率</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="马斯特"
+      src="/assets/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">马斯特</p>
+  <div class="site-description" itemprop="description">前端 | 溜冰 | Mac</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">55</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">186</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/PinkyJie" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;PinkyJie" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:pinkyjie.gn@gmail.com" title="E-Mail → mailto:pinkyjie.gn@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/PinkyJie" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;PinkyJie" rel="noopener" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://stackoverflow.com/users/689948/pinkyjie" title="StackOverflow → http:&#x2F;&#x2F;stackoverflow.com&#x2F;users&#x2F;689948&#x2F;pinkyjie" rel="noopener" target="_blank"><i class="fa fa-fw fa-stack-overflow"></i>StackOverflow</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">马斯特</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.7.0
+  </div>
+
+        
+
+
+  <div style="display: none;">
+    <script src="//s95.cnzz.com/z_stat.php?id=1253033676&web_id=1253033676"></script>
+  </div>
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  <script>
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install','8k3UxSuRWYkrhVg55bC3','2.0.0');
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

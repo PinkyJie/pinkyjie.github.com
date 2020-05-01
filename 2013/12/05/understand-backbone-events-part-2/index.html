@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="o7yQBnLIoWby8Y5vNMQywBiMtev-ilWjXt89RQpTvVw">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('http://pinkyjie.com').hostname,
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.7.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":"utteranc","storage":true,"lazyload":false,"nav":null,"activeClass":"utteranc"},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="书接上回，上次介绍了Backbone.Events的on和once，这篇继续介绍剩下的，先从off开始吧。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="理解Backbone中Events的实现(二)">
+<meta property="og:url" content="http://pinkyjie.com/2013/12/05/understand-backbone-events-part-2/index.html">
+<meta property="og:site_name" content="进击的马斯特">
+<meta property="og:description" content="书接上回，上次介绍了Backbone.Events的on和once，这篇继续介绍剩下的，先从off开始吧。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2013-12-05T21:00:00.000Z">
+<meta property="article:modified_time" content="2020-05-01T01:47:54.590Z">
+<meta property="article:author" content="马斯特">
+<meta property="article:tag" content="BackboneJS">
+<meta property="article:tag" content="Javascript">
+<meta property="article:tag" content="UnderscoreJS">
+<meta property="article:tag" content="前端MVC">
+<meta property="article:tag" content="Events">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://pinkyjie.com/2013/12/05/understand-backbone-events-part-2/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>理解Backbone中Events的实现(二) | 进击的马斯特</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">进击的马斯特</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">CODING MY LIFE</p>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://pinkyjie.com/2013/12/05/understand-backbone-events-part-2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/assets/images/avatar.jpg">
+      <meta itemprop="name" content="马斯特">
+      <meta itemprop="description" content="前端 | 溜冰 | Mac">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="进击的马斯特">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          理解Backbone中Events的实现(二)
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2013-12-05 21:00:00" itemprop="dateCreated datePublished" datetime="2013-12-05T21:00:00+00:00">2013-12-05</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-05-01 01:47:54" itemprop="dateModified" datetime="2020-05-01T01:47:54+00:00">2020-05-01</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%89%8D%E7%AB%AF%E5%BC%80%E5%8F%91/" itemprop="url" rel="index">
+                    <span itemprop="name">前端开发</span>
+                  </a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>书接<a href="http://pinkyjie.com/2013/12/02/understand-backbone-events-part-1/">上回</a>，上次介绍了<code>Backbone.Events</code>的<code>on</code>和<code>once</code>，这篇继续介绍剩下的，先从<code>off</code>开始吧。</p>
+<a id="more"></a>
+<h3 id="off的实现"><a href="#off的实现" class="headerlink" title="off的实现"></a>off的实现</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">off: <span class="function"><span class="keyword">function</span>(<span class="params">name, callback, context</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> retain, ev, events, names, i, l, j, k;</span><br><span class="line">    <span class="keyword">if</span> (!<span class="keyword">this</span>._events || !eventsApi(<span class="keyword">this</span>, <span class="string">'off'</span>, name, [callback, context])) <span class="keyword">return</span> <span class="keyword">this</span>;</span><br><span class="line">    <span class="keyword">if</span> (!name &amp;&amp; !callback &amp;&amp; !context) &#123;</span><br><span class="line">        <span class="keyword">this</span>._events = &#123;&#125;;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    names = name ? [name] : _.keys(<span class="keyword">this</span>._events);</span><br><span class="line">    <span class="keyword">for</span> (i = <span class="number">0</span>, l = names.length; i &lt; l; i++) &#123;</span><br><span class="line">        name = names[i];</span><br><span class="line">        <span class="keyword">if</span> (events = <span class="keyword">this</span>._events[name]) &#123;</span><br><span class="line">            <span class="keyword">this</span>._events[name] = retain = [];</span><br><span class="line">            <span class="keyword">if</span> (callback || context) &#123;</span><br><span class="line">                <span class="keyword">for</span> (j = <span class="number">0</span>, k = events.length; j &lt; k; j++) &#123;</span><br><span class="line">                    ev = events[j];</span><br><span class="line">                    <span class="keyword">if</span> ((callback &amp;&amp; callback !== ev.callback &amp;&amp; callback !== ev.callback._callback) ||</span><br><span class="line">                        (context &amp;&amp; context !== ev.context)) &#123;</span><br><span class="line">                        retain.push(ev);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (!retain.length) <span class="keyword">delete</span> <span class="keyword">this</span>._events[name];</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>off</code>用来解除事件的绑定，传入的参数还是老三样，即事件的三要素：名称、回调、上下文。在<a href="http://backbonejs.org/docs/backbone.html#section-17" target="_blank" rel="noopener">带注释的源码</a>里很详细的介绍了<code>off</code>的大致流程。首先这三个参数都是可选的，三要素可以唯一确定一个绑定，忽略一个要素，则范围就会扩大。比如，不传context，则匹配前两个的参数的绑定全部被解绑，如果callback也不传，则该事件的所有绑定被解绑，如果连name也不传，也就是直接调<code>off()</code>，则所有事件的所有绑定都被解绑。上篇文章分析过，绑定就是把callback填到特定的数组里，那解绑就从数组里删除就好了。</p>
+<p>明白了原理，来看代码，第2行定义了一堆要用到的变量，第3行又是熟悉的<code>eventsApi</code>判断，可见这个name也是支持同时传多个名称的，另外这里还多了一个检查<code>_events</code>的条件，如果不存在那说明没有任何事件绑定，直接返回。第4-7行就是刚才分析过的不带参直接调<code>off()</code>的情况，直接清空<code>_events</code>，接触所有绑定，然后返回。第8行将要解绑的事件名称放入<code>names</code>数组，如果传了name就只放一个name，没传就将<code>_events</code>里所有事件名称都放进去。从第9行开始，遍历这个<code>names</code>数组，每次循环先将绑定到这个事件上的回调放入<code>events</code>数组。第11行判断如果这个数组没有值，也就是说不存在回调绑定在这个事件上，那本次循环就直接结束了，如果存在，则继续走。第12行直接清空<code>this._events[name]</code>数组，并赋值给<code>retain</code>变量，retain的字面意思就是“保持”，意思就是不需要移除的回调会被放回<code>retain</code>中去，即放回<code>this._events[name]</code>中去。接着看第13行，判断如果传了callback或context，则第14行开始遍历绑定在这个事件上的所有回调，先将每个回调赋值给<code>ev</code>，回忆下，这个<code>ev</code>是个对象，即<code>{callback: xxx, context: xxx, ctx: xxx}</code>。第16-19行判断如果这个<code>ev</code>不需要移除，就将其填入<code>retain</code>中去。这个判断条件<code>(callback &amp;&amp; callback !== ev.callback &amp;&amp; callback !== ev.callback._callback) || (context &amp;&amp; context !== ev.context)</code>也很直观，两种情况下不需要移除。第一种情况，若传入了callback并且传入的callback与<code>ev.callback</code>不匹配，并且与<code>ev.callback._callback</code>也不匹配，则不需移除，后者主要是为了<code>once</code>，回忆一下，用<code>once</code>绑定的回调原形存在<code>_callback</code>里。第二种情况，若传入了context并且与<code>ev.context</code>不匹配，则不用移除。经过这个判断，所有不需移除的绑定都填入了<code>retain</code>数组中，接下来第22行，判断若<code>retain</code>为空，则直接删除整个<code>this._events[name]</code>数组。最后第25行返回this解绑结束，这里顺便提一下，很多函数都返回this的作用就是方便作“链式调用”，比如可以<code>obj.on(xxx1).off(xxx2)</code>这样写。</p>
+<h3 id="trigger的实现"><a href="#trigger的实现" class="headerlink" title="trigger的实现"></a>trigger的实现</h3><p>按照源码里的顺序，下一个该<code>trigger</code>函数了，用于触发事件，调用回调函数。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">trigger: <span class="function"><span class="keyword">function</span>(<span class="params">name</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (!<span class="keyword">this</span>._events) <span class="keyword">return</span> <span class="keyword">this</span>;</span><br><span class="line">    <span class="keyword">var</span> args = slice.call(<span class="built_in">arguments</span>, <span class="number">1</span>);</span><br><span class="line">    <span class="keyword">if</span> (!eventsApi(<span class="keyword">this</span>, <span class="string">'trigger'</span>, name, args)) <span class="keyword">return</span> <span class="keyword">this</span>;</span><br><span class="line">    <span class="keyword">var</span> events = <span class="keyword">this</span>._events[name];</span><br><span class="line">    <span class="keyword">var</span> allEvents = <span class="keyword">this</span>._events.all;</span><br><span class="line">    <span class="keyword">if</span> (events) triggerEvents(events, args);</span><br><span class="line">    <span class="keyword">if</span> (allEvents) triggerEvents(allEvents, <span class="built_in">arguments</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>trigger函数只有一个参数name，就是要触发的事件名称，其实trigger是可以传很多参数进来的，后面的参数都会传给回调函数callback。可以看第3行，利用slice将除name以外的参数存入了<code>args</code>变量中。第2行和第4行同样是判断，首先如果没有<code>this._events</code>则没有回调绑定在这个事件上，直接返回；其次，利用<code>eventsApi</code>转换参数，用于递归调用同时触发多个事件。第5行将绑定在该事件上的所有回调放入<code>events</code>数组。第6行将绑定在名为<code>all</code>的事件上的所有回到放入<code>allEvents</code>数组，这个<code>all</code>是一个特殊的事件，触发任意的事件都会触发它。第7-8行调用<code>triggerEvents</code>函数来具体调用每个回调，注意这里的区别，如果触发的是<code>all</code>事件，则传给回调函数的第一个参数是具体的事件名称，所以这里直接传入<code>arguments</code>。</p>
+<p>下面就具体看看怎么调每个回调吧，放上<code>triggerEvents</code>的代码：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> triggerEvents = <span class="function"><span class="keyword">function</span>(<span class="params">events, args</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> ev, i = <span class="number">-1</span>, l = events.length, a1 = args[<span class="number">0</span>], a2 = args[<span class="number">1</span>], a3 = args[<span class="number">2</span>];</span><br><span class="line">    <span class="keyword">switch</span> (args.length) &#123;</span><br><span class="line">        <span class="keyword">case</span> <span class="number">0</span>: <span class="keyword">while</span> (++i &lt; l) (ev = events[i]).callback.call(ev.ctx); <span class="keyword">return</span>;</span><br><span class="line">        <span class="keyword">case</span> <span class="number">1</span>: <span class="keyword">while</span> (++i &lt; l) (ev = events[i]).callback.call(ev.ctx, a1); <span class="keyword">return</span>;</span><br><span class="line">        <span class="keyword">case</span> <span class="number">2</span>: <span class="keyword">while</span> (++i &lt; l) (ev = events[i]).callback.call(ev.ctx, a1, a2); <span class="keyword">return</span>;</span><br><span class="line">        <span class="keyword">case</span> <span class="number">3</span>: <span class="keyword">while</span> (++i &lt; l) (ev = events[i]).callback.call(ev.ctx, a1, a2, a3); <span class="keyword">return</span>;</span><br><span class="line">        <span class="keyword">default</span>: <span class="keyword">while</span> (++i &lt; l) (ev = events[i]).callback.apply(ev.ctx, args);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>这里将传给回调函数的参数组<code>args</code>的前3个先赋给3个变量：<code>arg1, arg2, arg3</code>，接着一个switch判断参数组<code>args</code>的长度，分情况执行。每种情况下都利用一个while循环去遍历绑定在该事件上的所有回调，利用<code>(ev = events[i]).callback.call(ev.ctx, xxx....);</code>去调用具体的回调函数，上篇文章也提到过，<code>ev</code>对象里虽然有<code>context</code>，但真正起作用的是<code>ctx</code>，这是为了避免绑定时没传context，具体可以查看<a href="http://pinkyjie.com/2013/12/02/understand-backbone-events-part-1/">上篇文章</a>。如果参数个数是0-3，就利用前面定义好的<code>arg1, arg2, arg3</code>直接传，否则进入default分支，利用<code>apply</code>直接传整个参数组<code>args</code>。这里初看会有疑惑，其实不管参数组的个数，所有情况都可以用default分支的代码去处理啊，干嘛多此一举呢？官方的解释也用了“difficult-to-believe”这个词，说Backbone里大部分的事件回调都只有3个参数，这一点可以查看官方文档里的<a href="http://backbonejs.org/#Events-catalog" target="_blank" rel="noopener">所有事件列表</a>，确实如此。在这样的情况下，使用switch区分参数长度，可以提高常见情况下（即参数小于3个）的事件分派效率。我还是有点小疑惑，莫非在Javascript里<code>call</code>的效率要比<code>apply</code>高？好像也没搜到相关的资料证明这一点。总之，事件的触发就是如此了。</p>
+<h3 id="监听别人的事件"><a href="#监听别人的事件" class="headerlink" title="监听别人的事件"></a>监听别人的事件</h3><p>绑定、解绑和触发自己的事件都已经分析完了，剩下的三个函数<code>listenTo, listenToOnce, stopListening</code>是用来绑定和解绑其他对象的事件的。上篇文章也提到过，绑定其他对象的事件，无非就是将回调函数放入其他对象的<code>_events</code>变量中去罢了，原理是一样的，但是作为监听者这边也要有一个变量来存放这个“其他对象”的引用，这样解绑的时候才能找到这个“其他对象”，而这个变量就是<code>_listeningTo</code>。那监听其他对象的事件的流程就是，将这个“其他对象”的引用写入<code>_listeningTo</code>，然后调用这个“其他对象”的on或once进行回调函数的绑定即可。明白了原理就来看代码实现吧。</p>
+<h3 id="listenTo和listeToOnce的实现"><a href="#listenTo和listeToOnce的实现" class="headerlink" title="listenTo和listeToOnce的实现"></a>listenTo和listeToOnce的实现</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> listenMethods = &#123;<span class="attr">listenTo</span>: <span class="string">'on'</span>, <span class="attr">listenToOnce</span>: <span class="string">'once'</span>&#125;;</span><br><span class="line">_.each(listenMethods, <span class="function"><span class="keyword">function</span>(<span class="params">implementation, method</span>) </span>&#123;</span><br><span class="line">    Events[method] = <span class="function"><span class="keyword">function</span>(<span class="params">obj, name, callback</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">var</span> listeningTo = <span class="keyword">this</span>._listeningTo || (<span class="keyword">this</span>._listeningTo = &#123;&#125;);</span><br><span class="line">        <span class="keyword">var</span> id = obj._listenId || (obj._listenId = _.uniqueId(<span class="string">'l'</span>));</span><br><span class="line">        listeningTo[id] = obj;</span><br><span class="line">        <span class="keyword">if</span> (!callback &amp;&amp; <span class="keyword">typeof</span> name === <span class="string">'object'</span>) callback = <span class="keyword">this</span>;</span><br><span class="line">        obj[implementation](name, callback, <span class="keyword">this</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>这两个函数的实现类似，是通过同一段代码实现的，官方解释说listenTo和listenToOnce分别是on和once的“控制反转”，大家凑合理解理解吧。。。第1行先将对应关系存入变量<code>listenMethods</code>，接着就用Underscore的<code>_.each</code>进行遍历，这第2行我开始还有些疑惑，后来查了下<a href="http://underscorejs.org/#each" target="_blank" rel="noopener">Underscore的文档</a>才发现，each在遍历object的时候第一个参数是value，第二个参数是key，有点不合常理。也就是这里的变量<code>implementation</code>在两轮循环里分别代表<code>on</code>和<code>once</code>，而变量<code>method</code>代表<code>listenTo</code>和<code>listenToOnce</code>。第3行开始定义这两个函数，参数分别是要监听的对象obj，事件名称name和回调函数callback。接下来第4行同样是熟悉的“短路”来赋值我们刚才提到的变量<code>this._listeningTo</code>，不存在就置空。第5行拿对象obj的id，这个id就是<code>obj._listenId</code>，不存在的话就调用Underscore的<code>_.uniqueId</code>来生成，同样是“短路”，真是Backbone最爱的代码风格。第6行将obj的引用存入<code>_listeningTo</code>，以id为key。第7行，考虑事件名称name的两种形式，如果是object并且没有传callback，则将this赋值给callback，这样设置的原因我猜想是为了通过<code>eventsApi</code>的检验。第8行调用obj的on或once绑定事件，注意第3个参数context传入的是this，也就是事件的监听者。也就是说，在Backbone里监听其他对象的事件时，回调函数的context是指向事件监听者本身的。最后第9行依然是返回this结束。</p>
+<h3 id="stopListening的实现"><a href="#stopListening的实现" class="headerlink" title="stopListening的实现"></a>stopListening的实现</h3><p>理解了绑定的原理，那解绑自然就是删除<code>_listeningTo</code>里对obj的引用，然后调用obj的off来解绑。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">stopListening: <span class="function"><span class="keyword">function</span>(<span class="params">obj, name, callback</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> listeningTo = <span class="keyword">this</span>._listeningTo;</span><br><span class="line">    <span class="keyword">if</span> (!listeningTo) <span class="keyword">return</span> <span class="keyword">this</span>;</span><br><span class="line">    <span class="keyword">var</span> remove = !name &amp;&amp; !callback;</span><br><span class="line">    <span class="keyword">if</span> (!callback &amp;&amp; <span class="keyword">typeof</span> name === <span class="string">'object'</span>) callback = <span class="keyword">this</span>;</span><br><span class="line">    <span class="keyword">if</span> (obj) (listeningTo = &#123;&#125;)[obj._listenId] = obj;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">var</span> id <span class="keyword">in</span> listeningTo) &#123;</span><br><span class="line">        obj = listeningTo[id];</span><br><span class="line">        obj.off(name, callback, <span class="keyword">this</span>);</span><br><span class="line">        <span class="keyword">if</span> (remove || _.isEmpty(obj._events)) <span class="keyword">delete</span> <span class="keyword">this</span>._listeningTo[id];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>同样的3个参数，与<code>listenTo</code>一致：被监听的对象，事件名称，回调。第2、3两行，先拿到<code>this._listeningTo</code>，如果为空则表明没有监听其他对象的事件，直接返回。第5行与<code>listenTo</code>里一样，不再细说。第6行的代码乍一看感觉有些多余，根据上面说的原理，第7行直接对<code>_listeningTo</code>进行遍历了，在遍历中找到和参数obj匹配的对象，然后调用它的off就完事了，干嘛多此一举第6行来这么一句呢？细细想过以后，我认为还是从提高效率的角度出发吧。如果传了obj，那么第6句的赋值就可以让第7句的循环只处理<code>_listeningTo[obj._listenId]</code>这一个对象，循环跑一遍就结束了。这样，如果<code>_listeningTo</code>里面有很多对象引用的话可以大大提高效率。在第7-11行的循环里，也可以分两种情况分析，一种就是传了obj，那么循环一遍就结束了，循环里的这个obj就是传进来的obj，另一种如果没传obj，那么遍历<code>_listeningTo</code>，找到所有对象引用，解绑与name和callback匹配的绑定。循环里的最后一行，判断如果没有传name和callback，或者obj上没有任何事件绑定，那么就删除这个对象引用，即不再监听该对象的任何事件。这里也包含了极端情况，那就是不带参数直接调用<code>stopListening()</code>时，调用者的<code>_listeningTo</code>里的键值对会被全部删除，也就是说<code>_listeningTo</code>将被置空，也就是说该对象将不再监听其他任何对象的任何事件。从这些分析可以看出来，<code>stopListening</code>虽然与<code>off</code>写法不一样，但涵盖的情况都是一样的。最后一行，和往常一样，返回this结束。</p>
+<h3 id="剩下的几句跟Events相关的代码"><a href="#剩下的几句跟Events相关的代码" class="headerlink" title="剩下的几句跟Events相关的代码"></a>剩下的几句跟Events相关的代码</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Events.bind   = Events.on;</span><br><span class="line">Events.unbind = Events.off;</span><br><span class="line">_.extend(Backbone, Events);</span><br></pre></td></tr></table></figure>
+<p>剩下的3句跟Events相关的代码，前两句是为了和以前的版本保持兼容，将bind和unbind设置为on和off的别名，最后一句将Events对象Mix进了Backbone里去，让Backbone也具有绑定和触发事件的功能。这样做是为了把Backbone作为全局的一个事件总线，使用<code>Backbone.trigger</code>和<code>Backbone.on</code>去构建一个“发布者/订阅者”系统。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>到这里，两篇文章就把Backbone的Events实现全部分析一遍了，原理还是简单的，但一些实现细节很值得推敲和学习，一些代码风格也值得推广。从这里不仅深入了解了Events的实现过程，也顺便了解了很多Javascript的高级用法。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/BackboneJS/" rel="tag"># BackboneJS</a>
+              <a href="/tags/Javascript/" rel="tag"># Javascript</a>
+              <a href="/tags/UnderscoreJS/" rel="tag"># UnderscoreJS</a>
+              <a href="/tags/%E5%89%8D%E7%AB%AFMVC/" rel="tag"># 前端MVC</a>
+              <a href="/tags/Events/" rel="tag"># Events</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2013/12/02/understand-backbone-events-part-1/" rel="prev" title="理解Backbone中Events的实现(一)">
+      <i class="fa fa-chevron-left"></i> 理解Backbone中Events的实现(一)
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2013/12/18/rock-your-web-page-in-bakcbone-way/" rel="next" title="用Backbone的思想写web页面">
+      用Backbone的思想写web页面 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    
+  
+  <div class="comments">
+  <script src="https://utteranc.es/client.js" repo="PinkyJie/pinkyjie.github.com" issue-term="pathname" theme="github-light" crossorigin="anonymous" async></script>
+  </div>
+  
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#off的实现"><span class="nav-number">1.</span> <span class="nav-text">off的实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#trigger的实现"><span class="nav-number">2.</span> <span class="nav-text">trigger的实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#监听别人的事件"><span class="nav-number">3.</span> <span class="nav-text">监听别人的事件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#listenTo和listeToOnce的实现"><span class="nav-number">4.</span> <span class="nav-text">listenTo和listeToOnce的实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#stopListening的实现"><span class="nav-number">5.</span> <span class="nav-text">stopListening的实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#剩下的几句跟Events相关的代码"><span class="nav-number">6.</span> <span class="nav-text">剩下的几句跟Events相关的代码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-number">7.</span> <span class="nav-text">总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="马斯特"
+      src="/assets/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">马斯特</p>
+  <div class="site-description" itemprop="description">前端 | 溜冰 | Mac</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">55</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">186</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/PinkyJie" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;PinkyJie" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:pinkyjie.gn@gmail.com" title="E-Mail → mailto:pinkyjie.gn@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/PinkyJie" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;PinkyJie" rel="noopener" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://stackoverflow.com/users/689948/pinkyjie" title="StackOverflow → http:&#x2F;&#x2F;stackoverflow.com&#x2F;users&#x2F;689948&#x2F;pinkyjie" rel="noopener" target="_blank"><i class="fa fa-fw fa-stack-overflow"></i>StackOverflow</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">马斯特</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.7.0
+  </div>
+
+        
+
+
+  <div style="display: none;">
+    <script src="//s95.cnzz.com/z_stat.php?id=1253033676&web_id=1253033676"></script>
+  </div>
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  <script>
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install','8k3UxSuRWYkrhVg55bC3','2.0.0');
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

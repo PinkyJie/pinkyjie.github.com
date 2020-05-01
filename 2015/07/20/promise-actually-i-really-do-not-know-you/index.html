@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="o7yQBnLIoWby8Y5vNMQywBiMtev-ilWjXt89RQpTvVw">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('http://pinkyjie.com').hostname,
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.7.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":"utteranc","storage":true,"lazyload":false,"nav":null,"activeClass":"utteranc"},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="写过Angular的service的孩子肯定对Promise不陌生了吧，这玩意的出现可以说是极大改变了异步编程的写法，告别了让代码不停横向发展的Callback Hell。一直以来自己都是按照网上流行的写法来写Promise的，并没有觉得有什么问题，直到看到这篇神一般的文章：We have a problem with promises，以及文中提到的Bluebird的Wiki中关于Promise">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Promise，其实我真的不懂你">
+<meta property="og:url" content="http://pinkyjie.com/2015/07/20/promise-actually-i-really-do-not-know-you/index.html">
+<meta property="og:site_name" content="进击的马斯特">
+<meta property="og:description" content="写过Angular的service的孩子肯定对Promise不陌生了吧，这玩意的出现可以说是极大改变了异步编程的写法，告别了让代码不停横向发展的Callback Hell。一直以来自己都是按照网上流行的写法来写Promise的，并没有觉得有什么问题，直到看到这篇神一般的文章：We have a problem with promises，以及文中提到的Bluebird的Wiki中关于Promise">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://pinkyjie.com/assets/images/promise-actually-i-really-do-not-know-you-1.png">
+<meta property="og:image" content="http://pinkyjie.com/assets/images/promise-actually-i-really-do-not-know-you-2.png">
+<meta property="article:published_time" content="2015-07-20T22:25:26.000Z">
+<meta property="article:modified_time" content="2020-05-01T01:47:54.590Z">
+<meta property="article:author" content="马斯特">
+<meta property="article:tag" content="AngularJS">
+<meta property="article:tag" content="generator-aio-angular">
+<meta property="article:tag" content="promise">
+<meta property="article:tag" content="异步编程">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://pinkyjie.com/assets/images/promise-actually-i-really-do-not-know-you-1.png">
+
+<link rel="canonical" href="http://pinkyjie.com/2015/07/20/promise-actually-i-really-do-not-know-you/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>Promise，其实我真的不懂你 | 进击的马斯特</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">进击的马斯特</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">CODING MY LIFE</p>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://pinkyjie.com/2015/07/20/promise-actually-i-really-do-not-know-you/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/assets/images/avatar.jpg">
+      <meta itemprop="name" content="马斯特">
+      <meta itemprop="description" content="前端 | 溜冰 | Mac">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="进击的马斯特">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Promise，其实我真的不懂你
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2015-07-20 22:25:26" itemprop="dateCreated datePublished" datetime="2015-07-20T22:25:26+00:00">2015-07-20</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-05-01 01:47:54" itemprop="dateModified" datetime="2020-05-01T01:47:54+00:00">2020-05-01</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%89%8D%E7%AB%AF%E5%BC%80%E5%8F%91/" itemprop="url" rel="index">
+                    <span itemprop="name">前端开发</span>
+                  </a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>写过Angular的service的孩子肯定对Promise不陌生了吧，这玩意的出现可以说是极大改变了异步编程的写法，告别了让代码不停横向发展的<a href="http://callbackhell.com/" target="_blank" rel="noopener">Callback Hell</a>。一直以来自己都是按照网上流行的写法来写Promise的，并没有觉得有什么问题，直到看到这篇神一般的文章：<a href="http://pouchdb.com/2015/05/18/we-have-a-problem-with-promises.html" target="_blank" rel="noopener">We have a problem with promises</a>，以及文中提到的Bluebird的Wiki中关于<a href="https://github.com/petkaantonov/bluebird/wiki/Promise-anti-patterns#the-deferred-anti-pattern" target="_blank" rel="noopener">Promise的Anti-pattern</a>，顿时有一种醍醐灌顶的感觉，敢情自己以前根本就没理解Promise啊。这篇文章就来讲讲最近在Promise上的心得体会。</p>
+<a id="more"></a>
+<p>开始前先放两张Callback Hell的搞笑图吧，虽然不是我们今天的主题，但是太搞笑啦！哈哈哈！</p>
+<blockquote>
+<p><img src="/assets/images/promise-actually-i-really-do-not-know-you-1.png" alt="图1"></p>
+<p><img src="/assets/images/promise-actually-i-really-do-not-know-you-2.png" alt="图2"></p>
+</blockquote>
+<h3 id="Promise应该这么写"><a href="#Promise应该这么写" class="headerlink" title="Promise应该这么写"></a>Promise应该这么写</h3><p>先来看一下原先我是怎么写controller和service里的Promise的。</p>
+<figure class="highlight plain"><figcaption><span>service-old.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">function login (email, password) &#123;</span><br><span class="line">    var d &#x3D; $q.defer();</span><br><span class="line">    var req &#x3D; &#123;</span><br><span class="line">        email: email,</span><br><span class="line">        password: password</span><br><span class="line">    &#125;;</span><br><span class="line">    $http.post(&#39;api&#x2F;user&#x2F;login&#39;, req)</span><br><span class="line">        .success(_success)</span><br><span class="line">        .error(_fail);</span><br><span class="line">    return d.promise;</span><br><span class="line"></span><br><span class="line">    function _success (response, status) &#123;</span><br><span class="line">        if (status &#x3D;&#x3D;&#x3D; 200 &amp;&amp; response.code &#x3D;&#x3D;&#x3D; 0) &#123;</span><br><span class="line">            d.resolve(response.result.user);</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            _clearUser();</span><br><span class="line">            d.reject(response.message);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    function _fail () &#123;</span><br><span class="line">        _clearUser();</span><br><span class="line">        d.reject(&#39;$SERVER&#39;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><figcaption><span>controller-old.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">userAPI.login(credential.email, credential.password)</span><br><span class="line">    .then(_success, _error);</span><br><span class="line"></span><br><span class="line">function _success (data) &#123;</span><br><span class="line">    &#x2F;&#x2F; xxx</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">function _error (reason) &#123;</span><br><span class="line">    &#x2F;&#x2F; xxx</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>乍一看没啥问题啊，就应该这么写的哇。先放着不管，我们再看看更改后的写法，有对比才有发现嘛：</p>
+<figure class="highlight plain"><figcaption><span>service-new.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">function login (email, password) &#123;</span><br><span class="line">    var req &#x3D; &#123;</span><br><span class="line">        email: email,</span><br><span class="line">        password: password</span><br><span class="line">    &#125;;</span><br><span class="line">    return $http.post(&#39;api&#x2F;user&#x2F;login&#39;, req)</span><br><span class="line">        .then(_success)</span><br><span class="line">        .catch(_fail);</span><br><span class="line"></span><br><span class="line">    function _success (response) &#123;</span><br><span class="line">        var data &#x3D; response.data;</span><br><span class="line">        if (response.status &#x3D;&#x3D;&#x3D; 200 &amp;&amp; data.code &#x3D;&#x3D;&#x3D; 0) &#123;</span><br><span class="line">            return data.result.user;</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            return $q.reject(data.message);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    function _fail (reason) &#123;</span><br><span class="line">        _clearUser();</span><br><span class="line">        return $q.reject(reason || &#39;$SERVER&#39;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><figcaption><span>controller-new.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">userAPI.login(credential.email, credential.password)</span><br><span class="line">    .then(_success)</span><br><span class="line">    .catch(_error);</span><br><span class="line"></span><br><span class="line">function _success (data) &#123;</span><br><span class="line">    &#x2F;&#x2F; xxx</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">function _error (reason) &#123;</span><br><span class="line">    &#x2F;&#x2F; xxx</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>看出区别了吗？我来捋一捋：</p>
+<ul>
+<li>抛弃了<code>$q.defer()</code>，也就是不使用deferred对象</li>
+<li>不使用then的第二个参数，而是直接<code>then().catch()</code></li>
+<li>文件<code>service-old.js</code>的第15行的那句<code>_clearUser()</code>在<code>service-new.js</code>中不见了，而且<code>_fail</code>函数的写法咋还改了呢</li>
+<li>抛弃了$http的success和error方法</li>
+</ul>
+<p>下面我们就一个一个来解释！</p>
+<h3 id="为啥不要用Deferred对象？"><a href="#为啥不要用Deferred对象？" class="headerlink" title="为啥不要用Deferred对象？"></a>为啥不要用Deferred对象？</h3><p>其实这个问题可以换个方式问：为啥要用Deferred对象？不靠谱版回答：你傻啊，因为很多教程里就是这么用的笨蛋！靠谱版回答：因为我们要指明这个异步API调用返回的两种状态啊，成功返回就resolve掉这个Promise，失败就reject掉。但你没有想过，<code>$http.post()</code>本来就是一个Promise，为啥还要用<code>$q.defer()</code>构造另一个Promise来再包一层呢？换句话讲，人家<code>$http.post()</code>本来就知道什么时候应该resolve，什么时候应该reject，你Deferred对象瞎操心啥玩意！人家<code>$http.post()</code>返回的本来就是一个Promise对象，何必返回<code>deferred.promise</code>这另一个Promise对象呢。那没有deferred对象怎么resolve和reject呢？很简单，<strong>想要resolve就直接return你想resolve的值，想要reject就直接调用<code>$q.reject()</code></strong>。这就是为什么在<code>service-new.js</code>的第13行我们直接return想要返回的值。那这个值controller可以正常的接受到吗？Promise的链式调用保证了这种机制：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">promise().then(handlerB).then(handlerC);</span><br></pre></td></tr></table></figure>
+<p>这里hanlderB会在promise结束或执行，并且参数是promise的return值，即<code>handlerB(returnValueOfPromise)</code>，同样，handlerC也是一样，即<code>handlerC(returnValueOfHandlerB)</code>。也就是说，<strong>Promise链式调用始终返回上一个Promise中return的值</strong>。Angular中的interceptor正是利用这个机制工作的。</p>
+<p>那么有人要问了，什么时候才需要用Deferred对象呢？前面说了，deferred对象是又包了一层Promise，那显然，里面如果是非Promise的异步调用，用它包住就成为正常的Promise了！比如<code>setTimeout</code>：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">asyncGreet</span>(<span class="params">name</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> deferred = $q.defer();</span><br><span class="line">    setTimeout(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (okToGreet(name)) &#123;</span><br><span class="line">            deferred.resolve(<span class="string">'Hello, '</span> + name + <span class="string">'!'</span>);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            deferred.reject(<span class="string">'Greeting '</span> + name + <span class="string">' is not allowed.'</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;, <span class="number">1000</span>);</span><br><span class="line">    <span class="keyword">return</span> deferred.promise;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个来自官方文档的例子就很好说明了问题。Deferred对象的意义在于将非Promise的异步流程包装成Promise。</p>
+<h3 id="为啥不让then里面传俩参数？"><a href="#为啥不让then里面传俩参数？" class="headerlink" title="为啥不让then里面传俩参数？"></a>为啥不让then里面传俩参数？</h3><p>文档里说了，<code>catch(errorCallback) – shorthand for promise.then(null, errorCallback)</code>，你这<code>.then(callback1).catch(callback2)</code>就是一个简写嘛，我用<code>then(callback1, callback2)</code>为啥就不推荐呢？这里我要说：文档里面写错了！两种写法并不是完全等价的！区别就在于：</p>
+<ul>
+<li><code>promise.then(callback1, callback2)</code>中，如果callback1抛错，callback2无法捕捉到。也就是说执行了callback1，就不会执行callback2。只有前面的promise抛错时才会进入callback2。</li>
+<li>而<code>promise.then(callback1).catch(callback2)</code>中，如果callback1抛错，则callback2可以捕捉到。当然，promise如果抛错的话callback2自然也会被执行。那就是说，存在一种可能性，callback1和callback2都会被执行，那就是promise没抛错，但callback1抛错了。而这种情形常见吗？回答是非常常见，就拿我们上面的例子，server虽然正常返回了(promise没抛错)，但正常的返回中检查出code不等于0，这个时候我们就需要“抛错”。这里的抛错加了引号，因为这里的“抛错”不只包含显式的<code>throw</code>出一个错，而且包括reject。这样的好处非常明显，我的callback2不需要care这个“错”是上面哪个Promise（注意，因为<code>then()</code>同样返回一个新的Promise）抛出来的，是第一个promise中API请求因为网络原因（非200）挂了，还是第二个promise中发现账号密码不正确，这些我都不管，我希望在callback2中统一的处理这些异常。这也解释了我们为什么在<code>service-new.js</code>中的第15行删掉了<code>_clearUser()</code>调用，因为我们在<code>_success</code>中的分支中调用了<code>return $q.reject(data.message)</code>，这样就会进入后面的<code>_fail</code>函数，而里面有调用<code>_clearUser()</code>就可以了。并且，我们还给<code>_fail</code>加了参数，这个参数就用来接受callback1中<code>$q.reject()</code>传递过来的错误原因。</li>
+</ul>
+<h3 id="http的success和error方法咋不能用啊？"><a href="#http的success和error方法咋不能用啊？" class="headerlink" title="$http的success和error方法咋不能用啊？"></a>$http的success和error方法咋不能用啊？</h3><p>为啥不让用这个两个方便的函数呢，你看，它直接把<code>response</code>对象给你拆成四个参数，多方便啊！说实话，我也挺喜欢这个便利性的，但如果我们尝试将<code>service-new.js</code>中第7、8两行的<code>.then().catch()</code>替换成Angular的$http给我们提供的<code>.success().error()</code>会怎么样呢？嗒嗒！发现service是正常工作的，但是controller不正常了。在<code>controller-new.js</code>中的<code>_success</code>函数中，参数<code>data</code>并不是我们预想的在<code>service-new.js</code>中第13行返回的值，而是和<code>service-new.js</code>中<code>_success</code>函数的参数<code>response</code>一致。我香蕉你个疤瘌，博主，我读书少你怎么能骗我！你刚才不是说Promise在链式调用的时候总是拿到上一个Promise的返回值嘛，我controller里的<code>userAPI.login()</code>后面的then拿到的为什么不是service里<code>login</code>函数中返回的Promise的返回值呢！</p>
+<p>我们再来捋一捋啊，倘若把service和controller写到一起，这个链式调用应该是这样的：<code>$http.post(xxx).success(_successInService).error(_fail).then(_successInController)</code>，这里最后的then里拿到的参数是第一个Promise，即<code>$http.post(xxx)</code>的返回结果。这是为什么呢？并不是博主骗人，问题就出在这个<code>success</code>和<code>error</code>上。我们可以看看这两个函数的实现。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">promise.success = <span class="function"><span class="keyword">function</span>(<span class="params">fn</span>) </span>&#123;</span><br><span class="line">    promise.then(<span class="function"><span class="keyword">function</span>(<span class="params">response</span>) </span>&#123;</span><br><span class="line">        fn(response.data, response.status, response.headers, config);</span><br><span class="line">    &#125;);</span><br><span class="line">    <span class="keyword">return</span> promise;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>可以发现，success和error的实现并不符合Promise的标准，它们并没有返回一个新的Promise（<code>then(...)</code>会生成的新Promise），而是将前面原来的Promise给返回了！所以我们拿到的才会是第一个Promise的返回值！这就是我不建议使用success和error这两个函数的原因，不光是我，官方也注意到了，可以参看<a href="https://github.com/angular/angular.js/issues/10508" target="_blank" rel="noopener">Github上面Angular的这个issue</a>，有人表示后面的版本将考虑废弃这两个不正规的函数。</p>
+<h3 id="补充问题：以前的deferred-resolve-应该怎么整呢？"><a href="#补充问题：以前的deferred-resolve-应该怎么整呢？" class="headerlink" title="补充问题：以前的deferred.resolve()应该怎么整呢？"></a>补充问题：以前的<code>deferred.resolve()</code>应该怎么整呢？</h3><p>这个场景也是比较常见的，有些情况下，我们只是想resolve一个Promise，并不想具体的返回什么值。比如，一个API去请求用户的session还在不在，在的话返回0，不在的话返回1。我们的逻辑就是在的话我不管，不在的话才有所行动，比如登出用户什么的。这个时候我们就对<code>then(callback1).catch(callback2)</code>里的callback1不管兴趣了，那还需要手动的去写一句<code>return &#39;&#39;;</code>或<code>return;</code>吗？答案是否定的，这种情形只需要写<code>.catch()</code>就好了，直接删掉<code>then()</code>。</p>
+<h3 id="还有问题？"><a href="#还有问题？" class="headerlink" title="还有问题？"></a>还有问题？</h3><p>在提别的问题之前，还是强烈建议阅读开篇推荐的那篇<a href="http://pouchdb.com/2015/05/18/we-have-a-problem-with-promises.html" target="_blank" rel="noopener">We have a problem with promises</a>，里面非常详细的讲解了各种关于Promise的误区！用醍醐灌顶来形容一点也不为过。</p>
+<p>博主这整篇光列几行代码，也没有可运行的东西给看看有啥意思啊！有！完整的程序可以看我写的一个generator：<a href="https://github.com/PinkyJie/generator-aio-angular" target="_blank" rel="noopener">generator-aio-angular</a>。也可以看看我如何将原来的写法重构成推荐的写法，都在<a href="https://github.com/PinkyJie/generator-aio-angular/commit/18de9f01f73eff138ea1c42a08444e72b03bdfbb" target="_blank" rel="noopener">这个commit</a>里。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/AngularJS/" rel="tag"># AngularJS</a>
+              <a href="/tags/generator-aio-angular/" rel="tag"># generator-aio-angular</a>
+              <a href="/tags/promise/" rel="tag"># promise</a>
+              <a href="/tags/%E5%BC%82%E6%AD%A5%E7%BC%96%E7%A8%8B/" rel="tag"># 异步编程</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2015/03/24/refactor-your-gulpfile/" rel="prev" title="重构你的gulpfile">
+      <i class="fa fa-chevron-left"></i> 重构你的gulpfile
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2015/07/25/simple-layout-based-on-ui-router/" rel="next" title="基于ui-router的简单布局及其他应用">
+      基于ui-router的简单布局及其他应用 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    
+  
+  <div class="comments">
+  <script src="https://utteranc.es/client.js" repo="PinkyJie/pinkyjie.github.com" issue-term="pathname" theme="github-light" crossorigin="anonymous" async></script>
+  </div>
+  
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Promise应该这么写"><span class="nav-number">1.</span> <span class="nav-text">Promise应该这么写</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#为啥不要用Deferred对象？"><span class="nav-number">2.</span> <span class="nav-text">为啥不要用Deferred对象？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#为啥不让then里面传俩参数？"><span class="nav-number">3.</span> <span class="nav-text">为啥不让then里面传俩参数？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#http的success和error方法咋不能用啊？"><span class="nav-number">4.</span> <span class="nav-text">$http的success和error方法咋不能用啊？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#补充问题：以前的deferred-resolve-应该怎么整呢？"><span class="nav-number">5.</span> <span class="nav-text">补充问题：以前的deferred.resolve()应该怎么整呢？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#还有问题？"><span class="nav-number">6.</span> <span class="nav-text">还有问题？</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="马斯特"
+      src="/assets/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">马斯特</p>
+  <div class="site-description" itemprop="description">前端 | 溜冰 | Mac</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">55</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">186</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/PinkyJie" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;PinkyJie" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:pinkyjie.gn@gmail.com" title="E-Mail → mailto:pinkyjie.gn@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/PinkyJie" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;PinkyJie" rel="noopener" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://stackoverflow.com/users/689948/pinkyjie" title="StackOverflow → http:&#x2F;&#x2F;stackoverflow.com&#x2F;users&#x2F;689948&#x2F;pinkyjie" rel="noopener" target="_blank"><i class="fa fa-fw fa-stack-overflow"></i>StackOverflow</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">马斯特</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.7.0
+  </div>
+
+        
+
+
+  <div style="display: none;">
+    <script src="//s95.cnzz.com/z_stat.php?id=1253033676&web_id=1253033676"></script>
+  </div>
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  <script>
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install','8k3UxSuRWYkrhVg55bC3','2.0.0');
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

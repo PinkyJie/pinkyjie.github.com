@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="o7yQBnLIoWby8Y5vNMQywBiMtev-ilWjXt89RQpTvVw">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('http://pinkyjie.com').hostname,
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.7.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":"utteranc","storage":true,"lazyload":false,"nav":null,"activeClass":"utteranc"},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="最近看了点Python的东西，加上前一段看的Qt，就写了这么一个“批量重命名”的工具。写下这篇文章，简单总结一下写代码的过程中遇到的一些乱七八糟的问题！">
+<meta property="og:type" content="article">
+<meta property="og:title" content="“批量重命名”小工具">
+<meta property="og:url" content="http://pinkyjie.com/2010/11/16/renamer-by-pinkyjie/index.html">
+<meta property="og:site_name" content="进击的马斯特">
+<meta property="og:description" content="最近看了点Python的东西，加上前一段看的Qt，就写了这么一个“批量重命名”的工具。写下这篇文章，简单总结一下写代码的过程中遇到的一些乱七八糟的问题！">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://pinkyjie.com/assets/images/renamer-by-pinkyjie-1.png">
+<meta property="article:published_time" content="2010-11-16T12:14:39.000Z">
+<meta property="article:modified_time" content="2020-05-01T01:47:54.590Z">
+<meta property="article:author" content="马斯特">
+<meta property="article:tag" content="Python">
+<meta property="article:tag" content="nsis">
+<meta property="article:tag" content="py2exe">
+<meta property="article:tag" content="pyqt">
+<meta property="article:tag" content="renamer">
+<meta property="article:tag" content="批量重命名">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://pinkyjie.com/assets/images/renamer-by-pinkyjie-1.png">
+
+<link rel="canonical" href="http://pinkyjie.com/2010/11/16/renamer-by-pinkyjie/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>“批量重命名”小工具 | 进击的马斯特</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">进击的马斯特</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">CODING MY LIFE</p>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://pinkyjie.com/2010/11/16/renamer-by-pinkyjie/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/assets/images/avatar.jpg">
+      <meta itemprop="name" content="马斯特">
+      <meta itemprop="description" content="前端 | 溜冰 | Mac">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="进击的马斯特">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          “批量重命名”小工具
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2010-11-16 12:14:39" itemprop="dateCreated datePublished" datetime="2010-11-16T12:14:39+00:00">2010-11-16</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-05-01 01:47:54" itemprop="dateModified" datetime="2020-05-01T01:47:54+00:00">2020-05-01</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%A1%8C%E9%9D%A2%E5%BC%80%E5%8F%91/" itemprop="url" rel="index">
+                    <span itemprop="name">桌面开发</span>
+                  </a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>最近看了点Python的东西，加上前一段看的Qt，就写了这么一个“批量重命名”的工具。写下这篇文章，简单总结一下写代码的过程中遇到的一些乱七八糟的问题！</p>
+<a id="more"></a>
+<h3 id="小工具简介"><a href="#小工具简介" class="headerlink" title="小工具简介"></a>小工具简介</h3><p>这个小东西的编写主要基于Python，感觉Python很适合做类似的小东西。GUI界面使用的是PyQt框架，Qt的Python版本，两个东东都是跨平台的，我是在Windows下写的，不过这个东西在Linux下跑应该也是没问题的。我已经在Google Code(<a href="http://code.google.com/p/renamer-by-pinkyjie" target="_blank" rel="noopener">前往</a>)中建了项目，包含所有源代码和打包后的exe下载，以后我会继续完善这个东西，加一点我想要的功能。先来张截图吧，直观感觉一下。</p>
+<p><img src="/assets/images/renamer-by-pinkyjie-1.png" alt=""></p>
+<p>界面就这一个啦，为啥用英文？为了zhuangbility~~~左边上面用来选择相应的文件夹路径，右边的Table显示文件名，可以使用扩展名来过滤，改后的文件名用蓝色表示。下面就是一些自定义的命名规则，可以自定义前缀，支持中文，下面可以选择递进的是字母还是数字。若果选字母，则“start with”框不可输入，只能下拉选择26个大小写字母，若选数字，则没有下拉，只能自己输入。最后的count用来表示递进部分占几位。配置好以后，点击Rename按钮即执行，结果限制在上面的Table中，左上角的路径选择也会同步更新。如果你的输入不符合要求，比如，选择了“Using 123”，而“Start with”却输入了别的乱七八糟的东西，会报错提示。使用起来比我介绍的药容易多了，Just Try it ！</p>
+<h3 id="Python和PyQt的协作"><a href="#Python和PyQt的协作" class="headerlink" title="Python和PyQt的协作"></a>Python和PyQt的协作</h3><p>PyQt是Qt的Python版本，Windows平台下直接可以exe安装的，下载可以参见<a href="http://www.riverbankcomputing.co.uk/software/pyqt/download" target="_blank" rel="noopener">它的官网</a>，使用exe安装后直接配备了Designer用来设计GUI界面的，接触过Qt的应该不陌生，无非就是拉拉控件神马的，当然，完全用代码也可以写，像我这比较懒的就直接拉吧。Designer会生成.ui的文件，如果你的窗体中使用了图标，比如上图中的可爱小西瓜，那么还会生成.qrc的资源文件。一个首要的问题就是Python怎么引用这么文件呢？一番摸索后发现，PyQt提供了两个小工具：pyuic4和pyrcc4，两个东西都已经配置好了环境变量，直接就可以使用，它们可以把ui文件和prc文件转化为py文件供Python源文件import使用。比如我们生成了rename.ui和rename.qrc：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">pyuic4 rename.ui -o rename_ui.py</span><br><span class="line">pyrcc4 rename.qrc -o rename_rc.py</span><br></pre></td></tr></table></figure>
+<p>这里值得一说的就是，资源文件的命名最好采用.qrc文件名加<em>rc的方式，因为编译后的rename_ui.py文件最后一句通常是import资源文件，默认import的文件名就是rename_rc，所以如果不这样命名最后整合时会报错。生成py文件后，就可以通过import来引用了。打开rename_ui.py文件，发现里面有一个Ui</em>开头的类，Ui_后面跟的是你的主窗体名称。打开rename_rc.py文件，发现是将资源代码化了。所以在源文件中，我们可以通过这两句将其引用。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> rename_ui <span class="keyword">import</span> Ui_mainWidget</span><br><span class="line"><span class="keyword">import</span> rename_rc</span><br></pre></td></tr></table></figure>
+<p>其实第二句也可以不要，忘了我们刚才说过，rename_ui.py文件最后一句已经将其引入了，不过Python不会出现重复引入模块的错误。引用了ui以后，我们需要在主类的init方法中，初始化ui。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">self.ui = Ui_mainWidget()</span><br><span class="line">self.ui.setupUi(self)</span><br></pre></td></tr></table></figure>
+<p>这样我们就可以通过self.ui来引用控件了，控件的名字和我们在Designer中的命名是一致的。</p>
+<h3 id="遇到的一系列问题"><a href="#遇到的一系列问题" class="headerlink" title="遇到的一系列问题"></a>遇到的一系列问题</h3><p>首先，我其实先用非GUI的方式实现了一个批量重命名的工具，算法很简单的，代码量也很短，因为没有各种容错代码。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="keyword">print</span> <span class="string">'-'</span>*<span class="number">50</span></span><br><span class="line"><span class="keyword">print</span> <span class="string">'Image File Renamer v1.0'</span></span><br><span class="line"><span class="keyword">print</span> <span class="string">'-'</span>*<span class="number">50</span></span><br><span class="line"><span class="keyword">print</span> <span class="string">'Note: Put this file in the dirction you want to change!'</span></span><br><span class="line"><span class="keyword">print</span> <span class="string">'-'</span>*<span class="number">50</span></span><br><span class="line">pre = raw_input(<span class="string">'Input the file name Prefix:'</span>)</span><br><span class="line">start = int(raw_input(<span class="string">'Input the start number:'</span>))</span><br><span class="line">count = int(raw_input(<span class="string">'Input the count of the number\n[exp.1-&amp;gt;0,2-&amp;gt;00]:'</span>))</span><br><span class="line">fileList = os.listdir(<span class="string">'.'</span>)</span><br><span class="line">total = <span class="number">0</span></span><br><span class="line"><span class="keyword">for</span> f <span class="keyword">in</span> fileList:</span><br><span class="line">    ext = os.path.splitext(f)[<span class="number">1</span>]</span><br><span class="line">    <span class="comment"># print ext</span></span><br><span class="line">    <span class="keyword">if</span> ext <span class="keyword">in</span> (<span class="string">'.jpg'</span>,<span class="string">'.png'</span>,<span class="string">'.bmp'</span>):</span><br><span class="line">        os.rename(f,pre + str(start).zfill(count) + ext)</span><br><span class="line">        start += <span class="number">1</span></span><br><span class="line">        total += <span class="number">1</span></span><br><span class="line"><span class="keyword">print</span> <span class="string">'-'</span>*<span class="number">50</span></span><br><span class="line"><span class="keyword">print</span> <span class="string">'%d files changed!'</span> % total</span><br><span class="line"><span class="keyword">print</span> <span class="string">'your direction will be opened!'</span></span><br><span class="line">os.system(<span class="string">'explorer .'</span>)</span><br></pre></td></tr></table></figure>
+<p>这个是可以直接运行的，有兴趣的可以玩玩。但我把程序改成GUI时，很多乱七八糟的问题随之而来。给控件绑定事件处理是首先需要解决的，Qt中直接connect解决，但需要发出的SIGNAL的参数与接受的SLOT参数匹配，可以很多参数类型Python根本没有，被闹心的参数问题搞得晕头转向以后，终于发现了个简单的方法，如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">self.ui.letterRadio.toggled.connect(self.letterToggled)</span><br></pre></td></tr></table></figure>
+<p>letterradio的toggled的事件可以直接通过connect函数连接自己编写的处理函数letterToggled，而在connect的过程中不需要考虑参数问题，让见鬼的参数都去屎吧~当然，实现处理函数的时候是要匹配相应参数的。</p>
+<p>另外一个头疼的问题，就是中文编码问题，Python自己有string类型，而从GUI控件获取的类型是Qt的QString类型，这两种乱七八糟的掺和在一起，只处理英文当然很顺利，但一牵涉到中文处理就彻底乱了，后来发现了一篇奇文 <a href="http://www.scriptlearn.com/archives/1943" target="_blank" rel="noopener">python String和PyQt QString的区别</a>，才算搞清楚。高人都说，不想麻烦的话全部使用Unicode编码，这话果然没错。一开始我的程序，连碰到中文目录都会报错，更别说使用中文“批量命名”了。最后只得全部采用Unicode处理，简单的说，所有Qstring类型的变量都需要调用自身的<code>toLocal8Bit()</code>函数先转化为本地编码的8位格式，经验证，<code>toLocal8Bit()</code>在Windows上工作很好，但在Linux上会导致中文输入乱码，所以这里采用<code>toUtf8()</code>比较靠谱，然后再使用Python提供的工厂函数<code>Unicode()</code>转化为Unicode字符。举个简单例子：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">prefix = unicode(self.ui.prefixEdit.text().toUtf8(),<span class="string">'utf8'</span>,<span class="string">'ignore'</span>)</span><br></pre></td></tr></table></figure>
+<p>我们想将prefix控件(prefixEdit)的字符储存在prefix变量中，需要像上面这样做。这样就完美的解决了中文乱码的一系列问题。</p>
+<h3 id="一切为了zhuangbility"><a href="#一切为了zhuangbility" class="headerlink" title="一切为了zhuangbility"></a>一切为了zhuangbility</h3><p>程序出来了怎么办，源代码传到Google Code上，这样B就装完了吗？NO~要编译成Windows上能用的exe才行啊，一番搜索(发现总是是一番搜索)之后，发现了Py2Exe这种东西，顾名思义啊，就是将Python程序转成exe用的，使用很简单的，编辑一个setup.py配置文件，一条命令<code>python setup.py py2exe</code>搞定，具体步骤可以参考其<a href="http://www.py2exe.org/" target="_blank" rel="noopener">官网</a>或google搜索。这样B就装好了吗？NO~NO~我只想说你在装B这方面too simple,sometimes naive！我们还要把它封装成Installer，让人家一双击就自动安装好，又一番搜索后发现了NSIS这个东西，强大的超乎想象，定制性很强，免费的东西，据说很多常用软件就用这个做的安装包，具体可参见其<a href="http://nsis.sourceforge.net/Main_Page" target="_blank" rel="noopener">官网</a>，这里推荐一个汉化的配置NSIS的辅助软件——NSIS eidt，再推荐一篇入门文章 <a href="http://www.360doc.com/content/08/0731/13/66250_1492542.shtml" target="_blank" rel="noopener">NSIS安装制作基础教程</a>，简直一学就会啊~OK，就到这里吧~</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Python/" rel="tag"># Python</a>
+              <a href="/tags/nsis/" rel="tag"># nsis</a>
+              <a href="/tags/py2exe/" rel="tag"># py2exe</a>
+              <a href="/tags/pyqt/" rel="tag"># pyqt</a>
+              <a href="/tags/renamer/" rel="tag"># renamer</a>
+              <a href="/tags/%E6%89%B9%E9%87%8F%E9%87%8D%E5%91%BD%E5%90%8D/" rel="tag"># 批量重命名</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2010/10/19/ubuntu-opencv-python/" rel="prev" title="Ubuntu下Opencv与Python的协作">
+      <i class="fa fa-chevron-left"></i> Ubuntu下Opencv与Python的协作
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2010/11/26/move-your-research-platform-from-matlab-to-python/" rel="next" title="将你的科学计算从 Matlab 迁移到 Python？">
+      将你的科学计算从 Matlab 迁移到 Python？ <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    
+  
+  <div class="comments">
+  <script src="https://utteranc.es/client.js" repo="PinkyJie/pinkyjie.github.com" issue-term="pathname" theme="github-light" crossorigin="anonymous" async></script>
+  </div>
+  
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#小工具简介"><span class="nav-number">1.</span> <span class="nav-text">小工具简介</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Python和PyQt的协作"><span class="nav-number">2.</span> <span class="nav-text">Python和PyQt的协作</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#遇到的一系列问题"><span class="nav-number">3.</span> <span class="nav-text">遇到的一系列问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#一切为了zhuangbility"><span class="nav-number">4.</span> <span class="nav-text">一切为了zhuangbility</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="马斯特"
+      src="/assets/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">马斯特</p>
+  <div class="site-description" itemprop="description">前端 | 溜冰 | Mac</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">55</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">186</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/PinkyJie" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;PinkyJie" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:pinkyjie.gn@gmail.com" title="E-Mail → mailto:pinkyjie.gn@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/PinkyJie" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;PinkyJie" rel="noopener" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://stackoverflow.com/users/689948/pinkyjie" title="StackOverflow → http:&#x2F;&#x2F;stackoverflow.com&#x2F;users&#x2F;689948&#x2F;pinkyjie" rel="noopener" target="_blank"><i class="fa fa-fw fa-stack-overflow"></i>StackOverflow</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">马斯特</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.7.0
+  </div>
+
+        
+
+
+  <div style="display: none;">
+    <script src="//s95.cnzz.com/z_stat.php?id=1253033676&web_id=1253033676"></script>
+  </div>
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  <script>
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install','8k3UxSuRWYkrhVg55bC3','2.0.0');
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

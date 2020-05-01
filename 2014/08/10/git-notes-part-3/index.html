@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="o7yQBnLIoWby8Y5vNMQywBiMtev-ilWjXt89RQpTvVw">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('http://pinkyjie.com').hostname,
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.7.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":"utteranc","storage":true,"lazyload":false,"nav":null,"activeClass":"utteranc"},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="书接上回，直入主题！这篇继续实践剩下的几个命令。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Git笔记(三)——[cherry-pick, merge, rebase]">
+<meta property="og:url" content="http://pinkyjie.com/2014/08/10/git-notes-part-3/index.html">
+<meta property="og:site_name" content="进击的马斯特">
+<meta property="og:description" content="书接上回，直入主题！这篇继续实践剩下的几个命令。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://pinkyjie.com/assets/images/git-notes-24.png">
+<meta property="og:image" content="http://pinkyjie.com/assets/images/git-notes-25.png">
+<meta property="og:image" content="http://pinkyjie.com/assets/images/git-notes-26.png">
+<meta property="og:image" content="http://pinkyjie.com/assets/images/git-notes-27.png">
+<meta property="og:image" content="http://pinkyjie.com/assets/images/git-notes-28.png">
+<meta property="og:image" content="http://pinkyjie.com/assets/images/git-notes-29.png">
+<meta property="og:image" content="http://pinkyjie.com/assets/images/git-notes-30.png">
+<meta property="og:image" content="http://pinkyjie.com/assets/images/git-notes-31.png">
+<meta property="og:image" content="http://pinkyjie.com/assets/images/git-notes-32.png">
+<meta property="og:image" content="http://pinkyjie.com/assets/images/git-notes-33.png">
+<meta property="og:image" content="http://pinkyjie.com/assets/images/git-notes-34.png">
+<meta property="og:image" content="http://pinkyjie.com/assets/images/git-notes-35.png">
+<meta property="og:image" content="http://pinkyjie.com/assets/images/git-notes-36.png">
+<meta property="og:image" content="http://pinkyjie.com/assets/images/git-notes-37.png">
+<meta property="og:image" content="http://pinkyjie.com/assets/images/git-notes-38.png">
+<meta property="og:image" content="http://pinkyjie.com/assets/images/git-notes-39.png">
+<meta property="og:image" content="http://pinkyjie.com/assets/images/git-notes-40.png">
+<meta property="article:published_time" content="2014-08-10T19:37:24.000Z">
+<meta property="article:modified_time" content="2020-05-01T01:47:54.590Z">
+<meta property="article:author" content="马斯特">
+<meta property="article:tag" content="Git">
+<meta property="article:tag" content="SourceTree">
+<meta property="article:tag" content="版本控制">
+<meta property="article:tag" content="git-cherry-pick">
+<meta property="article:tag" content="git-merge">
+<meta property="article:tag" content="git-rebase">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://pinkyjie.com/assets/images/git-notes-24.png">
+
+<link rel="canonical" href="http://pinkyjie.com/2014/08/10/git-notes-part-3/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>Git笔记(三)——[cherry-pick, merge, rebase] | 进击的马斯特</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">进击的马斯特</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">CODING MY LIFE</p>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://pinkyjie.com/2014/08/10/git-notes-part-3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/assets/images/avatar.jpg">
+      <meta itemprop="name" content="马斯特">
+      <meta itemprop="description" content="前端 | 溜冰 | Mac">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="进击的马斯特">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Git笔记(三)——[cherry-pick, merge, rebase]
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2014-08-10 19:37:24" itemprop="dateCreated datePublished" datetime="2014-08-10T19:37:24+00:00">2014-08-10</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-05-01 01:47:54" itemprop="dateModified" datetime="2020-05-01T01:47:54+00:00">2020-05-01</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%B7%A5%E5%85%B7%E7%9B%B8%E5%85%B3/" itemprop="url" rel="index">
+                    <span itemprop="name">工具相关</span>
+                  </a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>书接<a href="/2014/08/09/git-notes-part-2/">上回</a>，直入主题！这篇继续实践剩下的几个命令。</p>
+<a id="more"></a>
+<p>现在的SourceTree状态如下：</p>
+<p><img src="/assets/images/git-notes-24.png" alt="图24"></p>
+<h3 id="cherry-pick-妈妈，我也要"><a href="#cherry-pick-妈妈，我也要" class="headerlink" title="cherry-pick - 妈妈，我也要"></a>cherry-pick - 妈妈，我也要</h3><p>cherry-pick其实在工作中还挺常用的，一种常见的场景就是，比如我在A分支做了几次commit以后，发现其实我并不应该在A分支上工作，应该在B分支上工作，这时就需要将这些commit从A分支复制到B分支去了，这时候就需要cherry-pick命令了，B分支指着这些commit说：妈妈，我也要！比如说，我们在master分支上继续做两次提交，第一次添加一行”test 10”，<code>git commit -am &quot;commit 10&quot;</code>，第二次添加“test 11”，到达如下图的状态：</p>
+<p><img src="/assets/images/git-notes-25.png" alt="图25"></p>
+<p>这个时候我们发现，哦NO，我们不应该直接更改master分支，我们应该在自己的分支上做提交。这个时候先新建一个分支<code>git checkout -b branch3 1a222c3</code>，注意这里的最后一个参数是新分支的起点，也就是说，新的分支branch3是从“commit 8,9”开始的，现在我们需要把刚才的两次提交移动到新的分支上。运行<code>git cherry-pick 0bda20e 1a04d5f</code>，命令行会给出提示两个commit被复制到了当前分支上，此时SourceTree的状态如下图：</p>
+<p><img src="/assets/images/git-notes-26.png" alt="图26"></p>
+<p>确定这两个commit被复制到指定分支以后，在master分支上将这两个commit删除。先切回master分支：<code>git checkout master</code>，运行<code>git reset --hard 1a222c3</code>，此时SourceTree的状态图为：</p>
+<p><img src="/assets/images/git-notes-27.png" alt="图27"></p>
+<p>两个commit被成功的从master分支移动到了branch3分支。</p>
+<h3 id="merge-求合体"><a href="#merge-求合体" class="headerlink" title="merge - 求合体"></a>merge - 求合体</h3><p>merge命令应该也是非常的常用，比如新开了一个分支去完成某个feature，然后完成了以后要merge到master分支来。就拿刚才的例子来讲，开了新分支branch3来存放“commit 10”和“commit 11”，这两个commit可以看成是新的feature，完事以后就要合并到master分支上了。但合并之前，一般要将master分支当前最新的commit合并到branch3上，因为你的branch3的起点此时可能已经不是master分支的最新commit了。切换到branch3分支上运行<code>git merge master</code>，Git提示“Already up-to-date.”，这说明当前所在的分支branch3比master分支还要新，branch3上的commit都是master最新commit点的子commit，故不需要合并。切回master分支<code>git checkout master</code>，将分支branch3合并到master分支上，<code>git merge branch3</code>，结果如下图：</p>
+<p><img src="/assets/images/git-notes-28.png" alt="图28"></p>
+<p>可以看到branch3分支上的更改已经被合并到master上，其中“Fast-forward”是合并的一种类型，当当前分支（master）是目标分支（branch3）的祖先commit时会发生这种“Fast-forward”合并，其实可以理解为HEAD指针指向的快速移动。</p>
+<p>前面看到的两种情况都是比较简单的合并，没有遇到任何“冲突”，我们来一次稍微复杂点的合并，比如我们需要将branch2合并到master上。在master分支上<code>git merge branch2</code>，哦NO，命令行提示“Automatic merge failed”，出现冲突了，Git无法判断如何merge，这个时候我们就需要手动解决冲突以后再提交。打开test.txt文件可以看到如下图的内容：</p>
+<p><img src="/assets/images/git-notes-29.png" alt="图29"></p>
+<p>从图28中可以看到<code>&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</code>和<code>========</code>之间的内容是当前分支的内容，而<code>=======</code>和<code>&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; branch2</code>之间的内容是branch2分支的内容，由于改动了同一行所以Git无法自动合并了。这个时候你可以决定最后保留哪些内容，我们就简单的将“test aaa”插入到第4行，然后删除多余的标记保存，另外，需要手动做一次提交来解决冲突：<code>git add test.txt</code>，然后这次我们不用<code>-m</code>参数直接<code>git commit</code>，可以看到如下图的提示：</p>
+<p><img src="/assets/images/git-notes-30.png" alt="图30"></p>
+<p>Git已经发现我们是在做一次merge的提交，并且是“解决冲突的merge”，可以看到Git默认给出的提交信息非常的友好，包含了合并的分支上的commit，也写明了冲突的文件是什么，我们就使用Git默认的提交信息，直接<code>:wq</code>保存退出。此时可以直观的从SourceTree里看到branch2分支的线已经合并到master上了，如下图所示：</p>
+<p><img src="/assets/images/git-notes-31.png" alt="图31"></p>
+<p>总结一下merge的集中情况：</p>
+<ol>
+<li><code>git merge 目标分支</code><ul>
+<li>如果目标分支是当前分支的祖先commit节点，则merge什么也不会发生，因为当前分支已经是最新的了</li>
+<li>如果当前分支是目标分支的祖先commit节点，这时会发生Fast-forward的merge，merge的结果是简单的移动HEAD指针</li>
+</ul>
+</li>
+<li>如果以上两种情况都不是的话，则其实是做的三方合并，除了这两个分支的最新commit以外，另外一个是这两个分支的共同祖先commit点。这种情况下如果没有冲突的话会自动生成一个merge的commit，如果有冲突则手动解决后还是会有一个merge的commit。</li>
+</ol>
+<h3 id="rebase-我是直男，不喜欢弯的"><a href="#rebase-我是直男，不喜欢弯的" class="headerlink" title="rebase - 我是直男，不喜欢弯的"></a>rebase - 我是直男，不喜欢弯的</h3><p>从图31可以看出，branch2分支（紫色的线）最终交汇到master分支上（蓝色的线），这还只是合并了一次，并且我们当前的分支才几个，如果分支很多并且频繁合并的话，这样弯弯曲曲的线会非常多，搞得你眼花缭乱，根本搞不清楚走向，显然，直男一向是不喜欢弯的，那能把它掰直吗？答案是肯定的，rebase就是干这个事情的！为了看清楚merge和rebase的区别，我们先将刚才branch2的合并取消，使master回滚到“commit 11”的状态：<code>git reset --hard dda0f7d</code>。这时我们位于master分支上，运行<code>git rebase branch2</code>，Git同样提示我们有冲突，只是这次提示非常长，如下图：</p>
+<p><img src="/assets/images/git-notes-32.png" alt="图32"></p>
+<p>根据提示我们就可以发现rebase的流程，从“Applying: commit 3”这句就可以看出来，其实rebase的原理是先找到两个分支的共同祖先commit节点“commit 2,2.5”，然后把master分支上这个节点的儿子节点全部“应用”到branch2分支上。从图31中可以看到第一个儿子节点是“commit 3”，所以先apply这个，而“commit 3”和“commit aaa”编辑的都是第4行，所以立即出现了冲突！照例我们需要手动解决冲突。这次如果我们还是把“test aaa”放第4行，然后“test 3”放在第5行，那很明显后面的“commit 4”在apply时仍然会有冲突，所以为了方便，我们直接把“test 3”和“test aaa”都放在第4行，如下图：</p>
+<p><img src="/assets/images/git-notes-33.png" alt="图33"></p>
+<p>然后保存，注意这时需要先把改动add以后再操作：<code>git add test.txt</code>。按照图32的提示运行<code>git rebase --continue</code>，结果怎么样呢？哦NO，又尼玛冲突了！！！为嘛啊！“commit 4”的第4行还是“test 3”，而我们现在的第4行是“test 3 test aaa”，所以还是冲突！看来rebase在apply每一个commit时并不只是apply这个commit上的变化（即“test 4”这一行），而是apply整个文件！可以想象这样走下去每一步都会有冲突，唯一的办法就是放弃“test aaa”这个更改。真的是这样吗？其实不然，先运行<code>git rebase --abort</code>放弃这次rebase。其实这种场景下并不适合rebase，一般我们把别的分支合并到master时用<code>merge</code>，而把master合并到别的分支时会用到<code>rebase</code>，那我们换个思路，切换到branch2分支上<code>git checkout branch2</code>，然后运行rebase命令<code>git rebase master</code>，显然，还是会有冲突的，这次我们直接把“commit aaa”加到最后一行保存。运行<code>git add test.txt</code>，然后继续进行<code>git rebase --continue</code>，可以看到结果成功了“Applying: commit aaa”。这时的SourceTree如下图：</p>
+<p><img src="/assets/images/git-notes-34.png" alt="图34"></p>
+<p>可是这样与merge的结果恰恰相反，我们是把master分支merge到branch2上了，而我们初衷是将branch2分支merge到master上。简单！先切回master分支<code>git checkout master</code>然后运行<code>git merge branch2</code>即可，因为这时master分支是branch2分支的祖先commit节点，所以直接Fast-forward了！最终的状态图如下图所示：</p>
+<p><img src="/assets/images/git-notes-35.png" alt="图35"></p>
+<p>从图35中可以看出，达到了和图31同样的效果，不同的是：首先，没有了“弯弯”的线；其次，多余的merge那一条commit没有啦！这才是直男喜欢的！</p>
+<p>总结一下rebase：</p>
+<ol>
+<li><code>git rebase 目标分支</code>原理其实是先将HEAD指向目标分支和当前分支的共同祖先commit节点，然后将当前分支上的commit一个一个的apply到目标分支上，apply完以后再将HEAD指向当前分支。</li>
+<li>rebase与merge的区别：<ul>
+<li>把master分支合并到别的分支用rebase，把别的分支合并到master分支上用merge</li>
+<li>rebase不会产生多余的commit，并且保持直线</li>
+</ul>
+</li>
+</ol>
+<p><em>关于rebase其他要补充的</em>：</p>
+<p>当然rebase还有其他很多很牛逼的功能，其“交互模式”可以让你干很多事情，比如调整commit的顺序啊，合并一些commit啊，删除一些commit啊等等，通过<code>-i</code>参数可以实现，当然这个命令有些复杂，我们可以使用SourceTree的图形化界面更直观的使用它。比如“commit 10”和“commit 11”太不和谐了，早就看你们不爽了，人家前面的“6,7”和“8,9”都成双成对，就你俩不和谐，我要“整顿”一下！在SourceTree中的“commit 8,9”上右击，点击子菜单中的“Rebase children of 1a222c3 interactively…”：</p>
+<p><img src="/assets/images/git-notes-36.png" alt="图36"></p>
+<p><img src="/assets/images/git-notes-37.png" alt="图37"></p>
+<p>然后出现了图37中的对话框，我们想整理的2个commit显示在其中，“commit aaa”也是儿子节点，所以也显示在这里，我们可以通过红色方框中的按钮来进行操作。比如，我们想合并一下“commit 10”和“commit 11”，两个commit合并为“commit 10,11”。在这个对话框中可以非常直观的进行上面的操作，先选中“commit 11”这一行，选择红框中的“Squash with previous”按钮，可以看到出现了一条新的commit——“[2 commits]”，如图38所示：</p>
+<p><img src="/assets/images/git-notes-38.png" alt="图38"></p>
+<p>选中这条commit，点击红框中的“Edit message”，出现了更改commit信息的对话框，如下图：</p>
+<p><img src="/assets/images/git-notes-39.png" alt="图39"></p>
+<p>输入“commit 10,11”即可，点击OK保存，再次点击OK完成此次rebase。此时SourceTree的状态如图40所示：</p>
+<p><img src="/assets/images/git-notes-40.png" alt="图40"></p>
+<p>可以看到，目的达到了，commit hash也跟原来的任何两个都不一样了。除了合并commit，利用图37的红色方框里的按钮，还可以实现删除commit，调整commit的顺序等功能，大家自己尝试吧，小心产生“冲突”哦！</p>
+<p>好啦，到这里，感觉比较重要的git命令都介绍完了！！！其实这三篇都是小实践，要想融会贯通，还需要在真实项目中的大实践！</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Git/" rel="tag"># Git</a>
+              <a href="/tags/SourceTree/" rel="tag"># SourceTree</a>
+              <a href="/tags/%E7%89%88%E6%9C%AC%E6%8E%A7%E5%88%B6/" rel="tag"># 版本控制</a>
+              <a href="/tags/git-cherry-pick/" rel="tag"># git-cherry-pick</a>
+              <a href="/tags/git-merge/" rel="tag"># git-merge</a>
+              <a href="/tags/git-rebase/" rel="tag"># git-rebase</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2014/08/09/git-notes-part-2/" rel="prev" title="Git笔记(二)——[diff, reset]">
+      <i class="fa fa-chevron-left"></i> Git笔记(二)——[diff, reset]
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2015/02/07/prototypal-inheritance-of-scope-in-angularjs/" rel="next" title="AngularJS中scope基于原型链的继承">
+      AngularJS中scope基于原型链的继承 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    
+  
+  <div class="comments">
+  <script src="https://utteranc.es/client.js" repo="PinkyJie/pinkyjie.github.com" issue-term="pathname" theme="github-light" crossorigin="anonymous" async></script>
+  </div>
+  
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#cherry-pick-妈妈，我也要"><span class="nav-number">1.</span> <span class="nav-text">cherry-pick - 妈妈，我也要</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#merge-求合体"><span class="nav-number">2.</span> <span class="nav-text">merge - 求合体</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#rebase-我是直男，不喜欢弯的"><span class="nav-number">3.</span> <span class="nav-text">rebase - 我是直男，不喜欢弯的</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="马斯特"
+      src="/assets/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">马斯特</p>
+  <div class="site-description" itemprop="description">前端 | 溜冰 | Mac</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">55</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">186</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/PinkyJie" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;PinkyJie" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:pinkyjie.gn@gmail.com" title="E-Mail → mailto:pinkyjie.gn@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/PinkyJie" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;PinkyJie" rel="noopener" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://stackoverflow.com/users/689948/pinkyjie" title="StackOverflow → http:&#x2F;&#x2F;stackoverflow.com&#x2F;users&#x2F;689948&#x2F;pinkyjie" rel="noopener" target="_blank"><i class="fa fa-fw fa-stack-overflow"></i>StackOverflow</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">马斯特</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.7.0
+  </div>
+
+        
+
+
+  <div style="display: none;">
+    <script src="//s95.cnzz.com/z_stat.php?id=1253033676&web_id=1253033676"></script>
+  </div>
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  <script>
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install','8k3UxSuRWYkrhVg55bC3','2.0.0');
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

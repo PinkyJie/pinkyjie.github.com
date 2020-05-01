@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="o7yQBnLIoWby8Y5vNMQywBiMtev-ilWjXt89RQpTvVw">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('http://pinkyjie.com').hostname,
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.7.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":"utteranc","storage":true,"lazyload":false,"nav":null,"activeClass":"utteranc"},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="Curse You IE!  这句开场白是我司项目源码里的常见注释，我司的项目主要是海外市场，IE 6&#x2F;7是不用折腾了，但是IE 8&#x2F;9还是要整的，老版本的IE有多闹心我就不惜的说了，谁整谁知道！前段时间我被assign了一个bug要修，IE 8&#x2F;9不支持input和textarea的placeholder属性，说体验很不好，让修复下。 大早上看到这个我整个人都不好了，这篇文章就记录一下我是如何">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用AngularJS解决IE 8&#x2F;9不支持placeholder的问题">
+<meta property="og:url" content="http://pinkyjie.com/2014/08/06/solve-placeholder-incompatibility-using-angular-on-legacy-ie/index.html">
+<meta property="og:site_name" content="进击的马斯特">
+<meta property="og:description" content="Curse You IE!  这句开场白是我司项目源码里的常见注释，我司的项目主要是海外市场，IE 6&#x2F;7是不用折腾了，但是IE 8&#x2F;9还是要整的，老版本的IE有多闹心我就不惜的说了，谁整谁知道！前段时间我被assign了一个bug要修，IE 8&#x2F;9不支持input和textarea的placeholder属性，说体验很不好，让修复下。 大早上看到这个我整个人都不好了，这篇文章就记录一下我是如何">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2014-08-06T21:23:25.000Z">
+<meta property="article:modified_time" content="2020-05-01T01:47:54.590Z">
+<meta property="article:author" content="马斯特">
+<meta property="article:tag" content="AngularJS">
+<meta property="article:tag" content="IE兼容性">
+<meta property="article:tag" content="placeholder">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://pinkyjie.com/2014/08/06/solve-placeholder-incompatibility-using-angular-on-legacy-ie/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>使用AngularJS解决IE 8/9不支持placeholder的问题 | 进击的马斯特</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">进击的马斯特</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">CODING MY LIFE</p>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://pinkyjie.com/2014/08/06/solve-placeholder-incompatibility-using-angular-on-legacy-ie/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/assets/images/avatar.jpg">
+      <meta itemprop="name" content="马斯特">
+      <meta itemprop="description" content="前端 | 溜冰 | Mac">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="进击的马斯特">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          使用AngularJS解决IE 8/9不支持placeholder的问题
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2014-08-06 21:23:25" itemprop="dateCreated datePublished" datetime="2014-08-06T21:23:25+00:00">2014-08-06</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-05-01 01:47:54" itemprop="dateModified" datetime="2020-05-01T01:47:54+00:00">2020-05-01</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%89%8D%E7%AB%AF%E5%BC%80%E5%8F%91/" itemprop="url" rel="index">
+                    <span itemprop="name">前端开发</span>
+                  </a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote>
+<p>Curse You IE!</p>
+</blockquote>
+<p>这句开场白是我司项目源码里的常见注释，我司的项目主要是海外市场，IE 6/7是不用折腾了，但是IE 8/9还是要整的，老版本的IE有多闹心我就不惜的说了，谁整谁知道！前段时间我被assign了一个bug要修，IE 8/9不支持input和textarea的placeholder属性，说体验很不好，让修复下。 大早上看到这个我整个人都不好了，这篇文章就记录一下我是如何解决这个问题的。</p>
+<a id="more"></a>
+<h3 id="方案1：用value属性来模拟placeholder"><a href="#方案1：用value属性来模拟placeholder" class="headerlink" title="方案1：用value属性来模拟placeholder"></a>方案1：用value属性来模拟placeholder</h3><p>有问题，先google！最快捷的方式自然是一大堆的jQuery插件了，包一个JS/CSS文件，然后调一下<code>.placeholder()</code>函数就搞定了。但是，一个是为了这么个小功能去用一个插件感觉没啥必要，另外一个原因是jQuery插件要应用到AngularJS上就需要改写成directive，感觉也很麻烦。所以，最终的结论是还不如自己写一个directive来解决这个问题。</p>
+<p>自己实现directive就需要搞清楚如何在IE上模拟placeholder的原理，网上比较常见的解决方案是直接用input或textarea的value属性来模拟placeholder，代码大致和下面的类似：</p>
+<figure class="highlight javascript"><figcaption><span>ie-placeholder.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">$(<span class="string">'[placeholder]'</span>).focus(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> input = $(<span class="keyword">this</span>);</span><br><span class="line">    <span class="keyword">if</span> (input.val() == input.attr(<span class="string">'placeholder'</span>)) &#123;</span><br><span class="line">        input.val(<span class="string">''</span>);</span><br><span class="line">        input.removeClass(<span class="string">'placeholder'</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;).blur(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> input = $(<span class="keyword">this</span>);</span><br><span class="line">    <span class="keyword">if</span> (input.val() == <span class="string">''</span> || input.val() == input.attr(<span class="string">'placeholder'</span>)) &#123;</span><br><span class="line">        input.addClass(<span class="string">'placeholder'</span>);</span><br><span class="line">        input.val(input.attr(<span class="string">'placeholder'</span>));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;).blur();</span><br></pre></td></tr></table></figure>
+<p>从上面的代码可以看出，原理还是比较简单的。给所有包含placeholder的标签（input/textarea）的focus和blur事件绑定回调函数：</p>
+<ul>
+<li>当focus事件发生时，即用户点击input框时，检查如果input的value属性等于它的placeholder属性，则认为用户还没有输入过任何东西，这时清空input框并移除class。</li>
+<li>当blur事件发生时，即用户点击别的地方时，检查如果input的value属性为空或者等它的placeholder属性，则认为用户并没有输入任何东西，这时将placeholder的值设置为value属性并添加class。</li>
+<li>最后先手动触发一下blur事件，好让input框初始化的状态是显示placeholder。</li>
+<li>这里的class属性一般是用来添加字体颜色的样式，因为一般placeholder的颜色为灰色。</li>
+</ul>
+<h3 id="方案1需要考虑的问题"><a href="#方案1需要考虑的问题" class="headerlink" title="方案1需要考虑的问题"></a>方案1需要考虑的问题</h3><p>乍一看，这种模拟方式基本可以满足placeholder的需求。但是有几个问题需要解决：</p>
+<ol>
+<li>type为password时placeholder也会以mask的方式显示。这个应该是最棘手的问题了，由于是使用value属性，而password的value默认是以圆点mask的方式显示的，这样给人很奇怪的感觉。</li>
+<li>无法准确判断input框是不是dirty的。如果你输入的内容恰好就和placeholder的内容一样的话，则一旦你点击input框，focus事件发生，输入的内容会被清掉。</li>
+<li>提交form表单时需要格外注意。这个问题其实和问题2差不多，由于value属性模拟placeholder，一个表单你即便什么也不填也都是有值的，这就要求提交表单的时候要对每个input框做检查，判断value属性是否与placeholder不同来判断这个form是否dirty。如果你的表单提交逻辑已经写好的情况下，则需要很多额外的修改工作。</li>
+</ol>
+<p>抛开2、3两个问题不说，问题1是无法接受的，显然这种方案不太可行。</p>
+<h3 id="方案2：直接添加一个span标签模拟placeholder"><a href="#方案2：直接添加一个span标签模拟placeholder" class="headerlink" title="方案2：直接添加一个span标签模拟placeholder"></a>方案2：直接添加一个span标签模拟placeholder</h3><p>既然从input框本身下手不行，那就需要借助其他的标签来模拟了。试想我们在每个input框同样的位置上放一个span标签来模拟placeholder，这个span标签和input框同样的大小，当点击这个span时隐藏自己并使input框focus，当input框blur时若input框为空则重新显示这个span，这样就可以模拟placeholder的功能了。带着这个思路我们可以写一个自定义的directive来模拟placeholder：</p>
+<figure class="highlight plain"><figcaption><span>myPlaceholderDirective.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">app.directive(&#39;myPlaceholder&#39;, [&#39;$compile&#39;, function($compile)&#123;</span><br><span class="line">    return &#123;</span><br><span class="line">        restrict: &#39;A&#39;,</span><br><span class="line">        scope: &#123;&#125;,</span><br><span class="line">        link: function(scope, ele, attr) &#123;</span><br><span class="line">            var input &#x3D; document.createElement(&#39;input&#39;);</span><br><span class="line">            var isSupportPlaceholder &#x3D; &#39;placeholder&#39; in input;</span><br><span class="line">            if (!isSupportPlaceholder) &#123;</span><br><span class="line">                var fakePlaceholder &#x3D; angular.element(</span><br><span class="line">                    &#39;&lt;span class&#x3D;&quot;plcaeholder&quot;&gt;&#39; + attr[&#39;placeholder&#39;] + &#39;&lt;&#x2F;span&gt;&#39;);</span><br><span class="line">                fakePlaceholder.on(&#39;click&#39;, function(e)&#123;</span><br><span class="line">                    e.stopPropagation();</span><br><span class="line">                    ele.focus();</span><br><span class="line">                &#125;);</span><br><span class="line">                ele.before(fakePlaceholder);</span><br><span class="line">                $compile(fakePlaceholder)(scope);</span><br><span class="line">                ele.on(&#39;focus&#39;, function()&#123;</span><br><span class="line">                    fakePlaceholder.hide();</span><br><span class="line">                &#125;).on(&#39;blur&#39;, function()&#123;</span><br><span class="line">                    if (ele.val() &#x3D;&#x3D;&#x3D; &#39;&#39;) &#123;</span><br><span class="line">                        fakePlaceholder.show();</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;]);</span><br></pre></td></tr></table></figure>
+<p>这里我们定义了一个叫做myPlaceholder的directive，按照directive的定义指定这个directive只能作为属性存在，并且它的scope是独立的，然后就是最重要的link函数，主要的逻辑都放在这里面。先看6、7两行，这两行的作用主要是为了判断当前的浏览器是否支持placeholder属性，这个神一般的方法来自于<a href="http://stackoverflow.com/questions/3937818/how-to-test-if-the-browser-supports-the-native-placeholder-attribute" target="_blank" rel="noopener">StackOverflow</a>，当然这里也可以使用<a href="http://modernizr.com/" target="_blank" rel="noopener">Modernizr</a>这样的第三方库来判断。而我们后面的逻辑都是发生在不支持placeholder的前提下的，如果支持的话就什么也不做了。第9-16行是添加span的过程，先定义一个span标签，内容就是input框的placeholder属性，然后为其绑定click事件，当用户点击这个假的placeholder时，触发input框的focus事件。最后将这个假的placeholder插入到DOM树中去。这里值得注意的有三点：</p>
+<ol>
+<li>为什么使用span标签？这可不是随便拿来用的，其实这个场景使用label标签非常合适，语义上比较符合，但杯具的是label标签在IE 8中不支持click事件。</li>
+<li>第12行为何停止事件的冒泡？防止对其他部分产生影响，因为这个span标签是硬塞进来的，一旦click事件往上传播可能会影响现有的逻辑。</li>
+<li>第16行的作用？这是AngularJS里特有的问题，在link函数里对DOM树进行更改后只有使用<code>$compile</code>函数这个更改才能生效。当然你也可以将DOM更改放入compile函数中去。</li>
+</ol>
+<p>接下去的17-23行就跟方案1差不多了，focus事件发生时隐藏假的placeholder，blur事件发生时若input框内容为空则重新显示假的placeholder。不同之处就在于这里我们不用管input框的内容是否与placeholder属性相不相同了。</p>
+<h3 id="方案2需要考虑的问题"><a href="#方案2需要考虑的问题" class="headerlink" title="方案2需要考虑的问题"></a>方案2需要考虑的问题</h3><p>那么到现在为止这个方案2能工作吗？答案是能，但是有很多问题！下面一个一个来分析：</p>
+<p><em>1. 位置问题</em></p>
+<p>这个恐怕是最首当其冲的问题，方案1由于使用就是input框本身，所以根本不存在错位的问题，而方案2是新插入一个标签，所以必须让新的span标签与原来的input框位置重合，这样才能以假乱真。首先，一些必要的样式是要有的，比如</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-class">.placeholder</span> &#123;</span><br><span class="line">    <span class="attribute">position</span>: absolute;</span><br><span class="line">    <span class="attribute">color</span>: <span class="number">#aaa</span>;</span><br><span class="line">    <span class="attribute">cursor</span>: text;</span><br><span class="line">    <span class="attribute">z-index</span>: <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>绝对定位可以保证span可以叠加在input框之上，同样<code>z-index</code>样式也是为了保证这个，而<code>cursor</code>样式是为了让鼠标更逼真，普通的input框当鼠标移上去时显示的就是text的样式。这些样式仅仅是一个开始，要知道，input框的位置在页面渲染好以后也可能是会发生变化的。举个例子，有两个input框上下相邻，如果第一个输入的错误的信息，则两个input框之间可能会需要一条报错提示，这样，下面的input框的位置就会发生变化。所以，必须时刻根据input框的位置调整span的位置。而AngularJS里恰好有这么一个特性：<code>$watch</code>，我们要做的就是watch这个input框的位置，一旦发生变化立马调整span的位置：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">scope.getElementPosition = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> ele.position();    </span><br><span class="line">&#125;;</span><br><span class="line">scope.$watch(scope.getElementPosition, <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">    fakePlaceholder.css(&#123;</span><br><span class="line">        <span class="string">'top'</span>: ele.position().top + <span class="string">'px'</span>,</span><br><span class="line">        <span class="string">'left'</span>: ele.position().left + <span class="string">'px'</span></span><br><span class="line">    &#125;); </span><br><span class="line">&#125;, <span class="literal">true</span>);</span><br></pre></td></tr></table></figure>
+<p>jQuery的<code>position()</code>函数可以获取元素的位置，一旦原始input框的top、left发生变化，则将span元素的top、left属性与其保持一致。注意<code>$watch</code>函数的第三个参数，默认<code>$watch</code>判断是否发生变化使用的是<code>===</code>，这样的话两个object是永远不可能相等的，而加上第三个参数并给true，则会使<code>$watch</code>函数比较object的各个property是否相等。</p>
+<p><em>2. 大小和样式问题</em></p>
+<p>解决了位置问题会发现，有些情况下还是会有错位的问题，比如span的内容要比input框偏左一点，span框的行高与input框不一致等等，这些牵涉到span的大小和样式必须要与input框一致。同样我们可以用<code>$watch</code>来解决：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">scope.getElementHeight = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> ele.outerHeight();  </span><br><span class="line">&#125;;</span><br><span class="line">scope.$watch(scope.getElementHeight, <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">    fakePlaceholder.css(<span class="string">'line-height'</span>, ele.outerHeight() + <span class="string">'px'</span>); </span><br><span class="line">&#125;);</span><br><span class="line"><span class="keyword">if</span> (ele.css(<span class="string">'font-size'</span>))&#123;</span><br><span class="line">    fakePlaceholder.css(<span class="string">'font-size'</span>, ele.css(<span class="string">'font-size'</span>));</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">if</span> (ele.css(<span class="string">'text-indent'</span>))&#123;</span><br><span class="line">    fakePlaceholder.css(<span class="string">'text-indent'</span>, </span><br><span class="line">        <span class="built_in">parseInt</span>(ele.css(<span class="string">'text-indent'</span>)) + </span><br><span class="line">        <span class="built_in">parseInt</span>(ele.css(<span class="string">'border-left-width'</span>))</span><br><span class="line">    );</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">if</span> (ele.css(<span class="string">'padding-left'</span>))&#123;</span><br><span class="line">    fakePlaceholder.css(<span class="string">'padding-left'</span>, ele.css(<span class="string">'padding-left'</span>));</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">if</span> (ele.css(<span class="string">'margin-top'</span>))&#123;</span><br><span class="line">    fakePlaceholder.css(<span class="string">'margin-top'</span>, ele.css(<span class="string">'margin-top'</span>));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可能还有很多样式没有考虑到，这就要看具体的情况了，发现有问题再去看是哪个样式影响的，再进行添加。</p>
+<p><em>3. 随input框的隐藏而隐藏</em> </p>
+<p>这个应该是AngularJS特有的问题吧，因为有<code>ng-show</code>的影响，即便页面渲染完成后很多input框的显示与隐藏也是会变化的，所以，这个自然也需要<code>$watch</code>了。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">scope.isElementVisible = <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">    <span class="keyword">return</span> ele.is(<span class="string">':visible'</span>); </span><br><span class="line">&#125;;</span><br><span class="line">scope.$watch(scope.isElementVisible, <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">    <span class="keyword">var</span> displayVal = ele.is(<span class="string">':visible'</span>) ? <span class="string">'block'</span> : <span class="string">'none'</span>;</span><br><span class="line">    fakePlaceholder.css(<span class="string">'display'</span>, displayVal);</span><br><span class="line">    <span class="keyword">if</span> (displayVal === <span class="string">'blcok'</span> &amp;&amp; ele.val()) &#123;</span><br><span class="line">        fakePlaceholder.hide();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>这里同样使用jQuery的工具函数来做判断，将input框的显示状态赋值给span。注意7、8两行，如果input框在隐藏的过程中突然有值了，这时再显示的时候就要隐藏假的placeholder了。</p>
+<p><em>4. 若input框有值则隐藏</em></p>
+<p>这个同样是AngularJS的问题吧，因为有<code>ng-model</code>属性，有时即便你不手动输入，input框的内容也是会变化的，所以，这个也需要<code>$watch</code>。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">scope.hasValue = <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">    <span class="keyword">return</span> ele.val(); </span><br><span class="line">&#125;;</span><br><span class="line">scope.$watch(scope.hasValue, <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (ele.val()) &#123;</span><br><span class="line">        fakePlaceholder.hide();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>好了，到这里为止，我们才可以说这个假的placeholder比较稳定了。当然，实际情况很复杂，具体情况具体分析，无非是善用<code>$watch</code>了。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/AngularJS/" rel="tag"># AngularJS</a>
+              <a href="/tags/IE%E5%85%BC%E5%AE%B9%E6%80%A7/" rel="tag"># IE兼容性</a>
+              <a href="/tags/placeholder/" rel="tag"># placeholder</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2014/08/02/git-notes-part-1/" rel="prev" title="Git笔记(一)——[commit, checkout]">
+      <i class="fa fa-chevron-left"></i> Git笔记(一)——[commit, checkout]
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2014/08/09/git-notes-part-2/" rel="next" title="Git笔记(二)——[diff, reset]">
+      Git笔记(二)——[diff, reset] <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    
+  
+  <div class="comments">
+  <script src="https://utteranc.es/client.js" repo="PinkyJie/pinkyjie.github.com" issue-term="pathname" theme="github-light" crossorigin="anonymous" async></script>
+  </div>
+  
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#方案1：用value属性来模拟placeholder"><span class="nav-number">1.</span> <span class="nav-text">方案1：用value属性来模拟placeholder</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#方案1需要考虑的问题"><span class="nav-number">2.</span> <span class="nav-text">方案1需要考虑的问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#方案2：直接添加一个span标签模拟placeholder"><span class="nav-number">3.</span> <span class="nav-text">方案2：直接添加一个span标签模拟placeholder</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#方案2需要考虑的问题"><span class="nav-number">4.</span> <span class="nav-text">方案2需要考虑的问题</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="马斯特"
+      src="/assets/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">马斯特</p>
+  <div class="site-description" itemprop="description">前端 | 溜冰 | Mac</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">55</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">186</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/PinkyJie" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;PinkyJie" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:pinkyjie.gn@gmail.com" title="E-Mail → mailto:pinkyjie.gn@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/PinkyJie" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;PinkyJie" rel="noopener" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://stackoverflow.com/users/689948/pinkyjie" title="StackOverflow → http:&#x2F;&#x2F;stackoverflow.com&#x2F;users&#x2F;689948&#x2F;pinkyjie" rel="noopener" target="_blank"><i class="fa fa-fw fa-stack-overflow"></i>StackOverflow</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">马斯特</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.7.0
+  </div>
+
+        
+
+
+  <div style="display: none;">
+    <script src="//s95.cnzz.com/z_stat.php?id=1253033676&web_id=1253033676"></script>
+  </div>
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  <script>
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install','8k3UxSuRWYkrhVg55bC3','2.0.0');
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

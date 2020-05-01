@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="o7yQBnLIoWby8Y5vNMQywBiMtev-ilWjXt89RQpTvVw">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('http://pinkyjie.com').hostname,
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.7.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":"utteranc","storage":true,"lazyload":false,"nav":null,"activeClass":"utteranc"},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="在写generator-aio-angular的过程中，gulp这一块发现了很多非常实用的插件，大大的增加了能自动化的范围，这篇文章就分门别类的简单介绍下常用的gulp插件吧。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="常用gulp插件介绍(一)">
+<meta property="og:url" content="http://pinkyjie.com/2015/08/02/commonly-used-gulp-plugins-part-1/index.html">
+<meta property="og:site_name" content="进击的马斯特">
+<meta property="og:description" content="在写generator-aio-angular的过程中，gulp这一块发现了很多非常实用的插件，大大的增加了能自动化的范围，这篇文章就分门别类的简单介绍下常用的gulp插件吧。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2015-08-02T13:45:59.000Z">
+<meta property="article:modified_time" content="2020-05-01T01:47:54.590Z">
+<meta property="article:author" content="马斯特">
+<meta property="article:tag" content="AngularJS">
+<meta property="article:tag" content="插件">
+<meta property="article:tag" content="gulp">
+<meta property="article:tag" content="generator-aio-angular">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://pinkyjie.com/2015/08/02/commonly-used-gulp-plugins-part-1/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>常用gulp插件介绍(一) | 进击的马斯特</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">进击的马斯特</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">CODING MY LIFE</p>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://pinkyjie.com/2015/08/02/commonly-used-gulp-plugins-part-1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/assets/images/avatar.jpg">
+      <meta itemprop="name" content="马斯特">
+      <meta itemprop="description" content="前端 | 溜冰 | Mac">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="进击的马斯特">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          常用gulp插件介绍(一)
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2015-08-02 13:45:59" itemprop="dateCreated datePublished" datetime="2015-08-02T13:45:59+00:00">2015-08-02</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-05-01 01:47:54" itemprop="dateModified" datetime="2020-05-01T01:47:54+00:00">2020-05-01</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%89%8D%E7%AB%AF%E5%BC%80%E5%8F%91/" itemprop="url" rel="index">
+                    <span itemprop="name">前端开发</span>
+                  </a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>在写<a href="https://github.com/PinkyJie/generator-aio-angular" target="_blank" rel="noopener">generator-aio-angular</a>的过程中，gulp这一块发现了很多非常实用的插件，大大的增加了能自动化的范围，这篇文章就分门别类的简单介绍下常用的gulp插件吧。</p>
+<a id="more"></a>
+<h3 id="util工具类"><a href="#util工具类" class="headerlink" title="util工具类"></a>util工具类</h3><p>这个分类下主要介绍一些辅助工具类的插件。</p>
+<h4 id="gulp-load-plugins"><a href="#gulp-load-plugins" class="headerlink" title="gulp-load-plugins"></a><a href="https://www.npmjs.com/package/gulp-load-plugins" target="_blank" rel="noopener">gulp-load-plugins</a></h4><p>顾名思义，本插件的功能就是帮你自动require你在<code>package.json</code>中声明的依赖。只要一句<code>var $ = require(&#39;gulp-load-plugins&#39;)()</code>，则<code>package.json</code>中声明的<code>gulp-</code>或<code>gulp.</code>开头的插件就会自动被放在变量<code>$</code>下面。如<code>$.util</code>就等于<code>require(&#39;gulp-util&#39;)</code>，而有两个连字符的插件则会自动命名为驼峰格式，如<code>$.taskListing</code>则等于<code>require(&#39;gulp-task-listing&#39;)</code>。有了这个插件，就不用一个一个的require了。这个插件还有一些常用的参数配置，这里列几个常用的：</p>
+<ul>
+<li><code>lazyload: true</code>，用到这个插件的时候再去require，默认为true。</li>
+<li><code>rename: {&#39;gulp-task-listing&#39;: &#39;list&#39;}</code>，如果有些插件名字太长，可以使用该参数重命名。</li>
+<li><code>scope: [&#39;dependencies&#39;]</code>，本插件默认会扫描<code>package.json</code>里的所有dependence，可以使用该参数进行限制。</li>
+</ul>
+<p>要使用这些参数只要在require的时候传入即可，如<code>require(&#39;gulp-load-plugins&#39;)({lazy: true})</code>。</p>
+<h4 id="gulp-task-listing"><a href="#gulp-task-listing" class="headerlink" title="gulp-task-listing"></a><a href="https://www.npmjs.com/package/gulp-task-listing" target="_blank" rel="noopener">gulp-task-listing</a></h4><p>这个插件的作用也很容易猜，它可以打印出<code>gulpfile.js</code>中定义的所有task，这个插件我们在<a href="/2015/03/24/refactor-your-gulpfile/">重构你的gulpfile</a>这篇文章的最后介绍过，值得一提的是它还可以根据task的名字确定它是不是一个子task，比如带有<code>:</code>、<code>-</code>、<code>_</code>的task就被认为是子task。我一般把这个插件作为默认的task来调用，如</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">gulp.task(<span class="string">'default'</span>, [<span class="string">'help'</span>]);</span><br><span class="line">gulp.task(<span class="string">'help'</span>, $.taskListing);</span><br></pre></td></tr></table></figure>
+<p>这样，如果只执行<code>gulp</code>的话就会打印出所有定义好的task，非常实用。</p>
+<h4 id="yargs"><a href="#yargs" class="headerlink" title="yargs"></a><a href="https://www.npmjs.com/package/yargs" target="_blank" rel="noopener">yargs</a></h4><p>严格的说，<code>yargs</code>不是专门用于gulp的，它是Node中处理命令行参数的通用解决方案。只要一句代码<code>var args = require(&#39;yargs&#39;).argv;</code>就可以让命令行的参数都放在变量<code>args</code>上，非常方便。它可以处理的参数类型也是多种多样的：</p>
+<ul>
+<li>单字符的简单参数，如传入<code>-m=5</code>或<code>-m 5</code>，则可得到<code>args.m = 5</code>。</li>
+<li>多字符参数（必须使用双连字符），如传入<code>--test=5</code>或<code>--test 5</code>，则可得到<code>args.test = 5</code>。</li>
+<li>不带值的参数，如传入<code>--mock</code>，则会被认为是布尔类型的参数，可得到<code>args.mock = true</code>。</li>
+</ul>
+<p>除此之外，还支持很多其他类型的传参方式，具体可参考<a href="https://www.npmjs.com/package/yargs" target="_blank" rel="noopener">它的文档</a>。</p>
+<h4 id="gulp-util"><a href="#gulp-util" class="headerlink" title="gulp-util"></a><a href="https://www.npmjs.com/package/gulp-util" target="_blank" rel="noopener">gulp-util</a></h4><p>gulp-util带有很多方便的函数，其中最常用的应该就是log了。<code>$.util.log()</code>支持传入多个参数，打印结果会将多个参数用空格连接起来。它与<code>console.log</code>的区别就是所有<code>$.util.log</code>的结果会自动带上时间前缀。另外，它还支持颜色，如<code>$.util.log($.util.colors.magenta(&#39;123&#39;));</code>打印出来的123是品红色的。其实<code>$.util.colors</code>就是一个<a href="https://github.com/sindresorhus/chalk" target="_blank" rel="noopener">chalk</a>的实例，而chalk是专门用来处理命令行打印着色的一个工具。</p>
+<h4 id="del"><a href="#del" class="headerlink" title="del"></a><a href="https://www.npmjs.com/package/del" target="_blank" rel="noopener">del</a></h4><p>grunt自身提供一个<a href="https://github.com/gruntjs/grunt-contrib-clean" target="_blank" rel="noopener">grunt-contrib-clean</a>用来处理支持glob匹配的删除，而del就是gulp上对应的工具。del支持和<code>gulp.src</code>参数同样的匹配，除此之外，它的第二个参数还支持一个回调函数，当删除完成以后执行，所以这是一个异步的删除。常用的调用方法为：<code>del([xxx], callback)</code>。</p>
+<h4 id="gulp-bytediff"><a href="#gulp-bytediff" class="headerlink" title="gulp-bytediff"></a><a href="https://www.npmjs.com/package/gulp-bytediff" target="_blank" rel="noopener">gulp-bytediff</a></h4><p>这是一个统计文件大小变化的工具，通常与压缩类工具放在一起实用，比如</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">gulp.src(<span class="string">'**/*.html'</span>)</span><br><span class="line">    .pipe($.bytediff.start())</span><br><span class="line">    .pipe($.minifyHtml(&#123;<span class="attr">empty</span>: <span class="literal">true</span>&#125;))</span><br><span class="line">    .pipe($.bytediff.stop(bytediffFormatter))</span><br><span class="line">    .pipe(gulp.dest(<span class="string">'dist'</span>));</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">bytediffFormatter</span> (<span class="params">data</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> difference = (data.savings &gt; <span class="number">0</span>) ? <span class="string">' smaller.'</span> : <span class="string">' larger.'</span>;</span><br><span class="line">    <span class="keyword">return</span> data.fileName + <span class="string">' went from '</span> +</span><br><span class="line">        (data.startSize / <span class="number">1000</span>).toFixed(<span class="number">2</span>) + <span class="string">' kB to '</span> +</span><br><span class="line">        (data.endSize / <span class="number">1000</span>).toFixed(<span class="number">2</span>) + <span class="string">' kB and is '</span> +</span><br><span class="line">        formatPercent(<span class="number">1</span> - data.percent, <span class="number">2</span>) + <span class="string">'%'</span> + difference;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在压缩的pipe前后加上<code>$.bytediff.start()</code>和<code>$.bytediff.stop(callback)</code>，即可统计压缩前后文件的变化。在callback中传入的参数data上，可以访问到很多变量，如文件名，变化前后的大小，变化百分比等等。</p>
+<h4 id="gulp-print"><a href="#gulp-print" class="headerlink" title="gulp-print"></a><a href="https://www.npmjs.com/package/gulp-print" target="_blank" rel="noopener">gulp-print</a></h4><p>这个插件的作用很简单，打印出stream里面的所有文件名，通常调试的时候比较需要。</p>
+<h4 id="gulp-bump"><a href="#gulp-bump" class="headerlink" title="gulp-bump"></a><a href="https://www.npmjs.com/package/gulp-bump" target="_blank" rel="noopener">gulp-bump</a></h4><p>这个插件也可以顾名思义：用来升级版本用的，废话不说，直接看例子吧：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">return</span> gulp</span><br><span class="line">    .src(<span class="string">'package.json'</span>)</span><br><span class="line">    .pipe($.bump(options))</span><br><span class="line">    .pipe(gulp.dest(<span class="string">'dist'</span>));</span><br></pre></td></tr></table></figure>
+<p>重点来看这里的options，我们可直接传递一个具体的version进去，也可以按照Node的版本规范传递一个type进去，让其自己生成对应的version：</p>
+<ul>
+<li><code>version</code>，直接传递要升级到的版本号，如<code>1.2.3</code>。</li>
+<li><code>type</code>，可接受的值包括下面四个，倘若现在的版本号为<code>1.2.3</code>，则对应的新版本号为：<ul>
+<li>prerelease：<code>1.2.3-0</code></li>
+<li>patch：<code>1.2.4</code></li>
+<li>minor：<code>1.3.0</code></li>
+<li>major：<code>2.0.0</code></li>
+</ul>
+</li>
+</ul>
+<p>最终这个升级后的版本号会反映在<code>package.json</code>中，当然，你也可以在gulp.src中传入更多的文件（如<code>bower.json</code>）来替换更多的文件。</p>
+<h4 id="gulp-header"><a href="#gulp-header" class="headerlink" title="gulp-header"></a><a href="https://www.npmjs.com/package/gulp-header" target="_blank" rel="noopener">gulp-header</a></h4><p>这个工具用来在压缩后的JS、CSS文件中添加头部注释，你可以包含任意想要的信息，通常就是作者、描述、版本号、license等，比如：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">getHeader</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> pkg = <span class="built_in">require</span>(<span class="string">'package.json'</span>);</span><br><span class="line">    <span class="keyword">var</span> template = [<span class="string">'/**'</span>,</span><br><span class="line">        <span class="string">' * &lt;%= pkg.name %&gt; - &lt;%= pkg.description %&gt;'</span>,</span><br><span class="line">        <span class="string">' * @authors &lt;%= pkg.authors %&gt;'</span>,</span><br><span class="line">        <span class="string">' * @version v&lt;%= pkg.version %&gt;'</span>,</span><br><span class="line">        <span class="string">' * @link &lt;%= pkg.homepage %&gt;'</span>,</span><br><span class="line">        <span class="string">' * @license &lt;%= pkg.license %&gt;'</span>,</span><br><span class="line">        <span class="string">' */'</span>,</span><br><span class="line">        <span class="string">''</span></span><br><span class="line">    ].join(<span class="string">'\n'</span>);</span><br><span class="line">    <span class="keyword">return</span> $.header(template, &#123;</span><br><span class="line">        pkg: pkg</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个函数将<code>package.json</code>中的各种信息提取出来，变成头部注释，只要在压缩的pipe中调用<code>.pipe(getHeader())</code>即可。</p>
+<h3 id="stream相关"><a href="#stream相关" class="headerlink" title="stream相关"></a>stream相关</h3><p>这个部分主要介绍一些跟stream操作有关的插件。</p>
+<h4 id="gulp-filter"><a href="#gulp-filter" class="headerlink" title="gulp-filter"></a><a href="https://www.npmjs.com/package/gulp-filter" target="_blank" rel="noopener">gulp-filter</a></h4><p>gulp-filter可以把stream里的文件根据一定的规则进行筛选过滤。比如<code>gulp.src</code>中传入匹配符匹配了很多文件，可以把这些文件pipe给gulp-filter作二次筛选，如<code>gulp.src(&#39;**/*.js&#39;).pipe($.filter(**/a/*.js))</code>，本来选中了所有子文件下的js文件，经过筛选后变成名为a的子文件夹下的js文件。那有人要问了，为什么不直接将需要的筛选传入<code>gulp.src</code>，干嘛要多筛选一步呢？这里面有两种情况：</p>
+<ul>
+<li><code>gulp.src</code>与<code>$.filter</code>中间可能需要别的处理，比如我对所有文件做了操作1以后，还需要筛选出一部分做操作2。</li>
+<li>第二种情况就要谈到gulp-filter的另外一个特性：筛选之后还可以restore回去。比如我对所有文件做了操作1，筛选了一部分做操作2，最后要把所有的文件都拷贝到最终的位置。代码如下：</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> filter = $.filter(<span class="string">'**/a/*.js'</span>);</span><br><span class="line">gulp.src(<span class="string">'**/*.js'</span>)</span><br><span class="line">    .pipe(action1())</span><br><span class="line">    .pipe(filter)</span><br><span class="line">    .pipe(action2())</span><br><span class="line">    .pipe(filter.restore())</span><br><span class="line">    .pipe(gulp.dest(<span class="string">'dist'</span>))</span><br></pre></td></tr></table></figure>
+<p>可以看到，如果没有restore这个操作，那么拷贝到最终位置的文件将只包含被过滤出来的文件，这样一restore，所有的文件都被拷贝了。</p>
+<h4 id="gulp-flatten"><a href="#gulp-flatten" class="headerlink" title="gulp-flatten"></a><a href="https://www.npmjs.com/package/gulp-flatten" target="_blank" rel="noopener">gulp-flatten</a></h4><p>gulp-flatten非常实用，可能知道别的库中flatten函数的同学已经猜到它是干嘛的了。比如<code>gulp.src(&#39;**/*.js&#39;)</code>匹配了很多文件，包括<code>a/b/c.js</code>，<code>d/e.js</code>，<code>f/g/h/i/j/k.js</code>，<code>l.js</code>，这些文件的层级都不一样，一旦我们将这个文件pipe给<code>$.flatten()</code>，则所有的文件夹层级都会去掉，最终的文件将是<code>c.js</code>，<code>e.js</code>，<code>k.js</code>，<code>l.js</code>，在一些场景下还是非常有用的。</p>
+<h4 id="gulp-plumber"><a href="#gulp-plumber" class="headerlink" title="gulp-plumber"></a><a href="https://www.npmjs.com/package/gulp-plumber" target="_blank" rel="noopener">gulp-plumber</a></h4><p>这个插件的作用简单来说就是一旦pipe中的某一steam报错了，保证下面的steam还继续执行。因为pipe默认的onerror函数会把剩下的stream给unpipe掉，这个插件阻止了这种行为。那它一般用于哪种场景呢？比如，代码每次build之前要跑一遍jshint和jscs来确保所有代码都符合规范，但一旦某些代码不符合规范，整个build流程就会停止，这个时候就需要gulp-plumber出场了。如：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">gulp.task(<span class="string">'build'</span>, [<span class="string">'jslint'</span>, <span class="string">'xxxx'</span>]);</span><br><span class="line">gulp.task(<span class="string">'jslint'</span>, <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> gulp</span><br><span class="line">        .src(config.js.all)</span><br><span class="line">        .pipe($.plumber())</span><br><span class="line">        .pipe($.jshint())</span><br><span class="line">        .pipe($.jscs()); </span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>这样，一旦jshint或jscs报错，整个build流程还是可以继续走下去的，而且gulp-plumber会给出一个报错提醒我们：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[16:52:36] Plumber found unhandled error:</span><br><span class="line"> Error in plugin &#39;gulp-jshint&#39;</span><br><span class="line">Message:</span><br><span class="line">    JSHint failed for: xxxx.js</span><br></pre></td></tr></table></figure>
+<h4 id="gulp-if"><a href="#gulp-if" class="headerlink" title="gulp-if"></a><a href="https://www.npmjs.com/package/gulp-if" target="_blank" rel="noopener">gulp-if</a></h4><p>这个插件的功能也很简单，可以条件性的添加stream，如<code>.pipe($.if(flag, action1()))</code>，则只会在<code>flag</code>变量为true时才会将<code>action1()</code>添加到stream中去。其实不用这个插件也可以达到类似的效果，那就是gulp-util里有一个函数叫做<code>noop()</code>，也就是no operation，这个函数其实是返回一个什么都不干的空stream。利用这个函数我们可以这么写：<code>.pipe(flag ? action1() : $.util.noop())</code>，与上例的效果是一样的。</p>
+<h4 id="merge-stream"><a href="#merge-stream" class="headerlink" title="merge-stream"></a><a href="https://www.npmjs.com/package/merge-stream" target="_blank" rel="noopener">merge-stream</a></h4><p>一个gulp的task只能返回一个stream，但有的时候有这么一种情景：有两类文件，它们的原始位置和处理后的位置都是不同的，但它们的处理流程相同。由于<code>gulp.src</code>和<code>gulp.dest</code>的参数不同，我们就需要写两个task来分别完成这个任务，一方面略显重复，另一方面逻辑上来讲这两个task本来就是处理同样的事情的。这种情况就需要merge-stream登场了，它的作用就是将多个stream合成一个返回。比如下面这个例子：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> merge = <span class="built_in">require</span>(<span class="string">'merge-stream'</span>);</span><br><span class="line">gulp.task(<span class="string">'jade'</span>, <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> stream1 = jade(src1, dest1);</span><br><span class="line">    <span class="keyword">var</span> stream2 = jade(src2, dest2);</span><br><span class="line">    <span class="keyword">return</span> merge(stream1, stream2);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">jade</span> (<span class="params">src, dest</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> gulp</span><br><span class="line">        .src(src)</span><br><span class="line">        .pipe($.jade())</span><br><span class="line">        .pipe(gulp.dest(dest));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到，处理的流程被提取出来放入一个函数，它接受两个参数，分别是src和dest。然后在task中直接调用这个函数生成两个stream，然后返回merge-stream合并后的结果。</p>
+<h4 id="run-sequence"><a href="#run-sequence" class="headerlink" title="run-sequence"></a><a href="https://www.npmjs.com/package/run-sequence" target="_blank" rel="noopener">run-sequence</a></h4><p>gulp里的task都是异步并发执行的，有的时候我们需要一连串的task按顺序执行，这时就需要run-sequence登场了。它的调用很简单：<code>runSequence(&#39;task1&#39;, &#39;task2&#39;, [&#39;task3&#39;, &#39;task4&#39;], &#39;task5&#39;)</code>，这里的task都是gulp定义好的task名称，task1完成后才会执行task2，以此类推。注意到task3和task4被放在中括号里了，这表明，task3和task4可以并发执行的，但两个都执行完后才会执行task5。这里要说明的是，每个task要么返回一个stream，即<code>return gulp.src().pipe().pipe()</code>，要么支持回调函数，即<code>gulp.task(&#39;task1&#39;, function (done) { action1(done); })</code>，满足了这两点才能保证正常的执行顺序，因为这是gulp对<a href="https://github.com/gulpjs/gulp/blob/master/docs/API.md#async-task-support" target="_blank" rel="noopener">异步task的基本要求</a>。</p>
+<h3 id="inject相关"><a href="#inject相关" class="headerlink" title="inject相关"></a>inject相关</h3><p>这个部分主要介绍一些将JS/CSS自动插入到HTML的相关插件。</p>
+<h4 id="wiredep"><a href="#wiredep" class="headerlink" title="wiredep"></a><a href="https://www.npmjs.com/package/wiredep" target="_blank" rel="noopener">wiredep</a></h4><p>wiredep就是wire dependence的意思，它的作用就是把<code>bower.json</code>中声明的dependence自动的包含到HTML中去。要插入文件，wiredep需要解决两个问题：</p>
+<ul>
+<li>插入的位置：wiredep通过识别HTML中的注释来识别插入位置，如</li>
+</ul>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- bower:css --&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- endbower --&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- bower:js --&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- endbower --&gt;</span></span><br></pre></td></tr></table></figure>
+<p>不同类型的文件被插入到不同的区块。</p>
+<ul>
+<li>插入什么文件：要插入的文件列表自然来自<code>bower.json</code>，每个bower安装的依赖库，根目录下边都有一个自己的<code>bower.json</code>文件，其中的<code>main</code>字段指明了使用这个库需要包含的文件，wiredep最终包含的文件列表就来自这个字段。有些情况下，库自身的<code>bower.json</code>的main字段可能会多包含文件或少包含文件，如果想要定制这个列表，则可以在自己的<code>bower.json</code>中使用<code>overrides</code>字段，如下面的代码覆盖了<code>mdi</code>这个库的<code>main</code>字段。</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">"overrides"</span>: &#123;</span><br><span class="line">  <span class="string">"mdi"</span>: &#123;</span><br><span class="line">    <span class="string">"main"</span>: [</span><br><span class="line">      <span class="string">"css/materialdesignicons.css"</span></span><br><span class="line">    ]</span><br><span class="line">  &#125;</span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure>
+<p>wiredep插件支持很多参数，常用的主要有两个：</p>
+<ul>
+<li>bowerJson：指定<code>bower.json</code>的内容，注意这个字段不是<code>bower.json</code>文件的位置，这个参数需要使用require后的结果赋值：<code>require(&#39;bower.json&#39;)</code>。</li>
+<li>directory：指定存放bower安装后的依赖包的路径，通常是bower_components。注意最终插入到HTML中的文件列表的路径是index.html文件相对于本文件夹的相对路径。</li>
+</ul>
+<p>使用wiredep也比较简单，直接把它传入到stream中即可，如<code>gulp.src(&#39;index.html&#39;).pipe(wiredep(options))</code>。</p>
+<h4 id="gulp-inject"><a href="#gulp-inject" class="headerlink" title="gulp-inject"></a><a href="https://www.npmjs.com/package/gulp-inject" target="_blank" rel="noopener">gulp-inject</a></h4><p>这个插件的作用与wiredep类似，不同的是可以自己任意指定需要插入文件的列表。它同样是利用注释来寻找插入的位置，它识别的默认注释为<code>&lt;!-- inject:js --&gt;</code>，但更加智能：</p>
+<ul>
+<li>支持各种模板语言：可以根据<code>gulp.src</code>指定的源文件自动识别注释和插入内容，除了支持HTML外，还支持jade、haml等。若源为jade文件，则识别的注释为<code>//- inject:js</code>，插入的内容为：<code>script(src=&quot;&lt;filename&gt;.js&quot;)</code>。</li>
+<li>配置非常灵活：<ul>
+<li>name：默认识别的注释标签格式为<code>&lt;!-- name:ext --&gt;</code>，这里的name默认值就是“inject”，而ext的默认值是要插入的文件的扩展名。那么name属性可配置意味着可以添加自定义的插入区块，如<code>&lt;!-- production:js --&gt;</code>，这个标签可以只插入生产环境需要包含的JS文件。</li>
+<li>starttag和endtag：支持自定义需要识别的注释内容。</li>
+<li>addPrefix和addSuffix：支持在插入文件的路径上自定义前缀、后缀。</li>
+<li>relative：指定插入文件的路径是否为相对路径。</li>
+<li>ingorePath：指定插入文件的路径前面会忽略掉指定的路径。</li>
+<li>read：这个参数通常给false，不需要真正的去读取文件。</li>
+</ul>
+</li>
+</ul>
+<p>这个插件的使用场景通常是，我们需要index里有多个区块，比如上面name的例子，只有当为production环境编译的时候才去包含相关的文件。</p>
+<h4 id="gulp-useref-与-gulp-rev、gulp-rev-replace"><a href="#gulp-useref-与-gulp-rev、gulp-rev-replace" class="headerlink" title="gulp-useref 与 gulp-rev、gulp-rev-replace"></a><a href="https://www.npmjs.com/package/gulp-useref" target="_blank" rel="noopener">gulp-useref</a> 与 <a href="https://www.npmjs.com/package/gulp-rev" target="_blank" rel="noopener">gulp-rev</a>、<a href="https://www.npmjs.com/package/gulp-rev-replace" target="_blank" rel="noopener">gulp-rev-replace</a></h4><p>这三个工具之所以放在一起讲，是因为它们一般都是一起使用的。它们要解决什么问题呢？通过上面的wiredep也好，gulp-inject也好，插入了一堆JS、CSS文件到HTML中，一旦部署到生产环境，这么多文件必然是要合并压缩的。光是压缩还不够，为了解决缓存问题，每次合并压缩后要给最终的文件加hash，这样每次文件内容一变动，hash也会跟着变动，就不存在浏览器依然使用缓存的老文件的问题。这样得到最终的文件以后，肯定还要将这个文件替换回HTML中去，一大堆的script和link标签替换成最终合并压缩带hash的版本。</p>
+<p>前面啰啰嗦嗦的一大堆工作就是这三个插件要解决的问题了。首先，gulp-useref根据注释将HTML中需要合并压缩的区块找出来，对区块内的所有文件进行合并。<strong>注意：它只负责合并，不负责压缩！</strong>所以合并出来的文件我们要自行压缩，压缩以后调用gulp-rev负责在文件名后追加hash。最后调用gulp-rev-replace负责把最终的文件名替换回HTML中去。扯了大半天，还是直接上例子吧。先来看看HTML中的注释：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- build:css static/styles/lib.css --&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- bower:css --&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- endbower --&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- endbuild --&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!-- build:css static/styles/app.css --&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- inject:css --&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- endinject --&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- endbuild --&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!-- build:js static/js/lib.js --&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- bower:js --&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- endbower --&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- endbuild --&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!-- build:js static/js/app.js --&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- inject:js --&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- endinject --&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- endbuild --&gt;</span></span><br></pre></td></tr></table></figure>
+<p>gulp-useref识别的就是build开头的注释，build后面首先跟的是类型扩展名，然后后面的路径就是build区块中的所有文件进行合并后的文件路径，这个相对路径是相对于这个HTML的路径。上面的例子中我们用build区块把bower和inject进来的文件包起来，这些文件就可以被gulp-useref合并了。再来看gulp中useref相关task的定义：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> assets = $.useref.assets(&#123;<span class="attr">searchPath</span>: <span class="string">'app/src/'</span>&#125;);</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> cssFilter = $.filter(<span class="string">'**/*.css'</span>);</span><br><span class="line"><span class="keyword">var</span> jsAppFilter = $.filter(<span class="string">'**/app.js'</span>);</span><br><span class="line"><span class="keyword">var</span> jslibFilter = $.filter(<span class="string">'**/lib.js'</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">return</span> gulp</span><br><span class="line">    .src(<span class="string">'index.html'</span>)</span><br><span class="line">    .pipe(assets)</span><br><span class="line">    .pipe(cssFilter)</span><br><span class="line">    .pipe($.csso())</span><br><span class="line">    .pipe(cssFilter.restore())</span><br><span class="line">    .pipe(jsAppFilter)</span><br><span class="line">    .pipe($.uglify())</span><br><span class="line">    .pipe(getHeader())</span><br><span class="line">    .pipe(jsAppFilter.restore())</span><br><span class="line">    .pipe(jslibFilter)</span><br><span class="line">    .pipe($.uglify())</span><br><span class="line">    .pipe(jslibFilter.restore())</span><br><span class="line">    .pipe($.rev())</span><br><span class="line">    .pipe(assets.restore())</span><br><span class="line">    .pipe($.useref())</span><br><span class="line">    .pipe($.revReplace())</span><br><span class="line">    .pipe(gulp.dest(<span class="string">'dist'</span>));</span><br></pre></td></tr></table></figure>
+<p>首先一上来，先调用<code>$.useref.assets()</code>函数，这个函数返回一个stream，包含已经合并后的文件。可以尝试在第9行后面加上前面介绍过的gulp-print插件<code>.pipe($.print())</code>，打印出stream里的文件，发现就是前面HTML中4个build注释块后面的4个文件。注意这里调用的时候跟了一个<code>searchPath</code>的参数，它的用处就是指定从哪个路径开始寻找build区块底下的文件。比如build区块底下有这么一行<code>&lt;script src=&quot;static/js/a.js&quot;&gt;&lt;/script&gt;</code>，那最终gulp-useref将从这个路径<code>app/src/static/js/a.js</code>找到这个文件。第3到5行定义了3个filter，这主要是为了后面压缩准备的。下面正式看stream的pipe流程。先选出要处理的HTML文件，然后调用刚才得到的<code>assets</code>得到合并后的4个文件，第10到12行筛选出合并后的CSS文件进行压缩（压缩类插件下篇文章再讲），第13到16行筛选出app.js进行压缩，第17到19行筛选出lib.js进行压缩。之所以要区别对待app.js和lib.js，是因为app.js是我们自己写的代码，压缩后要加上header（第15行，使用前面介绍过的gulp-header插件），而lib.js是第三方的各种库，直接压缩即可。后面调用gulp-rev给压缩后的4个文件加hash，然后调用<code>assets.restore()</code>将src源换回HTML文件，这是为了后面调用<code>$.useref()</code>，因为<code>$.useref()</code>做替换的src源是HTML文件，同样后面调用gulp-rev-replace将带hash的文件替换回HTML，它要求的src源也必须是HTML文件。这里的顺序很重要，因为这几个插件接受的源不一样，gulp-rev接受的是JS、CSS文件，而gulp-useref和gulp-rev-replace接受的是HTML。还有一个问题：gulp-rev-replace是怎么知道gulp-rev进行hash前后的文件名对应关系呢？其实gulp-rev会生成一个manifest的文件，内容是类似下面的JSON：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="string">"static/styles/lib.css"</span>: <span class="string">"static/styles/lib-d41d8cd98f.css"</span></span><br><span class="line">    <span class="string">"static/js/lib.js"</span>: <span class="string">"static/js/lib-273c2cin3f.js"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>当然这个文件默认是不会生成在文件系统里的，可以通过<code>.pipe($.rev.manifest())</code>将这个文件保存到本地。有了这个文件，gulp-rev-replace甚至可以脱离gulp-rev独立工作哦！</p>
+<p>好了，这篇就到这里，还有好多工具没介绍到，留着给下篇吧。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/AngularJS/" rel="tag"># AngularJS</a>
+              <a href="/tags/%E6%8F%92%E4%BB%B6/" rel="tag"># 插件</a>
+              <a href="/tags/gulp/" rel="tag"># gulp</a>
+              <a href="/tags/generator-aio-angular/" rel="tag"># generator-aio-angular</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2015/07/25/simple-layout-based-on-ui-router/" rel="prev" title="基于ui-router的简单布局及其他应用">
+      <i class="fa fa-chevron-left"></i> 基于ui-router的简单布局及其他应用
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2015/08/12/commonly-used-gulp-plugins-part-2/" rel="next" title="常用gulp插件介绍(二)">
+      常用gulp插件介绍(二) <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    
+  
+  <div class="comments">
+  <script src="https://utteranc.es/client.js" repo="PinkyJie/pinkyjie.github.com" issue-term="pathname" theme="github-light" crossorigin="anonymous" async></script>
+  </div>
+  
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#util工具类"><span class="nav-number">1.</span> <span class="nav-text">util工具类</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#gulp-load-plugins"><span class="nav-number">1.1.</span> <span class="nav-text">gulp-load-plugins</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#gulp-task-listing"><span class="nav-number">1.2.</span> <span class="nav-text">gulp-task-listing</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#yargs"><span class="nav-number">1.3.</span> <span class="nav-text">yargs</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#gulp-util"><span class="nav-number">1.4.</span> <span class="nav-text">gulp-util</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#del"><span class="nav-number">1.5.</span> <span class="nav-text">del</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#gulp-bytediff"><span class="nav-number">1.6.</span> <span class="nav-text">gulp-bytediff</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#gulp-print"><span class="nav-number">1.7.</span> <span class="nav-text">gulp-print</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#gulp-bump"><span class="nav-number">1.8.</span> <span class="nav-text">gulp-bump</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#gulp-header"><span class="nav-number">1.9.</span> <span class="nav-text">gulp-header</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#stream相关"><span class="nav-number">2.</span> <span class="nav-text">stream相关</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#gulp-filter"><span class="nav-number">2.1.</span> <span class="nav-text">gulp-filter</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#gulp-flatten"><span class="nav-number">2.2.</span> <span class="nav-text">gulp-flatten</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#gulp-plumber"><span class="nav-number">2.3.</span> <span class="nav-text">gulp-plumber</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#gulp-if"><span class="nav-number">2.4.</span> <span class="nav-text">gulp-if</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#merge-stream"><span class="nav-number">2.5.</span> <span class="nav-text">merge-stream</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#run-sequence"><span class="nav-number">2.6.</span> <span class="nav-text">run-sequence</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#inject相关"><span class="nav-number">3.</span> <span class="nav-text">inject相关</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#wiredep"><span class="nav-number">3.1.</span> <span class="nav-text">wiredep</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#gulp-inject"><span class="nav-number">3.2.</span> <span class="nav-text">gulp-inject</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#gulp-useref-与-gulp-rev、gulp-rev-replace"><span class="nav-number">3.3.</span> <span class="nav-text">gulp-useref 与 gulp-rev、gulp-rev-replace</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="马斯特"
+      src="/assets/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">马斯特</p>
+  <div class="site-description" itemprop="description">前端 | 溜冰 | Mac</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">55</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">186</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/PinkyJie" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;PinkyJie" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:pinkyjie.gn@gmail.com" title="E-Mail → mailto:pinkyjie.gn@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/PinkyJie" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;PinkyJie" rel="noopener" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://stackoverflow.com/users/689948/pinkyjie" title="StackOverflow → http:&#x2F;&#x2F;stackoverflow.com&#x2F;users&#x2F;689948&#x2F;pinkyjie" rel="noopener" target="_blank"><i class="fa fa-fw fa-stack-overflow"></i>StackOverflow</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">马斯特</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.7.0
+  </div>
+
+        
+
+
+  <div style="display: none;">
+    <script src="//s95.cnzz.com/z_stat.php?id=1253033676&web_id=1253033676"></script>
+  </div>
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  <script>
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install','8k3UxSuRWYkrhVg55bC3','2.0.0');
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

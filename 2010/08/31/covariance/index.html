@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="o7yQBnLIoWby8Y5vNMQywBiMtev-ilWjXt89RQpTvVw">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('http://pinkyjie.com').hostname,
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.7.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":"utteranc","storage":true,"lazyload":false,"nav":null,"activeClass":"utteranc"},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="今天看论文的时候又看到了协方差矩阵这个破东西，以前看模式分类的时候就特困扰，没想到现在还是搞不清楚，索性开始查协方差矩阵的资料，恶补之后决定马上记录下来，嘿嘿~本文我将用自认为循序渐进的方式谈谈协方差矩阵。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="浅谈协方差矩阵">
+<meta property="og:url" content="http://pinkyjie.com/2010/08/31/covariance/index.html">
+<meta property="og:site_name" content="进击的马斯特">
+<meta property="og:description" content="今天看论文的时候又看到了协方差矩阵这个破东西，以前看模式分类的时候就特困扰，没想到现在还是搞不清楚，索性开始查协方差矩阵的资料，恶补之后决定马上记录下来，嘿嘿~本文我将用自认为循序渐进的方式谈谈协方差矩阵。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://pinkyjie.com/assets/images/covariance-1.jpg">
+<meta property="og:image" content="http://pinkyjie.com/assets/images/covariance-2.jpg">
+<meta property="og:image" content="http://pinkyjie.com/assets/images/covariance-3.jpg">
+<meta property="article:published_time" content="2010-08-31T15:31:55.000Z">
+<meta property="article:modified_time" content="2020-05-01T01:47:54.590Z">
+<meta property="article:author" content="马斯特">
+<meta property="article:tag" content="latex">
+<meta property="article:tag" content="协方差矩阵">
+<meta property="article:tag" content="数学">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://pinkyjie.com/assets/images/covariance-1.jpg">
+
+<link rel="canonical" href="http://pinkyjie.com/2010/08/31/covariance/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>浅谈协方差矩阵 | 进击的马斯特</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">进击的马斯特</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">CODING MY LIFE</p>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://pinkyjie.com/2010/08/31/covariance/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/assets/images/avatar.jpg">
+      <meta itemprop="name" content="马斯特">
+      <meta itemprop="description" content="前端 | 溜冰 | Mac">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="进击的马斯特">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          浅谈协方差矩阵
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2010-08-31 15:31:55" itemprop="dateCreated datePublished" datetime="2010-08-31T15:31:55+00:00">2010-08-31</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-05-01 01:47:54" itemprop="dateModified" datetime="2020-05-01T01:47:54+00:00">2020-05-01</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%A8%A1%E5%BC%8F%E8%AF%86%E5%88%AB/" itemprop="url" rel="index">
+                    <span itemprop="name">模式识别</span>
+                  </a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>今天看论文的时候又看到了协方差矩阵这个破东西，以前看模式分类的时候就特困扰，没想到现在还是搞不清楚，索性开始查协方差矩阵的资料，恶补之后决定马上记录下来，嘿嘿~本文我将用自认为循序渐进的方式谈谈协方差矩阵。</p>
+<a id="more"></a>
+<h3 id="统计学的基本概念"><a href="#统计学的基本概念" class="headerlink" title="统计学的基本概念"></a>统计学的基本概念</h3><p>学过概率统计的孩子都知道，统计里最基本的概念就是样本的均值，方差，或者再加个标准差。首先我们给你一个含有 n 个样本的集合$X=\{X_1,\ldots,X_n\}$，依次给出这些概念的公式描述，这些高中学过数学的孩子都应该知道吧，一带而过。</p>
+<ul>
+<li>均值：<script type="math/tex">\bar{X}=\frac{\sum\_{i=1}^n  X\_{i}}{n}</script></li>
+<li>标准差：<script type="math/tex">s=\sqrt{\frac{\sum\_{i=1}^n (X\_{i}-\bar{X})^2}{n-1}}</script></li>
+<li>方差：<script type="math/tex">s^2=\frac{\sum\_{i=1}^n (X\_{i}-\bar{X})^2}{n-1}</script></li>
+</ul>
+<p>很显然，均值描述的是样本集合的中间点，它告诉我们的信息是很有限的，而标准差给我们描述的则是样本集合的各个样本点到均值的距离之平均。以这两个集合为例，[0，8，12，20]和[8，9，11，12]，两个集合的均值都是 10，但显然两个集合差别是很大的，计算两者的标准差，前者是 8.3，后者是 1.8，显然后者较为集中，故其标准差小一些，标准差描述的就是这种“散布度”。之所以除以 n-1 而不是除以 n，是因为这样能使我们以较小的样本集更好的逼近总体的标准差，即统计上所谓的“无偏估计”。而方差则仅仅是标准差的平方。</p>
+<h3 id="为什么需要协方差？"><a href="#为什么需要协方差？" class="headerlink" title="为什么需要协方差？"></a>为什么需要协方差？</h3><p>上面几个统计量看似已经描述的差不多了，但我们应该注意到，标准差和方差一般是用来描述一维数据的，但现实生活我们常常遇到含有多维数据的数据集，最简单的大家上学时免不了要统计多个学科的考试成绩。面对这样的数据集，我们当然可以按照每一维独立的计算其方差，但是通常我们还想了解更多，比如，一个男孩子的猥琐程度跟他受女孩子欢迎程度是否存在一些联系啊，嘿嘿~协方差就是这样一种用来度量两个随机变量关系的统计量，我们可以仿照方差的定义：</p>
+<script type="math/tex; mode=display">var(X)=\frac{\sum\_{i=1}^n (X\_{i}-\bar{X})(X\_{i}-\bar{X})}{n-1}</script><p>来度量各个维度偏离其均值的程度，标准差可以这么来定义：</p>
+<script type="math/tex; mode=display">cov(X,Y)=\frac{\sum\_{i=1}^n (X\_{i}-\bar{X})(Y\_{i}-\bar{Y})}{n-1}</script><p>协方差的结果有什么意义呢？如果结果为正值，则说明两者是正相关的(从协方差可以引出“相关系数”的定义)，也就是说一个人越猥琐就越受女孩子欢迎，嘿嘿，那必须的~结果为负值就说明负相关的，越猥琐女孩子越讨厌，可能吗？如果为 0，也是就是统计上说的“相互独立”。</p>
+<p>从协方差的定义上我们也可以看出一些显而易见的性质，如：</p>
+<script type="math/tex; mode=display">1. cov(X,X)=var(X)</script><script type="math/tex; mode=display">2. cov(X,Y)=cov(Y,X)</script><h3 id="协方差多了就是协方差矩阵"><a href="#协方差多了就是协方差矩阵" class="headerlink" title="协方差多了就是协方差矩阵"></a>协方差多了就是协方差矩阵</h3><p>上一节提到的猥琐和受欢迎的问题是典型二维问题，而协方差也只能处理二维问题，那维数多了自然就需要计算多个协方差，比如 n 维的数据集就需要计算$\frac{n!}{(n-2)!*2}$个协方差，那自然而然的我们会想到使用矩阵来组织这些数据。给出协方差矩阵的定义：</p>
+<script type="math/tex; mode=display">C\_{n\times n}=(c\_{i,j},c\_{i,j}=cov(Dim\_{i},Dim\_{j}))</script><p>这个定义还是很容易理解的，我们可以举一个简单的三维的例子，假设数据集有$\{x,y,z\}$三个维度，则协方差矩阵为</p>
+<p><img src="/assets/images/covariance-1.jpg" alt=""></p>
+<p>可见，协方差矩阵是一个对称的矩阵，而且对角线是各个维度上的方差。</p>
+<h3 id="Matlab-协方差实战"><a href="#Matlab-协方差实战" class="headerlink" title="Matlab 协方差实战"></a>Matlab 协方差实战</h3><p>上面涉及的内容都比较容易，协方差矩阵似乎也很简单，但实战起来就很容易让人迷茫了。必须要明确一点，### 协方差矩阵计算的是不同维度之间的协方差，而不是不同样本之间的。这个我将结合下面的例子说明，以下的演示将使用 Matlab，为了说明计算原理，不直接调用 Matlab 的<code>cov</code>函数。</p>
+<p>首先，随机产生一个<code>10*3</code>维的整数矩阵作为样本集，10 为样本的个数，3 为样本的维数。</p>
+<figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">MySample = <span class="built_in">fix</span>(<span class="built_in">rand</span>(<span class="number">10</span>,<span class="number">3</span>)*<span class="number">50</span>)</span><br></pre></td></tr></table></figure>
+<p><img src="/assets/images/covariance-2.jpg" alt=""></p>
+<p>根据公式，计算协方差需要计算均值，那是按行计算均值还是按列呢，我一开始就老是困扰这个问题。前面我们也特别强调了，协方差矩阵是计算不同维度间的协方差，要时刻牢记这一点。样本矩阵的每行是一个样本，每列为一个维度，所以我们要### 按列计算均值。为了描述方便，我们先将三个维度的数据分别赋值：</p>
+<figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">dim1 = MySample(:,<span class="number">1</span>);</span><br><span class="line">dim2 = MySample(:,<span class="number">2</span>);</span><br><span class="line">dim3 = MySample(:,<span class="number">3</span>);</span><br></pre></td></tr></table></figure>
+<p>计算 dim1 与 dim2，dim1 与 dim3，dim2 与 dim3 的协方差：</p>
+<figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sum( (dim1-<span class="built_in">mean</span>(dim1)) .* (dim2-<span class="built_in">mean</span>(dim2)) ) / ( <span class="built_in">size</span>(MySample,<span class="number">1</span>)<span class="number">-1</span> ) <span class="comment">% 得到  74.5333</span></span><br><span class="line">sum( (dim1-<span class="built_in">mean</span>(dim1)) .* (dim3-<span class="built_in">mean</span>(dim3)) ) / ( <span class="built_in">size</span>(MySample,<span class="number">1</span>)<span class="number">-1</span> ) <span class="comment">% 得到  -10.0889</span></span><br><span class="line">sum( (dim2-<span class="built_in">mean</span>(dim2)) .* (dim3-<span class="built_in">mean</span>(dim3)) ) / ( <span class="built_in">size</span>(MySample,<span class="number">1</span>)<span class="number">-1</span> ) <span class="comment">% 得到  -106.4000</span></span><br></pre></td></tr></table></figure>
+<p>搞清楚了这个后面就容易多了，协方差矩阵的对角线就是各个维度上的方差，下面我们依次计算：</p>
+<figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">std(dim1)^<span class="number">2</span> <span class="comment">% 得到   108.3222</span></span><br><span class="line">std(dim2)^<span class="number">2</span> <span class="comment">% 得到   260.6222</span></span><br><span class="line">std(dim3)^<span class="number">2</span> <span class="comment">% 得到   94.1778</span></span><br></pre></td></tr></table></figure>
+<p>这样，我们就得到了计算协方差矩阵所需要的所有数据，调用 Matlab 自带的<code>cov</code>函数进行验证：</p>
+<figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cov(MySample)</span><br></pre></td></tr></table></figure>
+<p><img src="/assets/images/covariance-3.jpg" alt=""></p>
+<p>把我们计算的数据对号入座，是不是一摸一样？</p>
+<hr>
+<p>Update：今天突然发现，原来协方差矩阵还可以这样计算，先让样本矩阵中心化，即每一维度减去该维度的均值，使每一维度上的均值为 0，然后直接用新的到的样本矩阵乘上它的转置，然后除以(N-1)即可。其实这种方法也是由前面的公式通道而来，只不过理解起来不是很直观，但在抽象的公式推导时还是很常用的！同样给出 Matlab 代码实现：</p>
+<figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">X = MySample - <span class="built_in">repmat</span>(<span class="built_in">mean</span>(MySample),<span class="number">10</span>,<span class="number">1</span>);    <span class="comment">% 中心化样本矩阵，使各维度均值为0</span></span><br><span class="line">C = (X'*X)./(<span class="built_in">size</span>(X,<span class="number">1</span>)<span class="number">-1</span>);</span><br></pre></td></tr></table></figure>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>理解协方差矩阵的关键就在于牢记它计算的是不同维度之间的协方差，而不是不同样本之间，拿到一个样本矩阵，我们最先要明确的就是一行是一个样本还是一个维度，心中明确这个整个计算过程就会顺流而下，这么一来就不会迷茫了~</p>
+<p>P.S.写论文要选 Latex，在 wordpress 里编辑公式还得用<a href="http://www.dutor.net/index.php/2010/05/wordpress-using-latex/" target="_blank" rel="noopener">Latex</a>，用 Latex 还真对得起咱学计算机这张脸~</p>
+<p>在 hexo 上可以使用<a href="https://www.mathjax.org/" target="_blank" rel="noopener">MathJax</a></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/latex/" rel="tag"># latex</a>
+              <a href="/tags/%E5%8D%8F%E6%96%B9%E5%B7%AE%E7%9F%A9%E9%98%B5/" rel="tag"># 协方差矩阵</a>
+              <a href="/tags/%E6%95%B0%E5%AD%A6/" rel="tag"># 数学</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2010/08/04/ubuntu-android-apk-install/" rel="prev" title="Ubuntu下Android手机apk软件的安装">
+      <i class="fa fa-chevron-left"></i> Ubuntu下Android手机apk软件的安装
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2010/09/01/mytexpoint-powerpoint-tex/" rel="next" title="MyTexPoint——在PowerPoint中使用Tex">
+      MyTexPoint——在PowerPoint中使用Tex <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    
+  
+  <div class="comments">
+  <script src="https://utteranc.es/client.js" repo="PinkyJie/pinkyjie.github.com" issue-term="pathname" theme="github-light" crossorigin="anonymous" async></script>
+  </div>
+  
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#统计学的基本概念"><span class="nav-number">1.</span> <span class="nav-text">统计学的基本概念</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#为什么需要协方差？"><span class="nav-number">2.</span> <span class="nav-text">为什么需要协方差？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#协方差多了就是协方差矩阵"><span class="nav-number">3.</span> <span class="nav-text">协方差多了就是协方差矩阵</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Matlab-协方差实战"><span class="nav-number">4.</span> <span class="nav-text">Matlab 协方差实战</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="马斯特"
+      src="/assets/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">马斯特</p>
+  <div class="site-description" itemprop="description">前端 | 溜冰 | Mac</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">55</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">186</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/PinkyJie" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;PinkyJie" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:pinkyjie.gn@gmail.com" title="E-Mail → mailto:pinkyjie.gn@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/PinkyJie" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;PinkyJie" rel="noopener" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://stackoverflow.com/users/689948/pinkyjie" title="StackOverflow → http:&#x2F;&#x2F;stackoverflow.com&#x2F;users&#x2F;689948&#x2F;pinkyjie" rel="noopener" target="_blank"><i class="fa fa-fw fa-stack-overflow"></i>StackOverflow</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">马斯特</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.7.0
+  </div>
+
+        
+
+
+  <div style="display: none;">
+    <script src="//s95.cnzz.com/z_stat.php?id=1253033676&web_id=1253033676"></script>
+  </div>
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  <script>
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install','8k3UxSuRWYkrhVg55bC3','2.0.0');
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+<script type="text/x-mathjax-config">
+
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$', '$'], ['\\(', '\\)'] ],
+      processEscapes: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+      equationNumbers: {
+        autoNumber: 'AMS'
+      }
+    }
+  });
+
+  MathJax.Hub.Register.StartupHook('TeX Jax Ready', function() {
+    MathJax.InputJax.TeX.prefilterHooks.Add(function(data) {
+      if (data.display) {
+        var next = data.script.nextSibling;
+        while (next && next.nodeName.toLowerCase() === '#text') {
+          next = next.nextSibling;
+        }
+        if (next && next.nodeName.toLowerCase() === 'br') {
+          next.parentNode.removeChild(next);
+        }
+      }
+    });
+  });
+
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for (i = 0; i < all.length; i += 1) {
+      element = document.getElementById(all[i].inputID + '-Frame').parentNode;
+      if (element.nodeName.toLowerCase() == 'li') {
+        element = element.parentNode;
+      }
+      element.classList.add('has-jax');
+    }
+  });
+</script>
+<script>
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML', () => {
+    MathJax.Hub.Typeset();
+  }, window.MathJax);
+</script>
+
+    
+
+  
+
+</body>
+</html>

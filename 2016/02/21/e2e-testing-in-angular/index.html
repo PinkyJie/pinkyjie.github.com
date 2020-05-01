@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="o7yQBnLIoWby8Y5vNMQywBiMtev-ilWjXt89RQpTvVw">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('http://pinkyjie.com').hostname,
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.7.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":"utteranc","storage":true,"lazyload":false,"nav":null,"activeClass":"utteranc"},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="上一篇聊完了单元测试，这一篇来说说 E2E 测试。单元测试着眼的是“关注分离”，测的是一些函数单元是不是工作正常，而 E2E 则是集成测试，从最终用户的角度来进行端到端（End To End）的测试，测一些用户场景是不是正常。这篇文章就来探讨一下写 E2E 测试的最佳实践，本文使用 protractor 2.x 和 jasmine 2.x，但一些思路和想法同样适用于别的框架。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Angular 里的 E2E 测试">
+<meta property="og:url" content="http://pinkyjie.com/2016/02/21/e2e-testing-in-angular/index.html">
+<meta property="og:site_name" content="进击的马斯特">
+<meta property="og:description" content="上一篇聊完了单元测试，这一篇来说说 E2E 测试。单元测试着眼的是“关注分离”，测的是一些函数单元是不是工作正常，而 E2E 则是集成测试，从最终用户的角度来进行端到端（End To End）的测试，测一些用户场景是不是正常。这篇文章就来探讨一下写 E2E 测试的最佳实践，本文使用 protractor 2.x 和 jasmine 2.x，但一些思路和想法同样适用于别的框架。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://pinkyjie.com/assets/images/e2e-testing-in-angular-1.png">
+<meta property="og:image" content="http://pinkyjie.com/assets/images/e2e-testing-in-angular-2.png">
+<meta property="article:published_time" content="2016-02-21T22:39:13.000Z">
+<meta property="article:modified_time" content="2020-05-01T01:47:54.594Z">
+<meta property="article:author" content="马斯特">
+<meta property="article:tag" content="AngularJS">
+<meta property="article:tag" content="ES6">
+<meta property="article:tag" content="promise">
+<meta property="article:tag" content="angular1-webpack-starter">
+<meta property="article:tag" content="集成测试">
+<meta property="article:tag" content="protractor">
+<meta property="article:tag" content="PageObject">
+<meta property="article:tag" content="ComponentObject">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://pinkyjie.com/assets/images/e2e-testing-in-angular-1.png">
+
+<link rel="canonical" href="http://pinkyjie.com/2016/02/21/e2e-testing-in-angular/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>Angular 里的 E2E 测试 | 进击的马斯特</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">进击的马斯特</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">CODING MY LIFE</p>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://pinkyjie.com/2016/02/21/e2e-testing-in-angular/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/assets/images/avatar.jpg">
+      <meta itemprop="name" content="马斯特">
+      <meta itemprop="description" content="前端 | 溜冰 | Mac">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="进击的马斯特">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Angular 里的 E2E 测试
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2016-02-21 22:39:13" itemprop="dateCreated datePublished" datetime="2016-02-21T22:39:13+00:00">2016-02-21</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-05-01 01:47:54" itemprop="dateModified" datetime="2020-05-01T01:47:54+00:00">2020-05-01</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%89%8D%E7%AB%AF%E5%BC%80%E5%8F%91/" itemprop="url" rel="index">
+                    <span itemprop="name">前端开发</span>
+                  </a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>上一篇聊完了<a href="/2016/02/20/separation-of-concerns-in-unit-test/">单元测试</a>，这一篇来说说 E2E 测试。单元测试着眼的是“关注分离”，测的是一些函数单元是不是工作正常，而 E2E 则是集成测试，从最终用户的角度来进行端到端（End To End）的测试，测一些用户场景是不是正常。这篇文章就来探讨一下写 E2E 测试的最佳实践，本文使用 protractor 2.x 和 jasmine 2.x，但一些思路和想法同样适用于别的框架。</p>
+<a id="more"></a>
+<h3 id="使用-mock-API-和非真实后台"><a href="#使用-mock-API-和非真实后台" class="headerlink" title="使用 mock API 和非真实后台"></a>使用 mock API 和非真实后台</h3><p>这一点其实存在很大争议，很多人觉得 E2E 测试作为集成测试就应该使用纯真实的 server 环境，所有后台 API 都应该实打实。我个人认为 E2E 测试是更偏向于开发者的测试而不是 QA 的测试，QA 的测试当然要“真枪实弹”，但开发者使用 mock API 我觉得更加方便。我认为好处主要有以下几点：</p>
+<ul>
+<li>mock 的 API 不仅可以用于测试，还可以加速开发。现在的 Web 开发早已趋向彻底的前后分离，后端只提供 API，其他的都归前端。前端在开发阶段就需要根据前后端商量好的 contract 来 mock API，使得在后端 API 未完工的情况下可以方便的进行前端的开发。所以 mock 一次，开发和测试阶段都能用，划算啊！</li>
+<li>迅速解决“前后端撕逼”问题。众所周知，<strong>所有的 bug 都是前端 bug</strong>，因为 QA 测的是你的前端页面啊，不管 bug 是什么引起的，肯定都是报给前端啊。所以，前端每天要做的一件重要的事就是迅速分辨哪些 bug 是由后端 API 引起的。使用 mock API 跑 E2E 测试，就是要保证在后端 API 正常返回的情况下前端逻辑能正常工作。这样一旦 E2E 测试跑过了，就可以迅速撇清关系：对不起，请把这个 bug assign 给后台修！</li>
+<li>节约测试成本。使用 mock API 使得 E2E 测试可以跑在自己的开发 server 上，不仅可以减轻测试 server 的压力，更是避免了真实测试环境的一些资源消耗。</li>
+<li>跑起来速度快！没了真实环境的束缚，API 想几秒返回就几秒返回，测试跑起来自然非常快了。</li>
+</ul>
+<p>说完了好处，来说说问题。使用 mock API 带来的最大问题就是，你需要保证你 mock 的逻辑与后台的真实逻辑是相匹配的。比如说，后台有 DB，你也要有一个类似数据库的地方存数据；后台可以根据不同的输入返回正确的值或错误代码，你的 mock 同样需要做到这一点。在谈具体的解决方案之前，让我们先从文件夹结构说起，下图是我在项目中常用的 E2E 文件夹结构：</p>
+<p><img src="/assets/images/e2e-testing-in-angular-1.png" alt="图1"></p>
+<p>e2e 文件夹下分了 mocks 和 specs 两个目录，specs 不多说，重点看看 mocks 目录。</p>
+<ul>
+<li>index.js：这个文件是“带 mock API 的 app”的入口，来看一个简单的例子：</li>
+</ul>
+<figure class="highlight javascript"><figcaption><span>index.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">angular</span><br><span class="line">  .module(<span class="string">"appTest"</span>, [app.name, <span class="string">"ngMockE2E"</span>])</span><br><span class="line">  .service(MockData.name, MockData)</span><br><span class="line">  .config(appTestConfig)</span><br><span class="line">  .run(userServiceMock)</span><br><span class="line">  .run(phoneServiceMock);</span><br></pre></td></tr></table></figure>
+<p>其中定义了新的 module，它依赖原始的 app 的 module，并在其上定义一些新的配置和 service。</p>
+<ul>
+<li>e2e.config.js：这是“带 mock API 的 app”的配置，就是上面代码第 6 行的<code>appTestConfig</code>，一般我们可以用它定义 API 的请求延迟。由于使用了 mock API，HTTP 请求是可以立即返回的，为了让其更逼真，我们可以使用 interceptor 来监听所有<code>/api</code>开头的请求，让其过几秒再返回，以此来模拟真实的环境。</li>
+</ul>
+<figure class="highlight javascript"><figcaption><span>e2e.config.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">appTestConfig.$inject = [<span class="string">"$httpProvider"</span>];</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">appTestConfig</span>(<span class="params">$httpProvider</span>) </span>&#123;</span><br><span class="line">  $httpProvider.interceptors.push(apiDelayInterceptor);</span><br><span class="line">  apiDelayInterceptor.$inject = [<span class="string">"$timeout"</span>, <span class="string">"$q"</span>];</span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">apiDelayInterceptor</span>(<span class="params">$timeout, $q</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">      response(response) &#123;</span><br><span class="line">        <span class="comment">// all API response will be delayed 1s to simulate real network</span></span><br><span class="line">        <span class="keyword">const</span> delay = <span class="number">1000</span>;</span><br><span class="line">        <span class="keyword">if</span> (response.config.url.match(<span class="regexp">/^api\//</span>)) &#123;</span><br><span class="line">          <span class="keyword">const</span> d = $q.defer();</span><br><span class="line">          $timeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">            d.resolve(response);</span><br><span class="line">          &#125;, delay);</span><br><span class="line">          <span class="keyword">return</span> d.promise;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> response;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> appTestConfig;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>e2e.data.js：这个文件定义了一个 service（就是 index 里的<code>MockData</code>），它的作用就是我们前面提到的 DB，它包含 API 要返回的各种数据。之所以将它定义为 service，是利用 service 单例的特性，在 E2E 测试中，只要页面不刷新，前一个请求对数据的写操作就可以反映到后一个请求的读操作中，这样就跟真实环境的 DB 很类似了。</li>
+<li>e2e.phone.js/e2e.user.js：这两个文件分别对应原始 app 中定义的 service，针对每个 service 都要有这么一个文件，这个文件的作用就是 mock 原始 service 里的各种 API 请求。来看一个登录 API 的例子：</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">userServiceMock.$inject = [<span class="string">"MockData"</span>, <span class="string">"$httpBackend"</span>];</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">userServiceMock</span>(<span class="params">MockData, $httpBackend</span>) </span>&#123;</span><br><span class="line">  $httpBackend.whenPOST(<span class="string">"api/user/login"</span>).respond(loginHandler);</span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">loginHandler</span>(<span class="params">method, url, data</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">const</span> req = <span class="built_in">JSON</span>.parse(data);</span><br><span class="line">    <span class="keyword">if</span> (req.email === <span class="string">"error@error.com"</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> [</span><br><span class="line">        <span class="number">200</span>,</span><br><span class="line">        &#123;</span><br><span class="line">          code: <span class="number">1</span>,</span><br><span class="line">          message: <span class="string">"LOGIN_WRONG_EMAIL_PASSWORD_PAIR"</span>,</span><br><span class="line">          result: <span class="literal">null</span></span><br><span class="line">        &#125;</span><br><span class="line">      ];</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (req.email === <span class="string">"lock@lock.com"</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> [</span><br><span class="line">        <span class="number">200</span>,</span><br><span class="line">        &#123;</span><br><span class="line">          code: <span class="number">1</span>,</span><br><span class="line">          message: <span class="string">"LOGIN_USER_IN_LOCK"</span>,</span><br><span class="line">          result: <span class="literal">null</span></span><br><span class="line">        &#125;</span><br><span class="line">      ];</span><br><span class="line">    &#125;</span><br><span class="line">    MockData.loginStatus = <span class="literal">true</span>;</span><br><span class="line">    <span class="keyword">return</span> [</span><br><span class="line">      <span class="number">200</span>,</span><br><span class="line">      &#123;</span><br><span class="line">        code: <span class="number">0</span>,</span><br><span class="line">        message: <span class="literal">null</span>,</span><br><span class="line">        result: &#123;</span><br><span class="line">          user: MockData.userInfo</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    ];</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> userServiceMock;</span><br></pre></td></tr></table></figure>
+<p>可以看到，为了让其更逼真，我们可以根据请求发过来的不同数据来 mock 不同的响应，给出不同的错误代码，这样在 E2E 测试里我们就可以模拟更多的用户场景了。</p>
+<h3 id="PageObject-应该包含啥"><a href="#PageObject-应该包含啥" class="headerlink" title="PageObject 应该包含啥"></a>PageObject 应该包含啥</h3><p>PageObject 是 protractor 官方推荐的<a href="http://www.protractortest.org/#/page-objects#with-pageobjects" target="_blank" rel="noopener">最佳实践</a>，它最大的好处就是将页面元素的选择器与测试本身隔离开，这样一旦页面结构发生变化，只需要更新 PageObject 即可，测试部分的代码不用变动。在<a href="http://www.protractortest.org/#/page-objects#with-pageobjects" target="_blank" rel="noopener">官方的例子</a>中，PageObject 除了包含元素的定义以外，还包含一个<code>get()</code>函数来加载这个页面，包含两个其他函数来对元素进行输入和获取文字的操作。对于这个例子我持有保留意见，我的看法是好的 PageObject 应该包含以下这些东西：</p>
+<ul>
+<li><code>load()</code>或<code>get()</code>函数，用来加载页面。</li>
+<li>页面上所有测试需要用到的元素。</li>
+<li>页面测试需要用到的数据，比如测试表单页面时需要填入的测试数据。</li>
+<li>共享的测试用例，比如多个测试用例可能都需要用到公用的代码来 assert 特定的逻辑，那么这个公用逻辑可以作为函数提出来放入 PageObject。</li>
+<li>不要包含对元素的操作函数，像官方例子中的函数，只是简单的在元素上调用<code>.sendKey(xxx)</code>或<code>getText()</code>，我认为没必要将其封装成函数，直接写会更加直观，看测试代码的人也比较容易明白。</li>
+<li>每个 PageObject 单独放一个文件，然后每个文件 export 这个 class，这样一来，如果其他的 PageObject 依赖这个页面，可以方便的引入。</li>
+</ul>
+<p>另外，ES6 让继承写起来更方便了，我们完全可以打开脑洞，给所用的 PageObject 来一个基类：<code>BasePageObject</code>，来看一个例子（完整的实现可以看<a href="https://github.com/PinkyJie/angular1-webpack-starter/blob/master/source/test/e2e/helper.js" target="_blank" rel="noopener">这里</a>）：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">BasePageObject</span> </span>&#123;</span><br><span class="line">    <span class="keyword">constructor</span> (url) &#123;</span><br><span class="line">        <span class="built_in">Object</span>.assign(<span class="keyword">this</span>, &#123;url&#125;);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">this</span>.ele = <span class="keyword">this</span>._getAllElements();</span><br><span class="line">        <span class="keyword">this</span>.mainTitle = <span class="string">'Aio Angular App'</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    load () &#123;</span><br><span class="line">        browser.get(<span class="string">`<span class="subst">$&#123;browser.baseUrl&#125;</span>/<span class="subst">$&#123;<span class="keyword">this</span>.url&#125;</span>`</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    getHeader () &#123;...&#125;</span><br><span class="line">    getFooter () &#123;...&#125;</span><br><span class="line">    getSidebar () &#123;...&#125;</span><br><span class="line">    getBreadcrumb () &#123;...&#125;</span><br><span class="line">    getModal () &#123;...&#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// shared test case</span></span><br><span class="line">    assertCorrectLayout (config) &#123;...&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>BasePageObject 包含所有 PageObject 都会使用到的公用函数，它的构造函数接收一个 url 作用参数，这个 url 被<code>load()</code>函数使用来加载页面，它是子类继承后在子类构造函数中通过<code>super(xxx)</code>来传入的。另外它调用了一个<code>_getAllElements()</code>的函数获得所有元素的定义并将其挂在<code>this.ele</code>对象上方便使用，而这个<code>_getAllElements</code>也是要靠子类自己来实现的。除此之外，我们看到第 13-17 行定义了四个函数用来获取一些公共的布局组件，因为基本各个页面都包含这些组件，放在基类中子类就可以直接用了。最后基类还包含了公共的测试用例函数<code>assertCorrectLayout()</code>，它接受一个 config。从函数名字就可以大致猜到它的作用：每个页面可能都要测试一些公共的布局，比如页面的 URL、标题是不是正确啊，header 和 footer 显示是否正常，sidebar 和 breadcrumb 导航是不是能正常工作等等。这些测试每个页面都做，所以把它放在基类中，子类只需要传入一个配置对象即可。来看一个子类 PageObject 的例子：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> LoginPage <span class="keyword">from</span> <span class="string">"./login.page"</span>;</span><br><span class="line"><span class="comment">// phone page object</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">PhonePage</span> <span class="keyword">extends</span> <span class="title">browser</span>.<span class="title">_BasePageObject</span> </span>&#123;</span><br><span class="line">  <span class="keyword">constructor</span>() &#123;</span><br><span class="line">    <span class="keyword">super</span>(<span class="string">"phone"</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  _getAllElements() &#123;</span><br><span class="line">    <span class="keyword">const</span> $page = $(<span class="string">".phone-main-view"</span>);</span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">      addNewBtn: $page.$(<span class="string">".btn-add-new"</span>)</span><br><span class="line">    &#125;;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// overrite load function to support login</span></span><br><span class="line">  load() &#123;</span><br><span class="line">    <span class="keyword">super</span>.load();</span><br><span class="line">    <span class="keyword">const</span> loginPage = <span class="keyword">new</span> LoginPage();</span><br><span class="line">    browser._.expectUrlToMatch(loginPage.url);</span><br><span class="line">    loginPage.loginWithCredential(<span class="string">"f@f"</span>, <span class="string">"f"</span>);</span><br><span class="line">    browser._.expectUrlToMatch(<span class="keyword">this</span>.url);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到，继承了父类后，子类的 PageObject 要做的就是：</p>
+<ul>
+<li>子类构造函数中调用父类的构造函数并传入自己的 URL。</li>
+<li>实现<code>_getAllElements</code>函数，定义自己的页面元素。</li>
+<li>根绝需要覆盖父类的<code>load()</code>函数。在这个例子中，假设 phone 页面需要登录后才能查看，那么直接访问<code>/phone</code>就会被重定向到 login 页面，那我们就需要依赖 LoginPageObject 的一些定义和函数，如这里的登录逻辑，成功登录后才能看到自己的页面。所以对于需要登录的页面，我们都要覆盖父类的 load 函数。</li>
+</ul>
+<blockquote>
+<p>load 函数里调用了一些<code>browser._</code>上的函数，这是我们自己定义的 helper 函数，后面会讲到。</p>
+</blockquote>
+<h3 id="PageObject-里的元素该咋定义"><a href="#PageObject-里的元素该咋定义" class="headerlink" title="PageObject 里的元素该咋定义"></a>PageObject 里的元素该咋定义</h3><p>看到这个标题有人会问：这算问题吗？那我换个方式问，挂在<code>this.ele</code>上的（也就是<code>_getAllElements()</code>函数返回的）应该是选择器本身<code>.xxx</code>还是 element 包装过的对象<code>$(.xxx)</code>呢？从使用者的角度讲，当然是包装过的对象了，因为方便直接调用上面的一些函数啊。但有些情况下，你还是需要选择器的，举个例子：一个表格里四行三列，行选择器是<code>.row</code>，列选择器分别是<code>.col1/.col2/.col3</code>等。测试里可能需要验证每一个格子里的文字，我们不可能把 12 个元素都写死放在 ele 变量上，如何更方便的解决这种需求呢？我的方案是这样的：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">_getAllElements () &#123;</span><br><span class="line">    <span class="keyword">const</span> $table = $(<span class="string">'.table'</span>);</span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">        row: &#123;</span><br><span class="line">            view: $page.$$(<span class="string">'.row'</span>),</span><br><span class="line">            col1: <span class="string">'.col1'</span>,</span><br><span class="line">            col2: <span class="string">'.col2'</span>,</span><br><span class="line">            col3: <span class="string">'.col3'</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到，我们只返回一个<code>row</code>的元素，它是一个对象，里面的 view 属性返回包装过的多个元素（$$$$等价于<code>element.all</code>），其他属性则是它的子元素选择器。简单的说，存在多个实例的父元素（如表格的行）我们使用包装过的对象，对于每行的格子我们使用纯选择器。然后具体的测试中我们就可以这么写：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> rowList = page.ele.row;</span><br><span class="line">expect(rowList.view.count()).toBe(<span class="number">4</span>);</span><br><span class="line"><span class="comment">// first row</span></span><br><span class="line"><span class="keyword">const</span> first = rowList.view.get(<span class="number">0</span>);</span><br><span class="line">expect(first.$(rowList.col1).getText()).toBe(xxx);</span><br></pre></td></tr></table></figure>
+<p>遇到存在多个父元素，而每个父元素里又存在很多不同子元素的情况下，可以尝试使用这种方式来定义元素。定义的时候不显得重复，使用的时候也没有很麻烦。</p>
+<h3 id="使用-ComponentObject"><a href="#使用-ComponentObject" class="headerlink" title="使用 ComponentObject"></a>使用 ComponentObject</h3><p>在<a href="2016/01/31/component-based-development-with-angular-1x/">前面的文章</a>里我们讲过，在基于组件开发的实践中，页面其实是由各个组件搭成的。那么很自然的，PageObject 也应该由 ComponentObject 来组成。同一个组件在不同的页面上重用时，组件内部的元素肯定都是一样的，一些逻辑也基本一致。所以 ComponentObject 里可以包含这个组件的所有元素以及一些公共的测试用例。考虑到 Component 在重用时，一般父级元素是不一样的，所以在 ComponentObject 的构造函数中可以传入一个 parentElement 的参数用来将组件内的选择器都限定在这个父选择器之内。来看一个例子：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// phone form component object</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">PhoneFormComp</span> </span>&#123;</span><br><span class="line">  <span class="keyword">constructor</span>(parentElement) &#123;</span><br><span class="line">    <span class="keyword">const</span> $form = parentElement.$(<span class="string">".phone-form-view"</span>);</span><br><span class="line">    <span class="keyword">this</span>.ele = &#123;</span><br><span class="line">      saveBtn: $form.$(<span class="string">".btn-save"</span>),</span><br><span class="line">      cancelBtn: $form.$(<span class="string">".btn-cancel"</span>)</span><br><span class="line">    &#125;;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  assertFormFieldError(field, isError, message) &#123;&#125;</span><br><span class="line">  assertPhoneDetail(phone) &#123;&#125;</span><br><span class="line">  assertEditPhoneDetail(phone) &#123;&#125;</span><br><span class="line">  assertEditingForm(phone, isNew) &#123;&#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> PhoneFormComp;</span><br></pre></td></tr></table></figure>
+<p>可以看到在这个 Form 组件的定义中，组件内所有元素都是定义在传入的父元素的基础上的，这样即便一个页面内有多个同样的组件也不会重复，使用的时候只要传入不同的父级元素即可：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> PhoneFormComp <span class="keyword">from</span> <span class="string">"./phone-form.comp"</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// phone add page object</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">PhoneAddPage</span> <span class="keyword">extends</span> <span class="title">browser</span>.<span class="title">_BasePageObject</span> </span>&#123;</span><br><span class="line">  _getAllElements() &#123;</span><br><span class="line">    <span class="keyword">const</span> $page = $(<span class="string">".phone-add-view"</span>);</span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">      form: <span class="keyword">new</span> PhoneFormComp($page)</span><br><span class="line">    &#125;;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="善用-helper-函数和自定义-matcher"><a href="#善用-helper-函数和自定义-matcher" class="headerlink" title="善用 helper 函数和自定义 matcher"></a>善用 helper 函数和自定义 matcher</h3><p>在写 E2E 测试的时候，我们可能会用到很多工具函数，比如说操作一个 select 框啊，操作一个 DatePicker 啊等等，这些操作可能在多个测试用例里都会用到，那么我们可以直接定义一个<code>E2EHelper</code>的 class 用来存放这些 helper 函数。在 protractor 的配置文件中，我们在 onPrepare 里引入这个 class，并将其定义在<code>browser._</code>上，因为 browser 是所有的 spec 里默认都可以访问到的，所以很多全局变量都可以考虑挂在它上面。这样在 spec 文件的测试里就可以方便的使用<code>browser._.xxx</code>来调用这些函数了。</p>
+<p>除了 helper 函数，有的时候我们可能还需要一些自定义的 Matcher 来扩展 jasmine 中没有的功能，比如最常用的判断一个元素是否含有某个 class 样式，与其每次都在测试用例里手写<code>expect(ele.getAttribute(&#39;class&#39;)).toContain(xxx)</code>，不如直接扩展 jasmine 定义自己的 Matcher，语义上更容易理解。Matcher 的定义也非常的简单，下面就是一个例子：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> customMatchers = &#123;</span><br><span class="line">  toHaveClass: <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">      compare: <span class="function">(<span class="params">actual, expected</span>) =&gt;</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> &#123;</span><br><span class="line">          pass: actual.getAttribute(<span class="string">"class"</span>).then(<span class="function"><span class="params">classes</span> =&gt;</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> classes.split(<span class="string">" "</span>).indexOf(expected) !== <span class="number">-1</span>;</span><br><span class="line">          &#125;)</span><br><span class="line">        &#125;;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>有了这个定义以后，我们在测试中就可以直接写<code>expect(ele).toHaveClass(xxx)</code>了。网上还有很多成熟的库，包含很多常用的 Matcher，感兴趣的可以索索“protractor custom matcher”。自定义的 Matcher 也需要在 onPrepare 中初始化，我们在里面定义一个 beforeEach 函数，把自定义的 Matcher 加入到 jasmine 中去。看下面的例子，onPrepare 中包含 helper 函数，上一节提到的 BasePageObject，以及自定义的 Matcher。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">onPrepare: <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> helper = <span class="built_in">require</span>(<span class="string">"./source/test/e2e/helper"</span>);</span><br><span class="line">  browser._BasePageObject = helper.BasePageObject;</span><br><span class="line">  browser._ = <span class="keyword">new</span> helper.E2EHelper();</span><br><span class="line">  beforeEach(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="comment">// add custom matchers</span></span><br><span class="line">    jasmine.addMatchers(helper.customMatchers);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h3 id="protractor-的大部分函数都返回-promise"><a href="#protractor-的大部分函数都返回-promise" class="headerlink" title="protractor 的大部分函数都返回 promise"></a>protractor 的大部分函数都返回 promise</h3><p>这一点可能平时没有注意，其实 protractor 官方的文档里专门有<a href="http://www.protractortest.org/#/control-flow" target="_blank" rel="noopener">讲这个</a>。也就是说，平时我们使用的<code>.getText()</code>，<code>.isDisplayed()</code>，<code>.getAttribute()</code>等等返回的都是 promise，之所以我们可以直接那么用，是因为 jasmine 的<code>expect()</code>函数真正 expect 的是 promise resolve 后的值。相信平时使用这些函数的时候倒不会犯什么错，最容易犯错的是，定义一些自己的函数时，比如下面的代码</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (ele.isDisplayed()) &#123;</span><br><span class="line">  <span class="comment">// do something</span></span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">  <span class="comment">// do others</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>代码的原意是如果元素显示的话，我们做一些事情，不显示的话我们做别的。但事实是这个 if 判断永远为 true，因为里面是一个 promise！所以正确的写法应该是：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">ele.isDisplayed().then(<span class="function"><span class="params">val</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">if</span> (val) &#123;</span><br><span class="line">    <span class="comment">// do something</span></span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="comment">// do others</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>要时刻记住 protractor 里绝大部分的函数返回的都是 promise，如果我们自定义的逻辑用到这些函数，就应该以处理 promise 的方式来处理它们。</p>
+<h3 id="其它小-tip"><a href="#其它小-tip" class="headerlink" title="其它小 tip"></a>其它小 tip</h3><p>最后说一些让 protractor 更加好用的小 tip。</p>
+<h4 id="让测试-report-更好看"><a href="#让测试-report-更好看" class="headerlink" title="让测试 report 更好看"></a>让测试 report 更好看</h4><p>protractor 默认的测试 report 就是在命令行里输出<code>...F..F..</code>，这么丑的 report 能忍吗？叔能忍婶不能忍啊！在 karma 中我们有 reporter 这个选项，让我们可以配置友好的测试输出，但 protractor 似乎没有这个配置啊。别急，其实早有人解决了这个难题，试试<a href="https://www.npmjs.com/package/jasmine-spec-reporter" target="_blank" rel="noopener">jasmine-spec-reporter</a>吧。你要做的很简单：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 禁用默认的输出</span></span><br><span class="line">jasmineNodeOpts: &#123;</span><br><span class="line">  print: <span class="function"><span class="params">()</span> =&gt;</span> &#123;&#125;;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 添加新的reporter</span></span><br><span class="line">onPrepare: <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> SpecReporter = <span class="built_in">require</span>(<span class="string">"jasmine-spec-reporter"</span>);</span><br><span class="line">  jasmine.getEnv().addReporter(</span><br><span class="line">    <span class="keyword">new</span> SpecReporter(&#123;</span><br><span class="line">      displayStacktrace: <span class="string">"all"</span>,</span><br><span class="line">      displayFailuresSummary: <span class="literal">false</span></span><br><span class="line">    &#125;)</span><br><span class="line">  );</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>再跑一下测试看看，结果是不是好看多了？</p>
+<p><img src="/assets/images/e2e-testing-in-angular-2.png" alt="图2"></p>
+<p>除了这两个选项外，它还支持很多有意思的配置，具体可以探索它的<a href="https://www.npmjs.com/package/jasmine-spec-reporter" target="_blank" rel="noopener">文档</a>。</p>
+<h4 id="失败时自动截图"><a href="#失败时自动截图" class="headerlink" title="失败时自动截图"></a>失败时自动截图</h4><p>由于测试都是自动化的，一旦跑失败我们除了看 log 找原因以外，如果有截图就更好了。其实截图也属于 reporter 的一种，借助插件<a href="https://www.npmjs.com/package/protractor-jasmine2-screenshot-reporter" target="_blank" rel="noopener">protractor-jasmine2-screenshot-reporter</a>我们就可以实现在 E2E 测试失败的时候自动保存当前网页的截图到指定文件夹。它的配置也很简单，与上面的 reporter 类似，也是直接往 onPrepare 里面添加代码：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> HtmlScreenshotReporter = <span class="built_in">require</span>(<span class="string">"protractor-jasmine2-screenshot-reporter"</span>);</span><br><span class="line">jasmine.getEnv().addReporter(</span><br><span class="line">  <span class="keyword">new</span> HtmlScreenshotReporter(&#123;</span><br><span class="line">    dest: <span class="string">`<span class="subst">$&#123;e2eBaseFolder&#125;</span>/screenshots`</span>,</span><br><span class="line">    filename: <span class="string">"e2e-report.html"</span>,</span><br><span class="line">    captureOnlyFailedSpecs: <span class="literal">true</span>,</span><br><span class="line">    reportOnlyFailedSpecs: <span class="literal">false</span>,</span><br><span class="line">    pathBuilder: <span class="function"><span class="params">currentSpec</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">return</span> currentSpec.description.replace(<span class="regexp">/[ :]/g</span>, <span class="string">"-"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;)</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+<p>除了截图，它还支持输出 HTML 格式的 report（第 4 行），利用 pathBuilder 函数我们还可以指定截图文件的名称，上例中我们直接将失败的 spec 的 description 作为文件名保存。</p>
+<h4 id="ES6-的报错行号"><a href="#ES6-的报错行号" class="headerlink" title="ES6 的报错行号"></a>ES6 的报错行号</h4><p>protractor 2.x 需要手动引入 babel 来支持使用 ES6 来书写 spec 文件，至于配置文件本身，只要你的 node 版本够高（4.x）或使用<code>--harmony</code>也是可以用 ES6 来写的。但如果你在 protractor 的配置文件一开头就引入 babel<code>require(&#39;babel-core/register&#39;);</code>就会发现，一旦 spec 报错，log 里给出的报错行号是不对的，在 protractor 的 issues 里有人给出了<a href="https://github.com/angular/protractor/issues/2049#issuecomment-146357769" target="_blank" rel="noopener">解决方案</a>，其实只要在 onPrepare 里再引入 babel 即可。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/AngularJS/" rel="tag"># AngularJS</a>
+              <a href="/tags/ES6/" rel="tag"># ES6</a>
+              <a href="/tags/promise/" rel="tag"># promise</a>
+              <a href="/tags/angular1-webpack-starter/" rel="tag"># angular1-webpack-starter</a>
+              <a href="/tags/%E9%9B%86%E6%88%90%E6%B5%8B%E8%AF%95/" rel="tag"># 集成测试</a>
+              <a href="/tags/protractor/" rel="tag"># protractor</a>
+              <a href="/tags/PageObject/" rel="tag"># PageObject</a>
+              <a href="/tags/ComponentObject/" rel="tag"># ComponentObject</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2016/02/20/separation-of-concerns-in-unit-test/" rel="prev" title="谈谈单元测试中的关注分离">
+      <i class="fa fa-chevron-left"></i> 谈谈单元测试中的关注分离
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2016/02/27/continuous-integration-with-travis-ci/" rel="next" title="用 TravisCI 来做持续集成">
+      用 TravisCI 来做持续集成 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    
+  
+  <div class="comments">
+  <script src="https://utteranc.es/client.js" repo="PinkyJie/pinkyjie.github.com" issue-term="pathname" theme="github-light" crossorigin="anonymous" async></script>
+  </div>
+  
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#使用-mock-API-和非真实后台"><span class="nav-number">1.</span> <span class="nav-text">使用 mock API 和非真实后台</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#PageObject-应该包含啥"><span class="nav-number">2.</span> <span class="nav-text">PageObject 应该包含啥</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#PageObject-里的元素该咋定义"><span class="nav-number">3.</span> <span class="nav-text">PageObject 里的元素该咋定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用-ComponentObject"><span class="nav-number">4.</span> <span class="nav-text">使用 ComponentObject</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#善用-helper-函数和自定义-matcher"><span class="nav-number">5.</span> <span class="nav-text">善用 helper 函数和自定义 matcher</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#protractor-的大部分函数都返回-promise"><span class="nav-number">6.</span> <span class="nav-text">protractor 的大部分函数都返回 promise</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#其它小-tip"><span class="nav-number">7.</span> <span class="nav-text">其它小 tip</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#让测试-report-更好看"><span class="nav-number">7.1.</span> <span class="nav-text">让测试 report 更好看</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#失败时自动截图"><span class="nav-number">7.2.</span> <span class="nav-text">失败时自动截图</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ES6-的报错行号"><span class="nav-number">7.3.</span> <span class="nav-text">ES6 的报错行号</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="马斯特"
+      src="/assets/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">马斯特</p>
+  <div class="site-description" itemprop="description">前端 | 溜冰 | Mac</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">55</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">186</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/PinkyJie" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;PinkyJie" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:pinkyjie.gn@gmail.com" title="E-Mail → mailto:pinkyjie.gn@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/PinkyJie" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;PinkyJie" rel="noopener" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://stackoverflow.com/users/689948/pinkyjie" title="StackOverflow → http:&#x2F;&#x2F;stackoverflow.com&#x2F;users&#x2F;689948&#x2F;pinkyjie" rel="noopener" target="_blank"><i class="fa fa-fw fa-stack-overflow"></i>StackOverflow</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">马斯特</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.7.0
+  </div>
+
+        
+
+
+  <div style="display: none;">
+    <script src="//s95.cnzz.com/z_stat.php?id=1253033676&web_id=1253033676"></script>
+  </div>
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  <script>
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install','8k3UxSuRWYkrhVg55bC3','2.0.0');
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

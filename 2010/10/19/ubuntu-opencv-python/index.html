@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="o7yQBnLIoWby8Y5vNMQywBiMtev-ilWjXt89RQpTvVw">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('http://pinkyjie.com').hostname,
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.7.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":"utteranc","storage":true,"lazyload":false,"nav":null,"activeClass":"utteranc"},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="暑假时就想写一篇关于Ubuntu下配置Opencv与Python协作的文章，苦于当时自己也不是搞得特别清楚，正好最近重装了个Ubuntu 10.10，重新配置了一遍，才算真正明白。网上关于这个的文章虽然一大把，但不是太复杂就是根本不管用，这个配置还是有点闹心的。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Ubuntu下Opencv与Python的协作">
+<meta property="og:url" content="http://pinkyjie.com/2010/10/19/ubuntu-opencv-python/index.html">
+<meta property="og:site_name" content="进击的马斯特">
+<meta property="og:description" content="暑假时就想写一篇关于Ubuntu下配置Opencv与Python协作的文章，苦于当时自己也不是搞得特别清楚，正好最近重装了个Ubuntu 10.10，重新配置了一遍，才算真正明白。网上关于这个的文章虽然一大把，但不是太复杂就是根本不管用，这个配置还是有点闹心的。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://pinkyjie.com/assets/images/ubuntu-opencv-python-1.png">
+<meta property="og:image" content="http://pinkyjie.com/assets/images/ubuntu-opencv-python-2.png">
+<meta property="og:image" content="http://pinkyjie.com/assets/images/ubuntu-opencv-python-3.png">
+<meta property="og:image" content="http://pinkyjie.com/assets/images/ubuntu-opencv-python-4.png">
+<meta property="article:published_time" content="2010-10-19T07:18:34.000Z">
+<meta property="article:modified_time" content="2020-05-01T01:47:54.590Z">
+<meta property="article:author" content="马斯特">
+<meta property="article:tag" content="Ubuntu">
+<meta property="article:tag" content="OpenCV">
+<meta property="article:tag" content="OpenCV+Python">
+<meta property="article:tag" content="Python">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://pinkyjie.com/assets/images/ubuntu-opencv-python-1.png">
+
+<link rel="canonical" href="http://pinkyjie.com/2010/10/19/ubuntu-opencv-python/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>Ubuntu下Opencv与Python的协作 | 进击的马斯特</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">进击的马斯特</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">CODING MY LIFE</p>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://pinkyjie.com/2010/10/19/ubuntu-opencv-python/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/assets/images/avatar.jpg">
+      <meta itemprop="name" content="马斯特">
+      <meta itemprop="description" content="前端 | 溜冰 | Mac">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="进击的马斯特">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Ubuntu下Opencv与Python的协作
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2010-10-19 07:18:34" itemprop="dateCreated datePublished" datetime="2010-10-19T07:18:34+00:00">2010-10-19</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-05-01 01:47:54" itemprop="dateModified" datetime="2020-05-01T01:47:54+00:00">2020-05-01</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%A8%A1%E5%BC%8F%E8%AF%86%E5%88%AB/" itemprop="url" rel="index">
+                    <span itemprop="name">模式识别</span>
+                  </a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>暑假时就想写一篇关于Ubuntu下配置Opencv与Python协作的文章，苦于当时自己也不是搞得特别清楚，正好最近重装了个Ubuntu 10.10，重新配置了一遍，才算真正明白。网上关于这个的文章虽然一大把，但不是太复杂就是根本不管用，这个配置还是有点闹心的。</p>
+<a id="more"></a>
+<h3 id="Opencv的编译和安装"><a href="#Opencv的编译和安装" class="headerlink" title="Opencv的编译和安装"></a>Opencv的编译和安装</h3><p>Linux下貌似只能下载Opencv的源码了，来到<a href="http://www.opencv.org.cn/index.php/Download" target="_blank" rel="noopener">Opencv的中文官网</a>，最新版本是2.1，点击<a href="http://www.opencv.org.cn/download/OpenCV-2.1.0.tar.bz2" target="_blank" rel="noopener">OpenCV for Linux</a>，下载下来的是一个压缩包，随便解压到你喜欢的位置，以我的机器为例，解压到 <code>/MySoft</code>下，最终的目录结构为： <code>/home/pinky/MySoft/OpenCV-2.1.0/</code>。由于下载得到的是源码，需要进行编译，官网推荐的编译方式是使用cmake，这里我是用的是cmake的gui版本，即<code>cmke-qt-gui</code>，首先我们需要使用终端安装它。打开终端，运行命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install cmake-qt-gui</span><br></pre></td></tr></table></figure>
+<p>安装完成之后，按理说应该可以正常编译了，但是我的机器直接编译会报错，提示需要安装libgtk2.0-dev这个东东，不知是我的机器问题还是都需要这么做，这个软件具体干嘛的我也不知道，推荐先安装一下，终端运行以下命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install aptitude</span><br><span class="line">sudo aptitude install libgtk2.0-dev</span><br></pre></td></tr></table></figure>
+<p>aptitude 可以说是apt-get的一个GUI界面，不过这里用它可能是因为它可以自动安装所有的依赖包吧。这个安装以后，为了后面和Python协作，还需要检查一下你机器上面的Python相关依赖，终端运行命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">apt-get install libpython2.6 python-dev python2.6-dev</span><br></pre></td></tr></table></figure>
+<p>这样以后，编译前所做的工作就基本结束了，从“应用程序”中的“编程”子菜单中打开cmake，Source code这一栏中填写你的OpenCV解压的路径，第二行是编译后的可执行文件放在哪里，可以在OpenCV的路径下新建一个文件夹，如release文件夹，则编译结果会放到其中去，点击Configure按钮，接着出现选择generator的界面，使用默认选项，即Unix Makefiles，点击finish，如果一切顺利的话就会出现以下界面：</p>
+<p><img src="/assets/images/ubuntu-opencv-python-1.png" alt=""></p>
+<p>正常的话上图中底下的白色框中是有信息的，我的截图是在编译过后截的，所以是空白，接着选择编译参数，这里我们只需要注意以下几个参数有没有被选中，其他的默认即可：</p>
+<blockquote>
+<p>BUILD-EXAMPLES 生成例子<br>BUILD-NEW-PYTHON-SUPPORT 生成新的python支持<br>OPENCV-BUILD-3RDPARTY-LIBS 生成第三方的库<br>INSTALL-C-EXAMPLES 安装C的例子<br>INSTALL-PYTHON-EXAMPLES安装python的例子</p>
+</blockquote>
+<p>然后，点击Generate按钮，就可以生成可执行的文件了，可以看到release目录下已经有很多文件，下面我们要对这些文件进行make。打开终端，进入release所在文件夹：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span>  /home/pinky/MySoft/OpenCV-2.1.0/</span><br><span class="line">make</span><br></pre></td></tr></table></figure>
+<p>make过程大概需要几分钟左右，过程如下图这样：</p>
+<p><img src="/assets/images/ubuntu-opencv-python-2.png" alt=""></p>
+<p><img src="/assets/images/ubuntu-opencv-python-3.png" alt=""></p>
+<p>最终出现的cv.so文件很重要，它就是OpenCV和Python协作的关键，然后再执行install步骤，终端继续运行：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo make install</span><br></pre></td></tr></table></figure>
+<p>过程大概如下图：</p>
+<p><img src="/assets/images/ubuntu-opencv-python-4.png" alt=""></p>
+<p>这样以后，OpenCV的安装步骤宣告结束。</p>
+<h3 id="代码测试"><a href="#代码测试" class="headerlink" title="代码测试"></a>代码测试</h3><p>下面我们用代码测试一下安装是否正确。首先是一段C代码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"cv.h"</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"highgui.h"</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    IplImage* img;</span><br><span class="line">    img = cvLoadImage(<span class="string">"test.jpg"</span>,<span class="number">1</span>);</span><br><span class="line">    cvNamedWindow(<span class="string">"ShowImage"</span>,<span class="number">1</span>);</span><br><span class="line">    cvShowImage(<span class="string">"ShowImage"</span>,img);</span><br><span class="line">    cvWaitKey(<span class="number">0</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>使用gcc进行编译链接，终端输入命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc `pkg-config --cflags --libs opencv` -o testCV testCV.c</span><br></pre></td></tr></table></figure>
+<p>注意上面的引号是“反单引号”，在数字1的左面，cflags和libs前面都是两个“连接线”，其中pkg-config用来定位OpenCV的头文件和库文件，testCV为生成的可执行文件，testCV.c为源文件名称。如果编译报错，可能是pkg-config的配置还没有生效，在终端中运行sudo ldconfig使之生效。编译完成后，输入 ./testCV 运行，test.jpg文件就被显示出来了。</p>
+<p>C代码测试成功之后，我们来看看Python。在终端打开输入python打开python的编译环境，输入import cv，看看是否能成功。这里可能会报”No module named cv”错误，原因就是python找不到我们刚才提到的cv.so文件，我们进入路径/usr/local/lib/python2.6中发现有两个文件夹，一个是dist-package，一个是site-package，python默认只在前者里搜索，而我们生成的cv.so文件则在后者的文件夹里(如果你的两个文件夹都没有这个文件，则前面的make步骤出问题了，可能需要重新走一遍整个安装过程)，我们只需要简单的将它移动到dist-package文件夹即可。终端运行命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo mv /usr/<span class="built_in">local</span>/lib/python2.6/site-packages/cv.so /usr/<span class="built_in">local</span>/lib/python2.6/dist-packages/cv.so</span><br></pre></td></tr></table></figure>
+<p>执行之后，再import一下试试，就可以了，下面写一段简单的python代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> cv</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">    img = cv.LoadImageM (<span class="string">"test.jpg"</span>)</span><br><span class="line">    cv.NamedWindow (<span class="string">"ShowImage"</span>)</span><br><span class="line">    cv.ShowImage (<span class="string">"ShowImage"</span>, img)</span><br><span class="line">    cv.WaitKey (<span class="number">0</span>)</span><br></pre></td></tr></table></figure>
+<p>像普通python代码那样运行它即可，即python testCVPY.py，图片就能显示出来了。至此，尽情的使用python享受Opencv吧！</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Ubuntu/" rel="tag"># Ubuntu</a>
+              <a href="/tags/OpenCV/" rel="tag"># OpenCV</a>
+              <a href="/tags/OpenCV-Python/" rel="tag"># OpenCV+Python</a>
+              <a href="/tags/Python/" rel="tag"># Python</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2010/10/10/newsinchina-free-vpn/" rel="prev" title="参与牧师公益计划，免费发放VPN">
+      <i class="fa fa-chevron-left"></i> 参与牧师公益计划，免费发放VPN
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2010/11/16/renamer-by-pinkyjie/" rel="next" title="“批量重命名”小工具">
+      “批量重命名”小工具 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    
+  
+  <div class="comments">
+  <script src="https://utteranc.es/client.js" repo="PinkyJie/pinkyjie.github.com" issue-term="pathname" theme="github-light" crossorigin="anonymous" async></script>
+  </div>
+  
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Opencv的编译和安装"><span class="nav-number">1.</span> <span class="nav-text">Opencv的编译和安装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#代码测试"><span class="nav-number">2.</span> <span class="nav-text">代码测试</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="马斯特"
+      src="/assets/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">马斯特</p>
+  <div class="site-description" itemprop="description">前端 | 溜冰 | Mac</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">55</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">186</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/PinkyJie" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;PinkyJie" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:pinkyjie.gn@gmail.com" title="E-Mail → mailto:pinkyjie.gn@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/PinkyJie" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;PinkyJie" rel="noopener" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://stackoverflow.com/users/689948/pinkyjie" title="StackOverflow → http:&#x2F;&#x2F;stackoverflow.com&#x2F;users&#x2F;689948&#x2F;pinkyjie" rel="noopener" target="_blank"><i class="fa fa-fw fa-stack-overflow"></i>StackOverflow</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">马斯特</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.7.0
+  </div>
+
+        
+
+
+  <div style="display: none;">
+    <script src="//s95.cnzz.com/z_stat.php?id=1253033676&web_id=1253033676"></script>
+  </div>
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  <script>
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install','8k3UxSuRWYkrhVg55bC3','2.0.0');
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

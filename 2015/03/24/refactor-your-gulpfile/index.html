@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="o7yQBnLIoWby8Y5vNMQywBiMtev-ilWjXt89RQpTvVw">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('http://pinkyjie.com').hostname,
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.7.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":"utteranc","storage":true,"lazyload":false,"nav":null,"activeClass":"utteranc"},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="前段时间在公司的新项目中尝试使用gulp替换grunt，体验非常棒！两者最大的区别就是grunt整个就像是一个配置文件，而gulp更像代码。这样的好处就是调试起来更方便直观。另外，利用Node.js的stream概念，让gulp的task看起来像管道一样，输入连着输出，输出又导入另一个输入，流程非常清晰易懂。自打用了这个，就再也不想回到闹心的grunt了。在用了一段时间后，问题来了：不知不觉gul">
+<meta property="og:type" content="article">
+<meta property="og:title" content="重构你的gulpfile">
+<meta property="og:url" content="http://pinkyjie.com/2015/03/24/refactor-your-gulpfile/index.html">
+<meta property="og:site_name" content="进击的马斯特">
+<meta property="og:description" content="前段时间在公司的新项目中尝试使用gulp替换grunt，体验非常棒！两者最大的区别就是grunt整个就像是一个配置文件，而gulp更像代码。这样的好处就是调试起来更方便直观。另外，利用Node.js的stream概念，让gulp的task看起来像管道一样，输入连着输出，输出又导入另一个输入，流程非常清晰易懂。自打用了这个，就再也不想回到闹心的grunt了。在用了一段时间后，问题来了：不知不觉gul">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2015-03-24T22:02:22.000Z">
+<meta property="article:modified_time" content="2020-05-01T01:47:54.590Z">
+<meta property="article:author" content="马斯特">
+<meta property="article:tag" content="前端自动化">
+<meta property="article:tag" content="gulp">
+<meta property="article:tag" content="gulpfile">
+<meta property="article:tag" content="重构">
+<meta property="article:tag" content="分割task">
+<meta property="article:tag" content="generator-aio-angular">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://pinkyjie.com/2015/03/24/refactor-your-gulpfile/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>重构你的gulpfile | 进击的马斯特</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">进击的马斯特</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">CODING MY LIFE</p>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://pinkyjie.com/2015/03/24/refactor-your-gulpfile/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/assets/images/avatar.jpg">
+      <meta itemprop="name" content="马斯特">
+      <meta itemprop="description" content="前端 | 溜冰 | Mac">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="进击的马斯特">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          重构你的gulpfile
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2015-03-24 22:02:22" itemprop="dateCreated datePublished" datetime="2015-03-24T22:02:22+00:00">2015-03-24</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-05-01 01:47:54" itemprop="dateModified" datetime="2020-05-01T01:47:54+00:00">2020-05-01</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%89%8D%E7%AB%AF%E5%BC%80%E5%8F%91/" itemprop="url" rel="index">
+                    <span itemprop="name">前端开发</span>
+                  </a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>前段时间在公司的新项目中尝试使用gulp替换grunt，体验非常棒！两者最大的区别就是grunt整个就像是一个配置文件，而gulp更像代码。这样的好处就是调试起来更方便直观。另外，利用Node.js的stream概念，让gulp的task看起来像管道一样，输入连着输出，输出又导入另一个输入，流程非常清晰易懂。自打用了这个，就再也不想回到闹心的grunt了。在用了一段时间后，问题来了：不知不觉gulpfile.js已经超过1000行了！每次要修改一个task就要费劲找半天，各种路径也是一团糟，非常难以维护了。那么，是时候重构gulpfile了！</p>
+<a id="more"></a>
+<h3 id="把各种配置独立出去"><a href="#把各种配置独立出去" class="headerlink" title="把各种配置独立出去"></a>把各种配置独立出去</h3><p>对于一个复杂的项目来说，在gulpfile里可能各种文件路径的定义都要占掉好多行，各种各样其他的配置就更不用多说了。所以重构的第一步，就是将这些配置提取到一个独立的文件中去。官方<a href="https://github.com/gulpjs/gulp/blob/master/docs/recipes/using-external-config-file.md" target="_blank" rel="noopener">有一篇recipe</a>有说到这个。在这篇recipe中，直接将所有的配置放入一个json文件中去，然后在gulpfile中使用require引入。当然，json可能不是太灵活，可以将其写成一个Node.js的模块。</p>
+<figure class="highlight plain"><figcaption><span>gulp.config.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">module.exports &#x3D; function () &#123;</span><br><span class="line">  var client &#x3D; &#39;.&#x2F;src&#x2F;client&#x2F;&#39;;</span><br><span class="line">  var server &#x3D; &#39;.&#x2F;src&#x2F;server&#x2F;&#39;;</span><br><span class="line">  var config &#x3D; &#123;</span><br><span class="line">    client: client,</span><br><span class="line">    server: server,</span><br><span class="line">    js: client + &#39;**&#x2F;*.js&#39;,</span><br><span class="line">    css: client + &#39;**&#x2F;*.css&#39;</span><br><span class="line">  &#125;;</span><br><span class="line">  return config;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>这样，在gulpfile中使用<code>var config = require(&#39;./gulp.config&#39;)();</code>即可将该配置文件引入进来了。</p>
+<h3 id="将task分割到不同的文件中"><a href="#将task分割到不同的文件中" class="headerlink" title="将task分割到不同的文件中"></a>将task分割到不同的文件中</h3><p>配置只是gulpfile的一小部分，其余的大部分都是具体的task。要想更清晰的管理各种task，最好的方法是将不同的task分类，每一类task分割到一个文件中去。比如clean的放一个文件，编译stylus的放一个文件等等。关于分割task到不同的文件，官方也有<a href="https://github.com/gulpjs/gulp/blob/master/docs/recipes/split-tasks-across-multiple-files.md" target="_blank" rel="noopener">一篇recipe</a>来专门讲这个。这篇recipe中介绍了一个module叫<a href="https://github.com/aseemk/requireDir" target="_blank" rel="noopener"><code>require-dir</code></a>，使用这个模块就可以简单粗暴的将各个task扔到不同的文件中去。文件夹结构如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">gulpfile.js</span><br><span class="line">tasks&#x2F;</span><br><span class="line">├── css.task.js</span><br><span class="line">└── js.task.js</span><br></pre></td></tr></table></figure>
+<p>3个文件的内容分别是：</p>
+<figure class="highlight plain"><figcaption><span>gulpfile.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">var requireDir &#x3D; require(&#39;require-dir&#39;);</span><br><span class="line">requireDir(&#39;.&#x2F;tasks&#39;);</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><figcaption><span>css.task.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">var gulp &#x3D; require(&#39;gulp&#39;);</span><br><span class="line">gulp.task(&#39;css&#39;, function () &#123;</span><br><span class="line">  console.log(&#39;css task&#39;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><figcaption><span>js.task.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">var gulp &#x3D; require(&#39;gulp&#39;);</span><br><span class="line">gulp.task(&#39;js&#39;, function () &#123;</span><br><span class="line">  console.log(&#39;js task&#39;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>这种方法重构的成本非常小，只需简单的将任务移到对应的文件中，无需其他更改。但这样做的问题也很明显：<strong>重复的引入依赖</strong>。在上面的例子中可以看到，每个子任务文件中都重复引入<code>gulp</code>模块。虽然<code>require</code>可以保证模块只被引入一次，但这样每次重复写代码还是很闹心啊，而且这还只是一个非常简单的例子，在实际项目中重复引入的模块会更多。比如上面提到的提取出来的<code>gulp.config.js</code>，比如各种gulp的插件，如果每个任务都要使用某个gulp的插件，那么每个子任务文件都需要引入一遍，非常麻烦。很显然，一个最容易想到的方法就是，在gulpfile中统一的引入这些依赖，然后通过参数传递到各个子任务文件中去。</p>
+<h3 id="给每个task文件传参"><a href="#给每个task文件传参" class="headerlink" title="给每个task文件传参"></a>给每个task文件传参</h3><p>为了传参，就需要把每个task文件写成一个module，然后暴露出来一个函数。下面的例子是改写后的<code>js.task.js</code>文件。</p>
+<figure class="highlight javascript"><figcaption><span>js.task.js(update)</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">module</span>.exports = <span class="function"><span class="keyword">function</span> (<span class="params">gulp, config, $, args</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// config -- gulp.config.js</span></span><br><span class="line">  <span class="comment">// $ -- gulp-load-plugins</span></span><br><span class="line">  <span class="comment">// args --- yargs</span></span><br><span class="line">  gulp.task(<span class="string">'js'</span>, <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (args.debug) &#123;</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="string">'debug'</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'js task'</span>);</span><br><span class="line">  &#125;);</span><br><span class="line">  gulp.task(<span class="string">'jshint'</span>, <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> gulp</span><br><span class="line">      .src(config.js)</span><br><span class="line">      .pipe($.jshint());</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>可以看到，暴露出的函数接受4个参数：</p>
+<ul>
+<li><code>gulp</code>：gulp本身。</li>
+<li><code>config</code>：前面讲到的<code>gulp.config.js</code>模块。</li>
+<li><script type="math/tex">`：这里的`</script>可不是jQeury，而是一个叫做<a href="https://github.com/jackfranklin/gulp-load-plugins" target="_blank" rel="noopener"><code>gulp-load-plugins</code></a>的gulp插件，这个插件的作用就是自动加载<code>package.json</code>里的所有以<code>gulp-*</code>开头的gulp插件。有了这个，就再也不用一个一个的引入gulp插件了，所有插件模块都可以通过<code>$.xxx</code>的方式来引用。在上面的例子中<code>$.jshint()</code>就是调用的插件<code>gulp-jshint</code>所提供的功能。</li>
+<li><code>args</code>：<a href="https://github.com/bcoe/yargs" target="_blank" rel="noopener">模块<code>yargs</code></a>。这个模块的功能是用来接受命令行参数的，比如例子中的<code>js</code>任务，如果运行时使用<code>gulp js --debug</code>就会让代码执行到指定的分支。</li>
+</ul>
+<p>显然，这4个参数基本上是每个task都用使用到的，所以都需要传递进去。再来看看gulpfile中如何将调用这个子任务模块吧。</p>
+<figure class="highlight javascript"><figcaption><span>gulpfile.js(update)</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> gulp = <span class="built_in">require</span>(<span class="string">'gulp'</span>);</span><br><span class="line"><span class="keyword">var</span> config = <span class="built_in">require</span>(<span class="string">'./gulp.config'</span>)();</span><br><span class="line"><span class="keyword">var</span> $ = <span class="built_in">require</span>(<span class="string">'gulp-load-plugins'</span>)(&#123;<span class="attr">lazy</span>: <span class="literal">true</span>&#125;);</span><br><span class="line"><span class="keyword">var</span> args = <span class="built_in">require</span>(<span class="string">'yargs'</span>).argv;</span><br><span class="line"><span class="built_in">require</span>(<span class="string">'./tasks/js.task'</span>)(gulp, config, $, args);</span><br></pre></td></tr></table></figure>
+<p>可以看到，加载<code>gulp-load-plugins</code>的时候传入了<code>{lazy: true}</code>参数，这个参数可以让gulp的插件按需加载。另外一点，在调用子模块的时候我们只调了一个文件，那调多个文件时可以像上面那样使用<code>require-dir</code>这个模块吗？很不幸，从<code>require-dir</code>的文档中没有发现可以传参数的功能。那么为了使用传参数的的方式加载tasks文件夹里的所有子任务，应该怎么做呢？其实要做的只是拿到tasks文件夹下所有的文件名，然后require进来就OK。那么利用Node.js的文件操作模块<code>fs</code>就可以做到。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> taskList = <span class="built_in">require</span>(<span class="string">'fs'</span>).readdirSync(<span class="string">'./tasks/'</span>);</span><br><span class="line">taskList.forEach(<span class="function"><span class="keyword">function</span> (<span class="params">file</span>) </span>&#123;</span><br><span class="line">  <span class="built_in">require</span>(<span class="string">'./tasks/'</span> + file)(gulp, config, $, args);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>使用fs模块的<code>readdirSync</code>方法列出所有文件夹里的所有文件，使用for循环依次require即可。</p>
+<p>那么还有个问题，如果除开这4个参数以外，还想传别的参数呢？比如，很多task共用一个公共的log函数，那么怎么共享这个函数呢？一个最简单的办法就是把公共的函数写在<code>gulp.config.js</code>中，这也是我们为何将这个文件写成模块而不是简单的json文件。比如：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">config.fn = &#123;</span><br><span class="line">  log: log</span><br><span class="line">&#125;;</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">log</span>(<span class="params"></span>) </span>&#123; ... &#125;</span><br></pre></td></tr></table></figure>
+<p>这样，在各个task文件中，可以轻松的使用<code>config.fn.log</code>来调用这个函数了。</p>
+<h3 id="将gulp相关文件移入单独文件夹"><a href="#将gulp相关文件移入单独文件夹" class="headerlink" title="将gulp相关文件移入单独文件夹"></a>将gulp相关文件移入单独文件夹</h3><p>其实重构到这里已经差不多了，但其实还可以再进一步，将所有和gulp相关的文件全部移到一个单独的文件夹，这样，gulpfile中只写一句就可以了<code>require(&#39;./gulp/&#39;)</code>就可以了。现在的文件夹结构为：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">gulpfile.js</span><br><span class="line">├── gulp</span><br><span class="line">    ├── gulp.config.js</span><br><span class="line">    ├── index.js</span><br><span class="line">    └── tasks&#x2F;</span><br><span class="line">        ├── css.task.js</span><br><span class="line">        └── js.task.js</span><br></pre></td></tr></table></figure>
+<p>将现有的gulpfile中的内容放到<code>/gulp/index.js</code>中即可。有一点值得注意，由于文件夹结构的改变，在读取task时需要将路径改成<code>./gulp/tasks/</code>，即<code>var taskList = require(&#39;fs&#39;).readdirSync(&#39;./gulp/tasks/&#39;);</code>。</p>
+<h3 id="方便的列出所有gulp的任务"><a href="#方便的列出所有gulp的任务" class="headerlink" title="方便的列出所有gulp的任务"></a>方便的列出所有gulp的任务</h3><p>分散管理gulp任务以后，也带来了一些不便。比如，如何知道到底有多少gulp任务呢？有一个插件恰恰是用来解决这个问题的，叫<a href="https://github.com/OverZealous/gulp-task-listing" target="_blank" rel="noopener"><code>gulp-task-listing</code></a>。这个模块使用起来也非常简单，只要在<code>/gulp/index.js</code>中添加<code>gulp.task(&#39;default&#39;, $.taskListing);</code>即可。这样使用<code>gulp</code>命令即可列出所有的gulp任务，更方便的是，如果task的名字中含有<code>-</code>或<code>_</code>或<code>:</code>则这个任务会被认为是子任务。比如，我们将<code>jshint</code>这个任务名改成<code>js:hint</code>，则<code>gulp</code>即会输出：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">Main Tasks</span><br><span class="line">------------------------------</span><br><span class="line">    css</span><br><span class="line">    default</span><br><span class="line">    js</span><br><span class="line"></span><br><span class="line">Sub Tasks</span><br><span class="line">------------------------------</span><br><span class="line">    js:hint</span><br></pre></td></tr></table></figure>
+<p>是不是一目了然？</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E5%89%8D%E7%AB%AF%E8%87%AA%E5%8A%A8%E5%8C%96/" rel="tag"># 前端自动化</a>
+              <a href="/tags/gulp/" rel="tag"># gulp</a>
+              <a href="/tags/gulpfile/" rel="tag"># gulpfile</a>
+              <a href="/tags/%E9%87%8D%E6%9E%84/" rel="tag"># 重构</a>
+              <a href="/tags/%E5%88%86%E5%89%B2task/" rel="tag"># 分割task</a>
+              <a href="/tags/generator-aio-angular/" rel="tag"># generator-aio-angular</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2015/03/02/an-interesting-css-interview/" rel="prev" title="一道有(bian)趣(tai)的CSS面试题">
+      <i class="fa fa-chevron-left"></i> 一道有(bian)趣(tai)的CSS面试题
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2015/07/20/promise-actually-i-really-do-not-know-you/" rel="next" title="Promise，其实我真的不懂你">
+      Promise，其实我真的不懂你 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    
+  
+  <div class="comments">
+  <script src="https://utteranc.es/client.js" repo="PinkyJie/pinkyjie.github.com" issue-term="pathname" theme="github-light" crossorigin="anonymous" async></script>
+  </div>
+  
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#把各种配置独立出去"><span class="nav-number">1.</span> <span class="nav-text">把各种配置独立出去</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#将task分割到不同的文件中"><span class="nav-number">2.</span> <span class="nav-text">将task分割到不同的文件中</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#给每个task文件传参"><span class="nav-number">3.</span> <span class="nav-text">给每个task文件传参</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#将gulp相关文件移入单独文件夹"><span class="nav-number">4.</span> <span class="nav-text">将gulp相关文件移入单独文件夹</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#方便的列出所有gulp的任务"><span class="nav-number">5.</span> <span class="nav-text">方便的列出所有gulp的任务</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="马斯特"
+      src="/assets/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">马斯特</p>
+  <div class="site-description" itemprop="description">前端 | 溜冰 | Mac</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">55</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">186</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/PinkyJie" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;PinkyJie" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:pinkyjie.gn@gmail.com" title="E-Mail → mailto:pinkyjie.gn@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/PinkyJie" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;PinkyJie" rel="noopener" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://stackoverflow.com/users/689948/pinkyjie" title="StackOverflow → http:&#x2F;&#x2F;stackoverflow.com&#x2F;users&#x2F;689948&#x2F;pinkyjie" rel="noopener" target="_blank"><i class="fa fa-fw fa-stack-overflow"></i>StackOverflow</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">马斯特</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.7.0
+  </div>
+
+        
+
+
+  <div style="display: none;">
+    <script src="//s95.cnzz.com/z_stat.php?id=1253033676&web_id=1253033676"></script>
+  </div>
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  <script>
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install','8k3UxSuRWYkrhVg55bC3','2.0.0');
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="o7yQBnLIoWby8Y5vNMQywBiMtev-ilWjXt89RQpTvVw">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('http://pinkyjie.com').hostname,
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.7.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":"utteranc","storage":true,"lazyload":false,"nav":null,"activeClass":"utteranc"},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="持续集成的好处自不用说，一个是省了手动 build 部署的繁琐，二是每一个提交都有自动跑测试保证质量。平时在公司 Jenkins 用的比较多，开源世界里同样也有能和 Jenkins 比肩的好工具：TravisCI。TravisCI 可以和 Github 无缝集成，每次 push 都可以触发相应的操作，跑测试、自动部署都不在话下。这篇文章就记录一下我在angular1-webpack-starter">
+<meta property="og:type" content="article">
+<meta property="og:title" content="用 TravisCI 来做持续集成">
+<meta property="og:url" content="http://pinkyjie.com/2016/02/27/continuous-integration-with-travis-ci/index.html">
+<meta property="og:site_name" content="进击的马斯特">
+<meta property="og:description" content="持续集成的好处自不用说，一个是省了手动 build 部署的繁琐，二是每一个提交都有自动跑测试保证质量。平时在公司 Jenkins 用的比较多，开源世界里同样也有能和 Jenkins 比肩的好工具：TravisCI。TravisCI 可以和 Github 无缝集成，每次 push 都可以触发相应的操作，跑测试、自动部署都不在话下。这篇文章就记录一下我在angular1-webpack-starter">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://pinkyjie.com/images/continuous-integration-with-travis-ci-3.png">
+<meta property="og:image" content="https://img.shields.io/codecov/c/github/PinkyJie/angular1-webpack-starter.svg?style=flat-square">
+<meta property="og:image" content="http://pinkyjie.com/assets/images/continuous-integration-with-travis-ci-1.png">
+<meta property="og:image" content="http://pinkyjie.com/assets/images/continuous-integration-with-travis-ci-2.png">
+<meta property="article:published_time" content="2016-02-27T14:35:57.000Z">
+<meta property="article:modified_time" content="2020-05-01T01:47:54.594Z">
+<meta property="article:author" content="马斯特">
+<meta property="article:tag" content="angular1-webpack-starter">
+<meta property="article:tag" content="持续集成">
+<meta property="article:tag" content="TravisCI">
+<meta property="article:tag" content="SauceLabs">
+<meta property="article:tag" content="SauceConnect">
+<meta property="article:tag" content="yargs">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://pinkyjie.com/images/continuous-integration-with-travis-ci-3.png">
+
+<link rel="canonical" href="http://pinkyjie.com/2016/02/27/continuous-integration-with-travis-ci/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>用 TravisCI 来做持续集成 | 进击的马斯特</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">进击的马斯特</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">CODING MY LIFE</p>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://pinkyjie.com/2016/02/27/continuous-integration-with-travis-ci/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/assets/images/avatar.jpg">
+      <meta itemprop="name" content="马斯特">
+      <meta itemprop="description" content="前端 | 溜冰 | Mac">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="进击的马斯特">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          用 TravisCI 来做持续集成
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2016-02-27 14:35:57" itemprop="dateCreated datePublished" datetime="2016-02-27T14:35:57+00:00">2016-02-27</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-05-01 01:47:54" itemprop="dateModified" datetime="2020-05-01T01:47:54+00:00">2020-05-01</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%B7%A5%E5%85%B7%E7%9B%B8%E5%85%B3/" itemprop="url" rel="index">
+                    <span itemprop="name">工具相关</span>
+                  </a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>持续集成的好处自不用说，一个是省了手动 build 部署的繁琐，二是每一个提交都有自动跑测试保证质量。平时在公司 Jenkins 用的比较多，开源世界里同样也有能和 Jenkins 比肩的好工具：<a href="https://travis-ci.org/" target="_blank" rel="noopener">TravisCI</a>。TravisCI 可以和 Github 无缝集成，每次 push 都可以触发相应的操作，跑测试、自动部署都不在话下。这篇文章就记录一下我在<a href="https://github.com/PinkyJie/angular1-webpack-starter" target="_blank" rel="noopener">angular1-webpack-starter</a>项目上使用 TravisCI 的经验，最终实现的效果就是：提交一个 commit 后，自动跑单元测试，然后 build 项目，然后将测试覆盖率报告和站点部署到 Github Pages 上去，最后跑 E2E 测试。</p>
+<a id="more"></a>
+<h3 id="基本配置"><a href="#基本配置" class="headerlink" title="基本配置"></a>基本配置</h3><p>TravisCI 的上手非常简单，只需三步：</p>
+<ol>
+<li>用 Github 账号登录 TravisCI，你的所有 Repo 都会列出来，选择激活你想要 build 的 Repo。</li>
+<li>在 Github 的 Repo 里添加<code>.travis.yml</code>配置文件。</li>
+<li>Push 代码到 Github，触发自动 build。</li>
+</ol>
+<p>这里要说的就是<code>.travis.yml</code>这个配置文件了（有人可能要吐槽了：哦 NO，又一个配置文件，前端的配置文件实在太多了！没办法啊！(*@ο@*)），<code>.travis.yml</code>的基本格式如下：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">branches:</span></span><br><span class="line">  <span class="attr">only:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">master</span></span><br><span class="line"><span class="attr">language:</span> <span class="string">node_js</span></span><br><span class="line"><span class="attr">node_js:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">stable</span></span><br><span class="line"><span class="attr">script:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">xxx</span></span><br><span class="line"><span class="attr">after_success:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">xxx</span></span><br><span class="line"><span class="attr">env:</span></span><br><span class="line">  <span class="attr">global:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">xxx:</span> <span class="string">xxx</span></span><br></pre></td></tr></table></figure>
+<p>基本上不需要解释就可以明白大致的意思，来自 Python 家族的 yml 格式可以说是配置文件中格式最简单，最易读的了。</p>
+<ul>
+<li><code>branches</code>：指定要 build 的是哪个分支，支持 build 多个分支。</li>
+<li><code>language</code>：指定使用的语言，前端项目的 build 过程基本都是 node 啦。</li>
+<li><code>node_js</code>：指定要使用的 node 版本，可以同时指定多个版本，触发多个 build。</li>
+<li><code>script</code>：系统自动运行完<code>npm install</code>后会执行这里指定的命令，简单的功能可以直接写一个 npm run script，复杂的逻辑也可以指定执行一个 bash 脚本。</li>
+<li><code>after_success</code>：这里是<code>script</code>部分跑成功以后才会执行的命令，这里的命令成功与失败不会影响整个 Travis 任务。</li>
+<li><code>env</code>：这个字段用来定义环境变量，一些需要加密的信息也可以放在这里。</li>
+</ul>
+<p>当然除此之外，Travis 还支持很多的配置，可以查看<a href="https://docs.travis-ci.com/user/customizing-the-build/#The-Build-Lifecycle" target="_blank" rel="noopener">它的文档</a>来认识下 build 过程的整个生命周期。</p>
+<h3 id="跑单元测试并上传覆盖率报告"><a href="#跑单元测试并上传覆盖率报告" class="headerlink" title="跑单元测试并上传覆盖率报告"></a>跑单元测试并上传覆盖率报告</h3><p>跑测试是自动化部署的第一步，如果单元测试都跑不过的话也不用 build 项目了。跑单元测试的方法不用多说，配好了 karma 以后，运行一个<code>npm test</code>就好。这里简单讲讲其中的两个问题：</p>
+<ol>
+<li>识别 Travis 的环境。</li>
+<li>生成覆盖率报告并上传。</li>
+</ol>
+<h4 id="识别-Travis-的环境"><a href="#识别-Travis-的环境" class="headerlink" title="识别 Travis 的环境"></a>识别 Travis 的环境</h4><p>为什么需要专门识别 Travis 的环境呢？由于测试是在 Travis 的云主机上跑的，本地跑测试一般都是直接启一个 Chrome 浏览器，但 Travis 上显然没有 Chrome 浏览器（据说有 Firefox），所以我们需要 headless 的浏览器 PhantomJS 来跑测试。虽然 Travis 自己有环境变量可以帮助我们得知脚本是否运行在 Travis 上，但我推荐的方法还是直接给 npm script 传参数比较好，这样方便以后我们移植到其它 CI 平台。我们要达到的最终目的是：运行<code>npm test</code>则用 Chrome 来跑，运行<code>npm test -- --ci</code>则用 PhantomJS 来跑。注意这里中间的<code>--</code>，根据<a href="https://docs.npmjs.com/cli/run-script" target="_blank" rel="noopener">官方文档</a>的解释，npm 需要这个标记来获知 npm 自己的 options 已经结束，npm 会把中间的<code>--</code>之后的部分都传给你自己的脚本。我们的<code>npm test</code>在 package.json 中是这样配置的：<code>karma start ./karma.config.js</code>，所以我们需要在 karma.config.js 中处理传入的<code>--ci</code>参数。不要看 karma.config.js 只是一个配置文件，其实里面可以随便放任何的 nodejs 逻辑，只要保证这个文件最后 export 出一个函数即可：<code>moudule.exports = (config) =&gt; {config.set({...})}</code>。说到处理参数，nodejs 中有非常好用的工具：<a href="https://www.npmjs.com/package/yargs" target="_blank" rel="noopener">yargs</a>，它支持多种处理命令行参数的方式，使用非常简单。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> args = <span class="built_in">require</span>(<span class="string">"yargs"</span>).argv;</span><br><span class="line"><span class="keyword">const</span> browser = args.watch || args.ci ? <span class="string">"PhantomJS"</span> : <span class="string">"Chrome"</span>;</span><br><span class="line"><span class="keyword">const</span> files =</span><br><span class="line">  browser === <span class="string">"PhantomJS"</span></span><br><span class="line">    ? [<span class="string">"node_modules/babel-core/browser-polyfill.js"</span>, unitTestEntry]</span><br><span class="line">    : [unitTestEntry];</span><br><span class="line"><span class="built_in">module</span>.exports = <span class="function"><span class="params">config</span> =&gt;</span> &#123;</span><br><span class="line">  config.set(&#123;</span><br><span class="line">    files,</span><br><span class="line">    browsers: [browser]</span><br><span class="line">    <span class="comment">// ....</span></span><br><span class="line">  &#125;);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>可以看到，只要将这个包 require 进来，处理参数起来真是得心应手。第 2 行中我们指定如果带有<code>--watch</code>或<code>--ci</code>参数，则使用 Chrome 浏览器（这里的 watch 模式用于：在开发时代码一更新就自动跑测试，由于需要频繁跑测试，用 PhantomJS 的话跑的更快一些）。另外，我们采用了 ES6，那么在使用 PhantomJS 的时候就需要额外包含 Babel 的 polyfill（第 4 行）。</p>
+<h4 id="生成报告并上传"><a href="#生成报告并上传" class="headerlink" title="生成报告并上传"></a>生成报告并上传</h4><p>生成覆盖率测试报告自然是要用 karma-coverage 了，只需要在 karma 的配置中配置<code>coverageReproter</code>即可。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">reporters: [<span class="string">'mocha'</span>, <span class="string">'coverage'</span>],</span><br><span class="line">coverageReporter: &#123;</span><br><span class="line">    dir: <span class="string">'source/test/unit/results/coverage'</span>,</span><br><span class="line">    reporters: [</span><br><span class="line">        &#123;<span class="attr">type</span>: <span class="string">'lcov'</span>, <span class="attr">subdir</span>: <span class="string">'.'</span>&#125;,</span><br><span class="line">        &#123;<span class="attr">type</span>: <span class="string">'text-summary'</span>&#125;</span><br><span class="line">    ]</span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure>
+<p>上面的 lcov 就用来生成覆盖率报告，运行<code>npm test</code>以后，就会在指定的路径（dir 配置）里生成覆盖率报告：以网页的形式展示所有文件的覆盖率。如下图：</p>
+<p><img src="/images/continuous-integration-with-travis-ci-3.png" alt="图3"></p>
+<p>这里要重点说的是上传这个报告，一方面需要将这个报告也部署到 Github Pages 上方便查看，另一方面还可以将报告上传到“特殊”的网站。前者我们将在下一节详细讲，这里主要说这个“特殊”的网站：<a href="https://codecov.io/" target="_blank" rel="noopener">CodeCov</a>。看名字就知道它是一个专门服务于代码覆盖率的工具，将报告上传后不仅可以在上面方便的查看，关键是可以得到下面这个东西：</p>
+<p><a href="https://codecov.io/github/PinkyJie/angular1-webpack-starter" target="_blank" rel="noopener"><img src="https://img.shields.io/codecov/c/github/PinkyJie/angular1-webpack-starter.svg?style=flat-square" alt="Codecov"></a></p>
+<p>哈哈，把它放在项目的 readme 里是不是特别有范（对类似的 badge 服务感兴趣的可以戳<a href="http://shields.io/" target="_blank" rel="noopener">Shields</a>，里面有各种各样包罗万象的 badge）。上传也是非常的简单，首先安装 CodeCov 提供的<a href="https://www.npmjs.com/package/codecov.io" target="_blank" rel="noopener">node 工具</a>，然后一条 npm script 搞定：<code>&quot;codecov&quot;: &quot;cat ./source/test/unit/results/coverage/lcov.info | codecov&quot;,</code>。这样在<code>.travis.yml</code>就可以直接调用<code>npm run codecov</code>来上传报告啦。</p>
+<h3 id="部署到-Github-Pages"><a href="#部署到-Github-Pages" class="headerlink" title="部署到 Github Pages"></a>部署到 Github Pages</h3><p>Travis 自身支持很多<a href="https://docs.travis-ci.com/user/deployment/" target="_blank" rel="noopener">deploy 的服务</a>，但由于<a href="https://github.com/PinkyJie/angular1-webpack-starter" target="_blank" rel="noopener">我的项目</a>是一个纯前端的项目，并不需要后台，所以我选择直接把它部署到 Github Pages 上。Github Pages 其实就相当于一个静态的 server，其部署流程其实就是把 build 后的页面 push 到项目的<code>gh-pages</code>分支下即可。要上传我们也要搞定两个问题：</p>
+<ol>
+<li>项目中的路由使用 HTML5 模式，需配合 webpack-dev-server 的<a href="https://webpack.github.io/docs/webpack-dev-server.html#the-historyapifallback-option" target="_blank" rel="noopener">historyApiFallback 配置</a>，而 Github Pages 上是纯静态 server，我们需要使用<code>/#</code>这种路由模式。</li>
+<li><code>git push</code>到 Github 是需要权限的，你不可能把自己的私钥上传到 Travis 上去。</li>
+</ol>
+<h4 id="build-前更改代码"><a href="#build-前更改代码" class="headerlink" title="build 前更改代码"></a>build 前更改代码</h4><p>先来看第一个问题，解决这个问题的关键就是，在 Travis 开始 build 之前，我们需要更改代码里的<code>this.$locationProvider.html5Mode(true);</code>这一句，将 true 改为 false 即可。那怎么优雅的做这个更改呢？答案是使用 git 的 patch 功能！我们可以先在本地做这个更改，然后运行<code>git diff &gt; gh-pages-patch.diff</code>这样，就会得到这样内容的文件：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">diff --git a/<span class="built_in">source</span>/app/components/_common/services/router-helper.provider.js b/<span class="built_in">source</span>/app/components/_common/services/router-helper.provider.js</span><br><span class="line">index 426cf72..5319d32 100644</span><br><span class="line">--- a/<span class="built_in">source</span>/app/components/_common/services/router-helper.provider.js</span><br><span class="line">+++ b/<span class="built_in">source</span>/app/components/_common/services/router-helper.provider.js</span><br><span class="line">@@ -101,7 +101,7 @@ class RouterHelperProvider &#123;</span><br><span class="line">             mainTitle: <span class="string">''</span>,</span><br><span class="line">             resolveAlways: &#123;&#125;</span><br><span class="line">         &#125;;</span><br><span class="line">-        this.<span class="variable">$locationProvider</span>.html5Mode(<span class="literal">true</span>);</span><br><span class="line">+        this.<span class="variable">$locationProvider</span>.html5Mode(<span class="literal">false</span>);</span><br><span class="line">     &#125;</span><br></pre></td></tr></table></figure>
+<p>其实就是将 diff 的内容保存到一个文件，然后这个 patch 文件我们就可以在需要的时候将它应用回去。在 Travis 上 build 之前，我们可以直接运行<code>git apply ./gh-pages-patch.diff</code>，这样这行代码的变动就可以应用到 Travis 拿到的代码上，然后再开始 build 就可以保证得到的最终网页是正确的了。</p>
+<h4 id="Github-的权限问题"><a href="#Github-的权限问题" class="headerlink" title="Github 的权限问题"></a>Github 的权限问题</h4><p>关于 Github 的权限问题，其实除了使用私钥外，Github 也是允许使用 Access Token 来 push 代码的，我们就是需要利用这一点来将 build 后的代码 push 回 gh-pages 分支。首先访问 Github 设置里的<a href="https://github.com/settings/tokens" target="_blank" rel="noopener">Personal access tokens</a>，选择“Generate new token”来生成新的 token，给 token 起一个名字然后只选择 repo 权限即可，添加成功后会看到类似下面的页面：</p>
+<p><img src="/assets/images/continuous-integration-with-travis-ci-1.png" alt="图1"></p>
+<p>这里必须将 token 保存到你本地，因为 token 只会显示一次，一旦你离开这个页面，再也看不到这个 token 了。有了这个 token，我们就可以使用下面的命令来 push 代码了：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git push <span class="string">"https://xxx@github.com/PinkyJie/angular1-webpack-starter.git"</span> master:gh-pages</span><br></pre></td></tr></table></figure>
+<p>其中的 xxx 就是你的 token，而后面是 Github 项目的地址。当然，因为<code>.travis.yml</code>文件是公开的，我们不可能就直接把这个 token 明文写在里面，别人有了 token 就相当于有了你 Github 所有 Repo 的 push 权限（这也是为什么 token 在生成后只显示一次）。贴心的 Travis 早就想到了这一点，它提供<a href="https://docs.travis-ci.com/user/encryption-keys/#Usage" target="_blank" rel="noopener">对“键值对”进行加密的功能</a>。首先我们需要安装 Travis 提供的加密工具：<code>gem install travis</code>，然后在你的项目目录下（其他目录需要手动指定<code>-r owner/project</code>）运行<code>travis encrypt GITHUB_TOKEN=xxx</code>就会得到类似<code>secure: &quot;...&quot;</code>的输出，将这段输出放在<code>.travis.yml</code>中的环境变量块下面即可：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">env:</span></span><br><span class="line">  <span class="attr">global:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">GitHub_REF:</span> <span class="string">github.com/PinkyJie/angular1-webpack-starter.git</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">secure:</span> <span class="string">"..."</span></span><br></pre></td></tr></table></figure>
+<p>注意，这里的加密是把 key 和 value 都加密了，<code>.travis.yml</code>里允许出现多个 secure 的定义，它们都将作为环境变量供你的脚本调用，在脚本中可以使用<code>${GitHub_TOKEN}</code>和<code>${GitHub_REF}</code>引用上面定义的变量。最后我们还可以给 Travis 的 push 提供一个假的身份，这样在 Github 上我们一看到某个 commit 就知道这是 Travis 里 push 上来的，最终的脚本如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> build</span><br><span class="line">git init</span><br><span class="line">git config user.name <span class="string">"Travis CI"</span></span><br><span class="line">git config user.email <span class="string">"travis@pinkyjie.com"</span></span><br><span class="line">git add .</span><br><span class="line">git commit -m <span class="string">"Deploy at `date +"</span>%Y-%m-%d %H:%M<span class="string">"`"</span></span><br><span class="line">git push --force --quiet <span class="string">"https://<span class="variable">$&#123;GitHub_TOKEN&#125;</span>@<span class="variable">$&#123;GitHub_REF&#125;</span>"</span> master:gh-pages &gt; /dev/null 2&gt;&amp;1</span><br></pre></td></tr></table></figure>
+<p>可以看到第 3-4 行，我们给 Travis 配了一个名字和假的 Email，第 6 行我们给 commit 配了一个包含时间戳的 message，这样就很容易从 Github 上知道这次部署发生在几点了。</p>
+<p>除了上传 build 后的代码，我们还可以将前面提到的单元测试覆盖率报告也上传到 Github Pages 上去，只需要在 build 完成后将生成的 coverage 目录复制到 build 目录即可。有一点值得注意的就是 Github Pages 有一个设置就是：下划线<code>_</code>开头的文件夹名在 web 上无法访问。如果你的代码结构中有下划线命名的文件夹，则单元测试报告里也会有同名的文件夹，我们可以将其重命名：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mv ./build/coverage/app/components/_common ./build/coverage/app/components/common</span><br><span class="line">sed -i <span class="string">'s/href=\"app\/components\/_common/href=\"app\/components\/common/g'</span> ./build/coverage/index.html</span><br></pre></td></tr></table></figure>
+<p>这里先对文件夹进行重命名，再对文件内容里涉及到的相应超链接进行更新。</p>
+<h3 id="用-Sauce-Labs-跑-E2E-测试"><a href="#用-Sauce-Labs-跑-E2E-测试" class="headerlink" title="用 Sauce Labs 跑 E2E 测试"></a>用 Sauce Labs 跑 E2E 测试</h3><p>部署好了自然是要在部署的站点上来一个 E2E 测试了，这也是为什么我们要把 E2E 测试放在<code>after_success</code>这个阶段，因为需要等<code>script</code>阶段的部署完成才可以。前端的一个重要的问题就是浏览器兼容性问题，所以我们当然希望 E2E 测试能够覆盖越多的浏览器越好，比如 IE、Chrome、Safari，甚至 iOS 和 Android 上的浏览器。这个时候就需要<a href="https://saucelabs.com/" target="_blank" rel="noopener">Sauce Labs</a>出场了，它就相当于一个云端的浏览器仓库，包含各种设备各种系统上的不同浏览器，可以通过配置文件让你的测试跑在它上面。这么好的服务自然不是免费的，好消息是：对于开源项目，它是完全免费的，虽然只允许同时运行 5 个浏览器实例，但对于我们来说已经足够了。protractor 的配置文件本身就是支持 Sauce Labs 的，只需要在配置文件中添加<code>sauceUser</code>和<code>sauceKey</code>即可，分别是你注册 Sauce Labs 时的用户名以及自动生成的 Access Key。跟 karma 的配置文件类似，我们也需要在 protractor 的配置文件中处理传入参数。看下面这个例子：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (args.ci) &#123;</span><br><span class="line">  <span class="comment">// run by sauce lab</span></span><br><span class="line">  config.baseUrl = <span class="string">"http://pinkyjie.com/angular1-webpack-starter/#"</span>;</span><br><span class="line">  config.sauceUser = <span class="string">"xxx"</span>;</span><br><span class="line">  config.sauceKey = <span class="string">"xxx"</span>;</span><br><span class="line">  config.multiCapabilities = [</span><br><span class="line">    &#123;</span><br><span class="line">      name: <span class="string">`Chrome (build-<span class="subst">$&#123;args.buildId&#125;</span>)`</span>,</span><br><span class="line">      build: <span class="string">`<span class="subst">$&#123;args.buildId&#125;</span>`</span>,</span><br><span class="line">      browserName: <span class="string">"chrome"</span>,</span><br><span class="line">      platform: <span class="string">"Windows 7"</span></span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      name: <span class="string">`Safari (build-<span class="subst">$&#123;args.buildId&#125;</span>)`</span>,</span><br><span class="line">      build: <span class="string">`<span class="subst">$&#123;args.buildId&#125;</span>`</span>,</span><br><span class="line">      browserName: <span class="string">"safari"</span>,</span><br><span class="line">      platform: <span class="string">"OS X 10.11"</span></span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      name: <span class="string">`IE (build-<span class="subst">$&#123;args.buildId&#125;</span>)`</span>,</span><br><span class="line">      build: <span class="string">`<span class="subst">$&#123;args.buildId&#125;</span>`</span>,</span><br><span class="line">      browserName: <span class="string">"internet explorer"</span>,</span><br><span class="line">      platform: <span class="string">"Windows 7"</span>,</span><br><span class="line">      version: <span class="string">"11.0"</span></span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      name: <span class="string">`iOS (build-<span class="subst">$&#123;args.buildId&#125;</span>)`</span>,</span><br><span class="line">      build: <span class="string">`<span class="subst">$&#123;args.buildId&#125;</span>`</span>,</span><br><span class="line">      browserName: <span class="string">"Safari"</span>,</span><br><span class="line">      appiumVersion: <span class="string">"1.4.16"</span>,</span><br><span class="line">      deviceName: <span class="string">"iPhone 5s"</span>,</span><br><span class="line">      deviceOrientation: <span class="string">"portrait"</span>,</span><br><span class="line">      platformVersion: <span class="string">"9.1"</span>,</span><br><span class="line">      platformName: <span class="string">"iOS"</span></span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      name: <span class="string">`Android (build-<span class="subst">$&#123;args.buildId&#125;</span>)`</span>,</span><br><span class="line">      build: <span class="string">`<span class="subst">$&#123;args.buildId&#125;</span>`</span>,</span><br><span class="line">      browserName: <span class="string">"Browser"</span>,</span><br><span class="line">      appiumVersion: <span class="string">"1.4.16"</span>,</span><br><span class="line">      deviceName: <span class="string">"Android Emulator"</span>,</span><br><span class="line">      deviceOrientation: <span class="string">"portrait"</span>,</span><br><span class="line">      platformVersion: <span class="string">"4.4"</span>,</span><br><span class="line">      platformName: <span class="string">"Android"</span></span><br><span class="line">    &#125;</span><br><span class="line">  ];</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">  <span class="comment">// local run</span></span><br><span class="line">  config.baseUrl = <span class="string">"http://localhost:8080"</span>;</span><br><span class="line">  config.multiCapabilities = [</span><br><span class="line">    &#123;</span><br><span class="line">      browserName: <span class="string">"chrome"</span></span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      browserName: <span class="string">"chrome"</span>,</span><br><span class="line">      chromeOptions: &#123;</span><br><span class="line">        args: [<span class="string">"--window-size=375,627"</span>]</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  ];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在配置文件中，我们判断如果传入了<code>--ci</code>则添加<code>sauceUser</code>和<code>sauceKey</code>，否则就不加。另外，有 ci 的时候我们需要传入不同的<code>baseUrl</code>，没 ci 则认为是在本地跑测试。两者都使用了<code>multiCapabilities</code>，ci 上跑的时候指定了我们要测试的 5 个浏览器，本地则是开了两个 Chrome，一个全屏一个模拟手机分辨率来测试。我们重点来看看使用 Sauce Labs 时的 5 个浏览器配置，它们分别是 Chrome、Safari、IE、Android 浏览器，和 iOS 上的 Safari（Android 和 iOS 的测试使用了<a href="http://appium.io/" target="_blank" rel="noopener">Appium</a>），当然 Sauce Labs 还支持很多的浏览器，可以通过<a href="https://wiki.saucelabs.com/display/DOCS/Platform+Configurator#/" target="_blank" rel="noopener">其文档</a>来生成指定浏览器的配置。上面的例子中除了浏览器的系统、名字和版本外，我们还指定了<code>name</code>和<code>build</code>，这也是 Sauce Labs 特有的配置，这两个配置可以让 Sauce Labs 更好的显示和组织属于同一个 build 的测试，如下图：</p>
+<p><img src="/assets/images/continuous-integration-with-travis-ci-2.png" alt="图2"></p>
+<p>属于同一个 build 的所有 E2E 测试被组织到了一起。这里传入的 buildId 则是 Travis 每次 build 自动生成的 ID，我们可以通过环境变量获取：<code>npm run e2e -- --ci --build-id=$TRAVIS_BUILD_NUMBER</code>。</p>
+<h4 id="本地的站点也能测"><a href="#本地的站点也能测" class="headerlink" title="本地的站点也能测"></a>本地的站点也能测</h4><p>有这样一种场景，如果你的网站架在本地的话（比如 localhost），外网是无法访问的，这样在 Sauce Labs 上的云主机也就无法访问你的网站，自然也无法跑测试的。为了解决这个需求，Sauce Labs 还提供了一个有用的功能：<a href="https://wiki.saucelabs.com/display/DOCS/Using+Sauce+Connect+for+Testing+Behind+the+Firewall+or+on+Localhost" target="_blank" rel="noopener">Sauce Connect</a>。它会在本地开启一个 tunnel，用来接收 protractor 的命令，然后传给 Sauce Labs 云主机上的浏览器。幸运的是 Travis 也支持这个功能，只需要在<code>.travis.yml</code>中添加指定的配置即可：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">addons:</span></span><br><span class="line">  <span class="attr">sauce_connect:</span></span><br><span class="line">    <span class="attr">username:</span> <span class="string">"xxx"</span></span><br><span class="line">    <span class="attr">access_key:</span> <span class="string">"xxx"</span></span><br><span class="line">  <span class="attr">apt:</span></span><br><span class="line">    <span class="attr">sources:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">ubuntu-toolchain-r-test</span></span><br><span class="line">    <span class="attr">packages:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">gcc-4.8</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">g++-4.8</span></span><br></pre></td></tr></table></figure>
+<p>然后在 protractor 的配置文件中，给每个浏览器的配置添加<code>&#39;tunnel-identifier&#39;: args.jobId</code>即可，而这个 jobId 也是 Travis 每次 build 自动生成的，也可以通过环境变量获取：<code>npm run e2e -- --ci --build-id=$TRAVIS_BUILD_NUMBER --job-id=$TRAVIS_JOB_NUMBER</code>。这样，你就可以在 Travis 的机器上启一个本地的网站，然后通过 Sauce Connect 来测试它了。</p>
+<h4 id="Timeout-的问题"><a href="#Timeout-的问题" class="headerlink" title="Timeout 的问题"></a>Timeout 的问题</h4><p>这是我自己碰到的一个问题，E2E 测试在本地跑的好好的，但放在 Sauce Labs 上总是提示超时。protractor 的文档专门<a href="http://www.protractortest.org/#/timeouts" target="_blank" rel="noopener">有一个章节</a>来讲超时的问题。简单的说，如果出现超时，可以从两方面入手，一个是增加 jasmine 的默认超时时间，即在 protractor 的配置中加入：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">jasmineNodeOpts: &#123;</span><br><span class="line">  defaultTimeoutInterval: <span class="number">600</span> * <span class="number">1000</span>; <span class="comment">// 毫秒</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>另一方面，Sauce Labs 也有 3 个参数来控制超时，可以在 protractor 的配置文件中给每个浏览器的配置中加入：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 秒</span></span><br><span class="line">maxDuration: <span class="number">3600</span>,</span><br><span class="line">commandTimeout: <span class="number">600</span>,</span><br><span class="line">idleTimeout: <span class="number">1000</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>就我个人的经验，目前项目的 E2E 测试在本地跑完全没问题，在 Sauce Labs 上仍然会报错，目前仍在研究中（<a href="https://github.com/PinkyJie/angular1-webpack-starter/issues/9" target="_blank" rel="noopener">issue 9</a>）</p>
+</blockquote>
+<p>最后，完整的实现可以戳这里：</p>
+<ul>
+<li><a href="https://github.com/PinkyJie/angular1-webpack-starter/blob/master/.travis.yml" target="_blank" rel="noopener">.travis.yml</a></li>
+<li><a href="https://github.com/PinkyJie/angular1-webpack-starter/blob/master/publish-to-gh-pages.sh" target="_blank" rel="noopener">script 部分的脚本</a></li>
+<li><a href="https://github.com/PinkyJie/angular1-webpack-starter/blob/master/karma.config.js" target="_blank" rel="noopener">karma.config.js</a></li>
+<li><a href="https://github.com/PinkyJie/angular1-webpack-starter/blob/master/protractor.config.js" target="_blank" rel="noopener">protractor.config.js</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/angular1-webpack-starter/" rel="tag"># angular1-webpack-starter</a>
+              <a href="/tags/%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90/" rel="tag"># 持续集成</a>
+              <a href="/tags/TravisCI/" rel="tag"># TravisCI</a>
+              <a href="/tags/SauceLabs/" rel="tag"># SauceLabs</a>
+              <a href="/tags/SauceConnect/" rel="tag"># SauceConnect</a>
+              <a href="/tags/yargs/" rel="tag"># yargs</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2016/02/21/e2e-testing-in-angular/" rel="prev" title="Angular 里的 E2E 测试">
+      <i class="fa fa-chevron-left"></i> Angular 里的 E2E 测试
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2016/03/05/webpack-tips/" rel="next" title="webpack使用小记">
+      webpack使用小记 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    
+  
+  <div class="comments">
+  <script src="https://utteranc.es/client.js" repo="PinkyJie/pinkyjie.github.com" issue-term="pathname" theme="github-light" crossorigin="anonymous" async></script>
+  </div>
+  
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#基本配置"><span class="nav-number">1.</span> <span class="nav-text">基本配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#跑单元测试并上传覆盖率报告"><span class="nav-number">2.</span> <span class="nav-text">跑单元测试并上传覆盖率报告</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#识别-Travis-的环境"><span class="nav-number">2.1.</span> <span class="nav-text">识别 Travis 的环境</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#生成报告并上传"><span class="nav-number">2.2.</span> <span class="nav-text">生成报告并上传</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#部署到-Github-Pages"><span class="nav-number">3.</span> <span class="nav-text">部署到 Github Pages</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#build-前更改代码"><span class="nav-number">3.1.</span> <span class="nav-text">build 前更改代码</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Github-的权限问题"><span class="nav-number">3.2.</span> <span class="nav-text">Github 的权限问题</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#用-Sauce-Labs-跑-E2E-测试"><span class="nav-number">4.</span> <span class="nav-text">用 Sauce Labs 跑 E2E 测试</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#本地的站点也能测"><span class="nav-number">4.1.</span> <span class="nav-text">本地的站点也能测</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Timeout-的问题"><span class="nav-number">4.2.</span> <span class="nav-text">Timeout 的问题</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="马斯特"
+      src="/assets/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">马斯特</p>
+  <div class="site-description" itemprop="description">前端 | 溜冰 | Mac</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">55</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">186</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/PinkyJie" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;PinkyJie" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:pinkyjie.gn@gmail.com" title="E-Mail → mailto:pinkyjie.gn@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/PinkyJie" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;PinkyJie" rel="noopener" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://stackoverflow.com/users/689948/pinkyjie" title="StackOverflow → http:&#x2F;&#x2F;stackoverflow.com&#x2F;users&#x2F;689948&#x2F;pinkyjie" rel="noopener" target="_blank"><i class="fa fa-fw fa-stack-overflow"></i>StackOverflow</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">马斯特</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.7.0
+  </div>
+
+        
+
+
+  <div style="display: none;">
+    <script src="//s95.cnzz.com/z_stat.php?id=1253033676&web_id=1253033676"></script>
+  </div>
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  <script>
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install','8k3UxSuRWYkrhVg55bC3','2.0.0');
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

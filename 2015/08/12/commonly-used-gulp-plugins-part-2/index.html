@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="o7yQBnLIoWby8Y5vNMQywBiMtev-ilWjXt89RQpTvVw">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('http://pinkyjie.com').hostname,
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.7.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":"utteranc","storage":true,"lazyload":false,"nav":null,"activeClass":"utteranc"},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="书接上回。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="常用gulp插件介绍(二)">
+<meta property="og:url" content="http://pinkyjie.com/2015/08/12/commonly-used-gulp-plugins-part-2/index.html">
+<meta property="og:site_name" content="进击的马斯特">
+<meta property="og:description" content="书接上回。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2015-08-12T20:45:59.000Z">
+<meta property="article:modified_time" content="2020-05-01T01:47:54.590Z">
+<meta property="article:author" content="马斯特">
+<meta property="article:tag" content="AngularJS">
+<meta property="article:tag" content="插件">
+<meta property="article:tag" content="gulp">
+<meta property="article:tag" content="generator-aio-angular">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://pinkyjie.com/2015/08/12/commonly-used-gulp-plugins-part-2/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>常用gulp插件介绍(二) | 进击的马斯特</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">进击的马斯特</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">CODING MY LIFE</p>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://pinkyjie.com/2015/08/12/commonly-used-gulp-plugins-part-2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/assets/images/avatar.jpg">
+      <meta itemprop="name" content="马斯特">
+      <meta itemprop="description" content="前端 | 溜冰 | Mac">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="进击的马斯特">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          常用gulp插件介绍(二)
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2015-08-12 20:45:59" itemprop="dateCreated datePublished" datetime="2015-08-12T20:45:59+00:00">2015-08-12</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-05-01 01:47:54" itemprop="dateModified" datetime="2020-05-01T01:47:54+00:00">2020-05-01</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%89%8D%E7%AB%AF%E5%BC%80%E5%8F%91/" itemprop="url" rel="index">
+                    <span itemprop="name">前端开发</span>
+                  </a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>书接<a href="/2015/08/02/commonly-used-gulp-plugins-part-1/">上回</a>。</p>
+<a id="more"></a>
+<h3 id="Angular相关"><a href="#Angular相关" class="headerlink" title="Angular相关"></a>Angular相关</h3><p>这个部分介绍与Angular相关的一些插件。</p>
+<h4 id="gulp-angular-templatecache"><a href="#gulp-angular-templatecache" class="headerlink" title="gulp-angular-templatecache"></a><a href="https://www.npmjs.com/package/gulp-angular-templatecache" target="_blank" rel="noopener">gulp-angular-templatecache</a></h4><p>Angular自带的<code>$templateCache</code>服务可以把Angular中用到的所有模板缓存下来，而这个插件的功能就是直接将指定的HTML模板文件以JS字符串的形式注册在<code>$tempalteCache</code>服务中，这样所有的模板就会随JS文件直接一次性下载下来。这个插件使用起来也非常简单，gulp.src传入需要缓存的HTML模板文件，然后<code>.pipe($.angularTemplatecache(filename, options))</code>即可。其中filename表示生成后的js文件的名字，默认为templates.js，常用的options有：</p>
+<ul>
+<li><code>module</code>：指定希望将这个模板放入哪个Angular的module中。</li>
+<li><code>root</code>：指定注册后的模板路径前缀。</li>
+</ul>
+<p>生成后的文件如下：</p>
+<figure class="highlight javascript"><figcaption><span>templates.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">angular.module(<span class="string">"module name"</span>).run([$templateCache,</span><br><span class="line">  <span class="function"><span class="keyword">function</span>(<span class="params">$templateCache</span>) </span>&#123;</span><br><span class="line">    $templateCache.put(<span class="string">"template1.html"</span>,</span><br><span class="line">      <span class="comment">// template1.html content (escaped) </span></span><br><span class="line">    );</span><br><span class="line">    $templateCache.put(<span class="string">"template2.html"</span>,</span><br><span class="line">      <span class="comment">// template2.html content (escaped) </span></span><br><span class="line">    );</span><br><span class="line">    <span class="comment">// etc. </span></span><br><span class="line">  &#125;</span><br><span class="line">]);</span><br></pre></td></tr></table></figure>
+<h4 id="gulp-ng-annotate"><a href="#gulp-ng-annotate" class="headerlink" title="gulp-ng-annotate"></a><a href="https://www.npmjs.com/package/gulp-ng-annotate" target="_blank" rel="noopener">gulp-ng-annotate</a></h4><p>这个插件是<a href="https://github.com/olov/ng-annotate" target="_blank" rel="noopener">ng-annotate</a>的gulp插件版，它解决的是Angular中依赖注入的小问题。Angular中通过参数名来进行依赖注入，一旦压缩，参数名就会变化导致注入失败，所以官方推荐通过添加字符串进行注入。比如：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">angular</span><br><span class="line">    .module(<span class="string">'app.dashboard'</span>)</span><br><span class="line">    .controller(<span class="string">'DashboardController'</span>, DashboardController);</span><br><span class="line"></span><br><span class="line">DashboardController.$inject = [<span class="string">'userAPI'</span>];</span><br><span class="line"><span class="comment">/* @ngInject */</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">DashboardController</span> (<span class="params">userAPI</span>) </span>&#123;&#125;</span><br></pre></td></tr></table></figure>
+<p>上面的例子中我们定义了一个叫<code>DashboardController</code>的controller，它依赖一个<code>userAPI</code>的service。这个插件的作用就是根据第6行的注释<code>/* @ngInject */</code>来帮你生成第5行的内容。当然是在你忘记写的情况下，如果你自己写了它不会重复生成。除了这种使用<code>$inject</code>赋值的方式，它同样支持inline定义的方式，如</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* @ngInject */</span></span><br><span class="line">.controller(<span class="string">'DashboardController'</span>, <span class="function"><span class="keyword">function</span> (<span class="params">userAPI</span>) </span>&#123;&#125;);</span><br></pre></td></tr></table></figure>
+<p>会生成</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">.controller(<span class="string">'DashboardController'</span>, [<span class="string">'userAPI'</span>, <span class="function"><span class="keyword">function</span> (<span class="params">userAPI</span>) </span>&#123;&#125;]);</span><br></pre></td></tr></table></figure>
+<p>它常用的参数就是<code>{add: true}</code>，表明仅在不存在的情况下才会进行添加。</p>
+<blockquote>
+<p>推荐在HTML头上使用<a href="https://docs.angularjs.org/error/$injector/strictdi" target="_blank" rel="noopener">ng-strict-di</a>属性，这样即便在不压缩的情况下，一旦你忘记显式的用字符串声明依赖，Angular将立刻报错。</p>
+</blockquote>
+<h4 id="gulp-protractor"><a href="#gulp-protractor" class="headerlink" title="gulp-protractor"></a><a href="https://www.npmjs.com/package/gulp-protractor" target="_blank" rel="noopener">gulp-protractor</a></h4><p>Angular的e2e测试工具<a href="https://github.com/angular/protractor" target="_blank" rel="noopener">protractor</a>的配套插件，可以通过它非常方便的在gulp中调用protractor。有了这玩意，你就不需要手动在gulp中调用protractor的可执行文件，然后处理进程神马的，只要一句简单的<code>.pipe($.protractor.protractor(options)</code>即可。常用的options包括：</p>
+<ul>
+<li><code>configFile</code>：即protractor的配置文件路径。</li>
+<li><code>args</code>：调用protractor时传入的参数，是个数组。最常用的就是指定protractor只跑一个suite了，如<code>[&#39;--suite&#39;, &#39;loginSuite&#39;]</code>，这样protractor只会跑配置文件中定义的loginSuite所包括的spec文件了。</li>
+</ul>
+<h4 id="gulp-order"><a href="#gulp-order" class="headerlink" title="gulp-order"></a><a href="https://www.npmjs.com/package/gulp-order" target="_blank" rel="noopener">gulp-order</a></h4><p>这个插件严格来说不是专门给Angular用的，但非常适合用在Angular的场景下。如果你的程序使用的是Angular自带的包管理系统，那么有一个无法避开的问题就是：所有<code>angular.module</code>的定义要最先执行，也就是说包含module定义的文件的script标签要在别的文件之前。而我们在使用gulp-inject这类插件将JS文件插入的时候通常都是通过匹配符直接选中一堆文件插入的。这时就需要解决插入的顺序问题，而这个插件就是干这个事的。它通过一个数组参数来指定排序，这个数组包含一组匹配模式，匹配到靠前模式的文件在前，匹配靠后的文件在后。如：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">gulp</span><br><span class="line">    .src(<span class="string">'**/*.js'</span>)</span><br><span class="line">    .pipe($.order([</span><br><span class="line">        <span class="string">'**/app.module.js'</span>,</span><br><span class="line">        <span class="string">'**/*.module.js'</span>,</span><br><span class="line">        <span class="string">'**/*.js'</span></span><br><span class="line">    ]))</span><br></pre></td></tr></table></figure>
+<p>这样，定义<code>app</code>module的文件就会在最前面，然后是其它各个module的定义，最后是剩余的JS文件。</p>
+<h3 id="压缩工具类"><a href="#压缩工具类" class="headerlink" title="压缩工具类"></a>压缩工具类</h3><p>这个部分介绍对CSS、HTML、JS、图片等资源进行压缩的插件。</p>
+<h4 id="gulp-csso"><a href="#gulp-csso" class="headerlink" title="gulp-csso"></a><a href="https://www.npmjs.com/package/gulp-csso" target="_blank" rel="noopener">gulp-csso</a></h4><p>压缩CSS的工具，官方说它比其它工具压得更小，因为它可以重建CSS代码结构信息，不知道什么鬼。</p>
+<h4 id="gulp-minify-html"><a href="#gulp-minify-html" class="headerlink" title="gulp-minify-html"></a><a href="https://www.npmjs.com/package/gulp-minify-html" target="_blank" rel="noopener">gulp-minify-html</a></h4><p>压缩HTML的工具，通常在给gulp-angular-templatecache处理前先使用，这样$tempalteCache得到的就是压缩后的HTML字符串了。</p>
+<h4 id="gulp-uglify"><a href="#gulp-uglify" class="headerlink" title="gulp-uglify"></a><a href="https://www.npmjs.com/package/gulp-uglify" target="_blank" rel="noopener">gulp-uglify</a></h4><p>压缩JS的工具，这个不多介绍了。</p>
+<h4 id="gulp-imagemin"><a href="#gulp-imagemin" class="headerlink" title="gulp-imagemin"></a><a href="https://www.npmjs.com/package/gulp-imagemin" target="_blank" rel="noopener">gulp-imagemin</a></h4><p>压缩图片的工具。在发布到生产环境之前对图片进行压缩是一个非常好的习惯，可以极大的提高页面加载的速度。如果你用<a href="https://developers.google.com/speed/pagespeed/" target="_blank" rel="noopener">Google PageSpeed</a>给网页评过分的话，它可以给出页面上能被继续压缩的图片。使用这个插件可以在保证质量损失很小的情况下压缩图片。</p>
+<h3 id="server相关"><a href="#server相关" class="headerlink" title="server相关"></a>server相关</h3><p>这部分介绍与本地起server相关的插件。</p>
+<h4 id="browser-sync"><a href="#browser-sync" class="headerlink" title="browser-sync"></a><a href="https://www.npmjs.com/package/browser-sync" target="_blank" rel="noopener">browser-sync</a></h4><p><a href="http://www.browsersync.io/" target="_blank" rel="noopener">Browsersync</a>应该算是本地起server的标配了吧，最大的特性是可以在不同浏览器之间同步（这也是名字的由来吧），这在测试时非常有用：起server以后根据配置自动打开多个浏览器，你操作一个，其他的浏览器会同步你的操作。另外，它还可以配合gulp的<code>watch()</code>函数实现类似live-reload的功能。之所以没有gulp对应的插件，是因为这玩意本来就可以直接require进来使用。支持非常多的参数，一整篇文章也介绍不完，具体可以参考<a href="http://www.browsersync.io/docs/options/" target="_blank" rel="noopener">它的文档</a>。这里要简单介绍的就是server底下的配置，如：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">server: &#123;</span><br><span class="line">    baseDir: <span class="string">'./app/'</span>,</span><br><span class="line">    index: <span class="string">'index.html'</span>,</span><br><span class="line">    middleware: [</span><br><span class="line">        <span class="comment">// middleware</span></span><br><span class="line">    ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>前两个参数就不多说了，一看就明白意思，重点来看第3个参数<code>middleware</code>。middleware就是中间件，类似这样的函数<code>function (req, res, next){}</code>。简单来说，一个request请求到达server，会经过middleware数组里面的中间件函数逐个处理，这里就可以在Browsersync层面上定义很多自定义的操作。适用于Node的<a href="https://github.com/senchalabs/connect" target="_blank" rel="noopener">connect框架</a>的中间件都可以在这里使用，下面介绍的两个插件都是可用于Browsersync的中间件。</p>
+<h4 id="connect-history-api-fallback"><a href="#connect-history-api-fallback" class="headerlink" title="connect-history-api-fallback"></a><a href="https://www.npmjs.com/package/connect-history-api-fallback" target="_blank" rel="noopener">connect-history-api-fallback</a></h4><p>这个中间件对于像Angular这样的单页面应用来说非常的实用。我们知道，Browsersync默认起来的server是一个静态server，默认是无法支持<code>$locationProvider.html5Mode(true);</code>的。使用这个插件可以轻松的达到这一点，如：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> historyApiFallback = <span class="built_in">require</span>(<span class="string">'connect-history-api-fallback'</span>);</span><br><span class="line"><span class="comment">// ...</span></span><br><span class="line">middleware: [</span><br><span class="line">    historyApiFallback()</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+<p>这样，所有的路由请求都会fallback到index.html处理，这也正是我们想要的。除此之外，这个插件还支持简单的rewrite，如</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">historyApiFallback(&#123;</span><br><span class="line">  rewrites: [</span><br><span class="line">    &#123; <span class="attr">from</span>: <span class="regexp">/\/soccer/</span>, <span class="attr">to</span>: <span class="string">'/soccer.html'</span>&#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>可谓是非常方便，更多的rewrite规则可以参考它的文档。</p>
+<h4 id="proxy-middleware"><a href="#proxy-middleware" class="headerlink" title="proxy-middleware"></a><a href="https://www.npmjs.com/package/proxy-middleware" target="_blank" rel="noopener">proxy-middleware</a></h4><p>这个中间件其实与上面rewrite的类似，只不过rewrite只是针对get请求，而这个proxy可以代理任何请求。设想这样一个场景，我们起了个本地的server，通常使用<a href="https://docs.angularjs.org/api/ngMock" target="_blank" rel="noopener">ngMock</a>来实现对API的模拟，但有的时候我们希望这个本地的server可以对接真正的API server，而这个中间件可以轻松的完成这一点：将<code>/api</code>开头的请求代理到真正的API server上去。它的使用也是非常简单：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> proxy = <span class="built_in">require</span>(<span class="string">'proxy-middleware'</span>);</span><br><span class="line"><span class="keyword">var</span> proxyOptions = url.parse(<span class="string">'https://real-server.com/api'</span>);</span><br><span class="line">proxyOptions.route = <span class="string">'/api'</span>;</span><br><span class="line"><span class="comment">// ...</span></span><br><span class="line">middleware: [</span><br><span class="line">    proxy(proxyOptions)</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+<p>这样，所有以<code>/api</code>开头的API请求就会被代理到<code>https://real-server.com/api</code>上去，如<code>/api/user/123</code>请求的真实地址是<code>https://real-server.com/api/user/123</code>。</p>
+<h3 id="特定语言相关"><a href="#特定语言相关" class="headerlink" title="特定语言相关"></a>特定语言相关</h3><p>这部分的插件与你选用的具体的语言以及预处理器有关。</p>
+<h4 id="gulp-jshint-与-gulp-jscs"><a href="#gulp-jshint-与-gulp-jscs" class="headerlink" title="gulp-jshint 与 gulp-jscs"></a><a href="https://www.npmjs.com/package/gulp-jshint" target="_blank" rel="noopener">gulp-jshint</a> 与 <a href="https://www.npmjs.com/package/gulp-jscs" target="_blank" rel="noopener">gulp-jscs</a></h4><p>大名鼎鼎的<a href="">jshint</a>和<a href="">jscs</a>的gulp插件版。这两个插件除了帮你做代码的一些静态检查外，还可以最大程度的帮助你定义所需要的代码风格。尤其是<code>jscs</code>，定义的非常细致。比如我们需要<code>function (a, b) {</code>，即function关键字后面空一格，参数之间空一格，参数列表后面的小括号与大括号之间空一格。这样的需求通过<code>jscs</code>的配置文件可以轻松的实现，具体可以参考其文档。可以将这两个task放在build之前，强制所有人在build代码的时候修改不符合要求的代码风格。我们还尝试过将<code>gulp jshint jscs</code>放入git commit的hook中，每次commit的时候自动检查代码风格，如果不符合要求，不准进行commit的操作。</p>
+<h4 id="gulp-jade"><a href="#gulp-jade" class="headerlink" title="gulp-jade"></a><a href="https://www.npmjs.com/package/gulp-jade" target="_blank" rel="noopener">gulp-jade</a></h4><p>编译jade模板的插件，这个也不过多介绍。只介绍一个使用jade变量的场景，通常我们的Angular应用的<code>ng-app</code>名称在测试(e2e)与非测试时是不一样的，所以可以把这个定义成变量，在编译jade模板时传入。如我们的index.jade的头是这样定义的<code>html(lang=&quot;en&quot;, ng-app= app)</code>，在编译时使用<code>.pipe($.jade({locals: {app: &#39;test&#39;}}))</code>即可指定想要的<code>ng-app</code>的名字。</p>
+<h4 id="gulp-stylus"><a href="#gulp-stylus" class="headerlink" title="gulp-stylus"></a><a href="https://www.npmjs.com/package/gulp-stylus" target="_blank" rel="noopener">gulp-stylus</a></h4><p>编译stylus的插件，不多说。</p>
+<h4 id="gulp-autoprefixer"><a href="#gulp-autoprefixer" class="headerlink" title="gulp-autoprefixer"></a><a href="https://www.npmjs.com/package/gulp-autoprefixer" target="_blank" rel="noopener">gulp-autoprefixer</a></h4><p>这个插件最早在<a href="/2014/01/12/what-i-learn-from-making-resume/">从做简历中学到的知识</a>这篇文章中就介绍过，只不过当时介绍的是grunt版本，现在时gulp版本。这个插件的基本作用就是让你在书写CSS3的相关属性时不用关心不同浏览器的前缀问题，它会自动帮助添加各种浏览器前缀。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/AngularJS/" rel="tag"># AngularJS</a>
+              <a href="/tags/%E6%8F%92%E4%BB%B6/" rel="tag"># 插件</a>
+              <a href="/tags/gulp/" rel="tag"># gulp</a>
+              <a href="/tags/generator-aio-angular/" rel="tag"># generator-aio-angular</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2015/08/02/commonly-used-gulp-plugins-part-1/" rel="prev" title="常用gulp插件介绍(一)">
+      <i class="fa fa-chevron-left"></i> 常用gulp插件介绍(一)
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2015/08/26/thoughts-from-jsconf-2015-in-shenzhen/" rel="next" title="JSConf2015（ShenJS）深圳之行有感">
+      JSConf2015（ShenJS）深圳之行有感 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    
+  
+  <div class="comments">
+  <script src="https://utteranc.es/client.js" repo="PinkyJie/pinkyjie.github.com" issue-term="pathname" theme="github-light" crossorigin="anonymous" async></script>
+  </div>
+  
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Angular相关"><span class="nav-number">1.</span> <span class="nav-text">Angular相关</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#gulp-angular-templatecache"><span class="nav-number">1.1.</span> <span class="nav-text">gulp-angular-templatecache</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#gulp-ng-annotate"><span class="nav-number">1.2.</span> <span class="nav-text">gulp-ng-annotate</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#gulp-protractor"><span class="nav-number">1.3.</span> <span class="nav-text">gulp-protractor</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#gulp-order"><span class="nav-number">1.4.</span> <span class="nav-text">gulp-order</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#压缩工具类"><span class="nav-number">2.</span> <span class="nav-text">压缩工具类</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#gulp-csso"><span class="nav-number">2.1.</span> <span class="nav-text">gulp-csso</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#gulp-minify-html"><span class="nav-number">2.2.</span> <span class="nav-text">gulp-minify-html</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#gulp-uglify"><span class="nav-number">2.3.</span> <span class="nav-text">gulp-uglify</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#gulp-imagemin"><span class="nav-number">2.4.</span> <span class="nav-text">gulp-imagemin</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#server相关"><span class="nav-number">3.</span> <span class="nav-text">server相关</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#browser-sync"><span class="nav-number">3.1.</span> <span class="nav-text">browser-sync</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#connect-history-api-fallback"><span class="nav-number">3.2.</span> <span class="nav-text">connect-history-api-fallback</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#proxy-middleware"><span class="nav-number">3.3.</span> <span class="nav-text">proxy-middleware</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#特定语言相关"><span class="nav-number">4.</span> <span class="nav-text">特定语言相关</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#gulp-jshint-与-gulp-jscs"><span class="nav-number">4.1.</span> <span class="nav-text">gulp-jshint 与 gulp-jscs</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#gulp-jade"><span class="nav-number">4.2.</span> <span class="nav-text">gulp-jade</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#gulp-stylus"><span class="nav-number">4.3.</span> <span class="nav-text">gulp-stylus</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#gulp-autoprefixer"><span class="nav-number">4.4.</span> <span class="nav-text">gulp-autoprefixer</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="马斯特"
+      src="/assets/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">马斯特</p>
+  <div class="site-description" itemprop="description">前端 | 溜冰 | Mac</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">55</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">186</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/PinkyJie" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;PinkyJie" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:pinkyjie.gn@gmail.com" title="E-Mail → mailto:pinkyjie.gn@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/PinkyJie" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;PinkyJie" rel="noopener" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://stackoverflow.com/users/689948/pinkyjie" title="StackOverflow → http:&#x2F;&#x2F;stackoverflow.com&#x2F;users&#x2F;689948&#x2F;pinkyjie" rel="noopener" target="_blank"><i class="fa fa-fw fa-stack-overflow"></i>StackOverflow</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">马斯特</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.7.0
+  </div>
+
+        
+
+
+  <div style="display: none;">
+    <script src="//s95.cnzz.com/z_stat.php?id=1253033676&web_id=1253033676"></script>
+  </div>
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  <script>
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install','8k3UxSuRWYkrhVg55bC3','2.0.0');
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

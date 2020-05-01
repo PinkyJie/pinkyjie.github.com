@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="o7yQBnLIoWby8Y5vNMQywBiMtev-ilWjXt89RQpTvVw">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('http://pinkyjie.com').hostname,
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.7.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":"utteranc","storage":true,"lazyload":false,"nav":null,"activeClass":"utteranc"},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="其实一直觉得自己是会用Git的，毕竟咱也是用Github的人啊！可是三月份找工作时候的一次面试颠覆了我的看法：  Q: 用过Git吗？平常怎么用的？A: 用过的，一般就是add，commit，push嘛Q: branch用的多吗？git rebase这命令使用过吗？A: 一般都是自己的项目用的，就一个人，没涉及到这么复杂的使用Q: 那换个话题吧。。。  这么一搞才发现，其实我只会皮毛啊。。。正好现">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Git笔记(一)——[commit, checkout]">
+<meta property="og:url" content="http://pinkyjie.com/2014/08/02/git-notes-part-1/index.html">
+<meta property="og:site_name" content="进击的马斯特">
+<meta property="og:description" content="其实一直觉得自己是会用Git的，毕竟咱也是用Github的人啊！可是三月份找工作时候的一次面试颠覆了我的看法：  Q: 用过Git吗？平常怎么用的？A: 用过的，一般就是add，commit，push嘛Q: branch用的多吗？git rebase这命令使用过吗？A: 一般都是自己的项目用的，就一个人，没涉及到这么复杂的使用Q: 那换个话题吧。。。  这么一搞才发现，其实我只会皮毛啊。。。正好现">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://pinkyjie.com/assets/images/git-notes-1.png">
+<meta property="og:image" content="http://pinkyjie.com/assets/images/git-notes-2.png">
+<meta property="og:image" content="http://pinkyjie.com/assets/images/git-notes-3.png">
+<meta property="og:image" content="http://pinkyjie.com/assets/images/git-notes-4.png">
+<meta property="og:image" content="http://pinkyjie.com/assets/images/git-notes-5.png">
+<meta property="og:image" content="http://pinkyjie.com/assets/images/git-notes-6.png">
+<meta property="og:image" content="http://pinkyjie.com/assets/images/git-notes-7.png">
+<meta property="og:image" content="http://pinkyjie.com/assets/images/git-notes-8.png">
+<meta property="og:image" content="http://pinkyjie.com/assets/images/git-notes-9.png">
+<meta property="og:image" content="http://pinkyjie.com/assets/images/git-notes-10.png">
+<meta property="og:image" content="http://pinkyjie.com/assets/images/git-notes-11.png">
+<meta property="og:image" content="http://pinkyjie.com/assets/images/git-notes-12.png">
+<meta property="og:image" content="http://pinkyjie.com/assets/images/git-notes-13.png">
+<meta property="og:image" content="http://pinkyjie.com/assets/images/git-notes-14.png">
+<meta property="article:published_time" content="2014-08-02T16:11:25.000Z">
+<meta property="article:modified_time" content="2020-05-01T01:47:54.590Z">
+<meta property="article:author" content="马斯特">
+<meta property="article:tag" content="Git">
+<meta property="article:tag" content="SourceTree">
+<meta property="article:tag" content="版本控制">
+<meta property="article:tag" content="git-commit">
+<meta property="article:tag" content="git-checkout">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://pinkyjie.com/assets/images/git-notes-1.png">
+
+<link rel="canonical" href="http://pinkyjie.com/2014/08/02/git-notes-part-1/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>Git笔记(一)——[commit, checkout] | 进击的马斯特</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">进击的马斯特</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">CODING MY LIFE</p>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://pinkyjie.com/2014/08/02/git-notes-part-1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/assets/images/avatar.jpg">
+      <meta itemprop="name" content="马斯特">
+      <meta itemprop="description" content="前端 | 溜冰 | Mac">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="进击的马斯特">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Git笔记(一)——[commit, checkout]
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2014-08-02 16:11:25" itemprop="dateCreated datePublished" datetime="2014-08-02T16:11:25+00:00">2014-08-02</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-05-01 01:47:54" itemprop="dateModified" datetime="2020-05-01T01:47:54+00:00">2020-05-01</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%B7%A5%E5%85%B7%E7%9B%B8%E5%85%B3/" itemprop="url" rel="index">
+                    <span itemprop="name">工具相关</span>
+                  </a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>其实一直觉得自己是会用Git的，毕竟咱也是用Github的人啊！可是三月份找工作时候的一次面试颠覆了我的看法：</p>
+<blockquote>
+<p>Q: 用过Git吗？平常怎么用的？<br>A: 用过的，一般就是add，commit，push嘛<br>Q: branch用的多吗？git rebase这命令使用过吗？<br>A: 一般都是自己的项目用的，就一个人，没涉及到这么复杂的使用<br>Q: 那换个话题吧。。。</p>
+</blockquote>
+<p>这么一搞才发现，其实我只会皮毛啊。。。正好现在新公司是用Git的，我也趁机恶补一下！本文其实就是对<a href="http://marklodato.github.io/visual-git-guide/index-zh-cn.html" target="_blank" rel="noopener">图解Git</a>这篇文章的一个实践。</p>
+<a id="more"></a>
+<h3 id="三个目录"><a href="#三个目录" class="headerlink" title="三个目录"></a>三个目录</h3><p>谈到Git，最先需要明确的就是这三个概念：</p>
+<ul>
+<li>Working Directory：工作目录，这个可以简单的理解为你在文件系统里真实看到的文件</li>
+<li>Stage（Index）：暂存“目录”，用git add命令添加的文件就到了这里，即将被commit的文件</li>
+<li>Repository：项目“目录”，用git commit提交的文件就到了这里</li>
+</ul>
+<p>后两个“目录”之所以加上引号，是因为其实它们并不是真实存在于文件系统中的目录，是个抽象的概念！为了方便后面的表述，我们就动手建立一个Git工程，并添加一个<code>test.txt</code>的文件。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mkdir GitNotes</span><br><span class="line"><span class="built_in">cd</span> GitNotes</span><br><span class="line">git init</span><br><span class="line">touch test.txt</span><br></pre></td></tr></table></figure>
+<p>为了更直观的观看，后续将采用<a href="http://www.sourcetreeapp.com/" target="_blank" rel="noopener">SourceTree</a>这个软件来讲解。将这个目录添加到SourceTree中可以看到：</p>
+<p><img src="/assets/images/git-notes-1.png" alt="图1"></p>
+<p>从图1中我们可以直观的看到三个目录，其中区域1即为Repository目录，默认显示的是所有commit的log记录，由于我们还没有进行commit，所以此时看到的就是ncommitted changes。区域2的标题为Staged files，就是Stage目录，目前我们没有git add，所以这里是空的。区域3就是Working目录，与文件系统对应的，我们新建的文件<code>test.txt</code>就在这里，可以看到前面有个问号，表示Not Tracked，就是说这个文件从来没有被add过。</p>
+<p>有了这些基本概念，我们来做第一次commit吧，看看文件是怎么在这三个目录下转移的吧。运行<code>git add test.txt</code>，观察SourceTree的面板，发现文件<code>test.txt</code>已经来到了区域2，如图2。运行<code>git commit -m &quot;add test file&quot;</code>，文件已经到达了区域1。点击区域1的commit message，即可看到文件。标签master表示我们当前处于master分支，最新的commit为“add test file”，这个commit可以用cde6c09来唯一的标识。</p>
+<p><img src="/assets/images/git-notes-2.png" alt="图2"></p>
+<h3 id="commit-我会好几种姿势呢"><a href="#commit-我会好几种姿势呢" class="headerlink" title="commit - 我会好几种姿势呢"></a>commit - 我会好几种姿势呢</h3><p>前面的第一次提交用的是比较常规的姿势，其实提交代码还有好多种姿势哦！我们对test.txt文件做一下简单的修改，加一行“test 1”，然后运行<code>git commit -am &quot;commit 1&quot;</code>，通过加<code>-a</code>参数，和先运行<code>git add .</code>再commit的效果是一样的，也就是文件直接从Working目录到了Repo里。换个姿势再来一次，给文件加一行“test 2”，然后运行<code>git commit test.txt -m &quot;commit 2&quot;</code>，这次文件也是从Working直接到Repo去了。我们还可以再换个姿势，给文件再添加一行“test 2.5”，运行<code>git commit --amend -am &quot;commit 2, 2.5&quot;</code>，观察SourceTree，发现提交最后的一次提交记录被修改了，并且包含了最近的两次更改，如图3所示。</p>
+<p><img src="/assets/images/git-notes-3.png" alt="图3"></p>
+<p>总结一下commit的几种姿势：</p>
+<ol>
+<li>传统姿势：先<code>git add file</code>再<code>git commit -m &quot;xxx&quot;</code></li>
+<li>快速提交当前所有文件的更改：<code>git commit -am &quot;xxx&quot;</code>会先add所有的更改然后提交</li>
+<li>快速提交单个文件的更改：<code>git commit file -m &quot;xxx&quot;</code>只提交这个文件的更改</li>
+<li>修改最后一次提交：<code>git commit --amend -am &quot;xxx&quot;</code>将当前的更改加入最后一次commit中并更改最后一次commit的信息。其实观察可发现新的commit是替换了原先的commit，因为commit的hash已经变了。</li>
+</ol>
+<p>关于commit还有几点想说的：</p>
+<ul>
+<li><code>git commit -a</code>和<code>git commit file</code>这两个命令对Untracked的文件是无效了，也就是说只对add过的文件的更改才有效。比如我们新建一个文件<code>touch test1.txt</code>，然后运行<code>git commit -am &quot;add test1&quot;</code>或<code>git commit test1.txt -m &quot;add test1&quot;</code>都是无效的，如图4所示。</li>
+</ul>
+<p><img src="/assets/images/git-notes-4.png" alt="图4"></p>
+<ul>
+<li>尽量不要使用<code>-m</code>标签，<code>-m</code>标签只适用于单行的提交信息，而提交信息最好越详细越好，方便别人，更方便自己。举个例子，给test.txt添加一行“test 3”，运行<code>git add test.txt</code>，再运行<code>git commit</code>，这时会打开Git中默认的编辑器（一般是vim），推荐像图5这样添加commit信息。其中第一行是简短的信息，第三行是详细的解释，标准就是第一行一目了然，第三行越详细越好。这样做的另一个好处是，Github默认是支持这种书写方式的，在Github的pull request里，默认显示第一行，第三行被折叠，非常方便。并且如果你的pull request只包含这一个commit的话，Github会默认将第一行作为标题，第三行作为内容，如图6。</li>
+</ul>
+<p><img src="/assets/images/git-notes-5.png" alt="图5"></p>
+<p><img src="/assets/images/git-notes-6.png" alt="图6"></p>
+<ul>
+<li>尽量也不要使用<code>git add .</code>或<code>git commit -a</code>，这两条命令都会将当前所有的更改进行Stage或commit，这表面看来没什么大问题，其实是很危险的，有的时候会将未注意的更改错误的提交。Git的最佳实践还是强调小步提交，也就是说提交频繁一点，每次提交包含的更改少一点，这样不仅方便跟踪，更能避免多人合作时产生冲突。使用SourceTree这样的工具可以做到行级别的提交，也就是说一个文件我修改了好多行，可以把这些更改放到不同的commit里去。比如，修改test.txt添加两行“test 4”和“test 5”，然后打开SourceTree观察，如图7所示，点击一行后，右上角的“Stage lines”图标就会出现，这个图标的作用就是将这一行更改进行add。用这种方法，我们可以把这两行作两次提交。最终结果如图8所示。</li>
+</ul>
+<p><img src="/assets/images/git-notes-7.png" alt="图7"></p>
+<p><img src="/assets/images/git-notes-8.png" alt="图8"></p>
+<h3 id="checkout-上得了厅堂，下得了厨房"><a href="#checkout-上得了厅堂，下得了厨房" class="headerlink" title="checkout - 上得了厅堂，下得了厨房"></a>checkout - 上得了厅堂，下得了厨房</h3><p>哟哟切克闹，煎饼果子来一套！说到了吃，git checkout可以说是身兼多职——上得了厅堂，下得了厨房。一个是分支相关的操作，另一个是可以恢复文件到之前的某个状态。</p>
+<p>平常最常用的功能就是创建和切换分支了。运行<code>git checkout -b branch1</code>新建一个名为“branch1”的分支并切换过去。给test.txt再添加一行“test 5.5”，做一次commit，<code>git commit test.txt -m &quot;commit 5.5&quot;</code>。这时的状态如下图：</p>
+<p><img src="/assets/images/git-notes-9.png" alt="图9"></p>
+<p>可以看到当前的分支上有个小对号，当前所处的commit前面的圆点是白色的。此时运行<code>git checkout master</code>就会切回master分支。“master”这个位置不仅可以放分支的名称，还可以放commit的hash。比如<code>git checkout cc59b55</code>（commit 2，2.5所对应的hash），这个时候Git会给出提示信息，如下图：</p>
+<p><img src="/assets/images/git-notes-10.png" alt="图10"></p>
+<p>此时Git处在Detached HEAD状态，从SourceTree里也可以看出有一个HEAD的tag指向对应的commit。HEAD可以理解为时一个指针，指向当前所在的分支当前的commit。其实这个时候Git处在一个“游离的匿名分支”上，Git提示说你可以做修改，做提交，但一旦你checkout到别的地方，这些提交将无法再引用到，如果你想保存，必须在此基础上创建一个新的分支。什么意思呢？我们跟着提示一步一步做。首先给test.txt文件（此时文件只有三行，最后一行是test 2.5）再添加一行“test aaa”并提交<code>git commit test.txt -m &quot;commit aaa&quot;</code>。这时，看一下SourceTree的状态图：</p>
+<p><img src="/assets/images/git-notes-11.png" alt="图11"></p>
+<p>按照Git给的提示，此时我们checkout到别的地方去：<code>git checkout master</code>切回master分支，再去SourceTree看一眼，我擦泪，刚才的修改丢了！！如下图：</p>
+<p><img src="/assets/images/git-notes-12.png" alt="图12"></p>
+<p>不听“提示”言，吃亏在眼前，难道真的像提示说的那样，刚才的修改再也找不到了吗？非也，只要记得commit的hash，我们是可以切回去，从图11中找到commit aaa所对应的hash，运行<code>git checkout 6382c7d</code>，再看看SourceTree，OK，都回来了！“游离的匿名分支”的取名就来源于此，这些commit目前不属于任何分支，不能通过切分支的方式找到他们，只能记住hash才能切回来。为了保存这些提交，我们按照提示新建一个分支：<code>git checkout -b branch2</code>。这样以后就可以通过<code>git checkout branch2</code>切到该分支找到这些提交了。</p>
+<p>除了分支相关的操作，checkout的另一个作用就是恢复文件了。既然说到恢复，那肯定有source（从哪里恢复）和target（恢复到哪里去），个人感觉一般checkout的target就是指你的工作目录，而source自然是其他两个目录了。也就是说，可以从暂存目录往工作目录里恢复文件，也可以从Repo里的各个commit记录里往工作目录恢复文件。为了方便讲解，我们先切回master分支：<code>git checkout master</code>，然后给test.txt加一行“test temp”，这个时候可以在SourceTree里看到存在Uncommited changes，运行<code>git checkout -- test.txt</code>，可以看到刚才的更改被取消了，也就是说我们从Repo的最新commit里将test.txt恢复到了我们的工作目录里。这里的<code>--</code>符号主要是为了避免歧义，其实这里我们不要<code>--</code>，直接运行<code>git checkout test.txt</code>也是可以的，但试想这么一种情况：我们的文件名称与分支名称一样，比如有一个叫做“master”的文件，如果不加<code>--</code>则Git会认为你想切换分支，所以必须使用<code>--</code>来告诉Git你想恢复文件而不是切换分支，多才多艺的人就是这样闹心啊！我们重复同样的操作，给test.txt添加一行“test temp”并做add操作：<code>git add test.txt</code>，这样文件就到了暂存目录。这时候运行<code>git checkout test.txt</code>是没有作用的，因为你的工作目录和暂存目录是一样，继续更改test.txt，添加一行”test temp1”并保存，这里运行<code>git checkout test.txt</code>，则会发现新加的这一行temp1没有了，也就是暂存目录被恢复到工作目录了。实践了“Repo最新commit =&gt; 工作目录”和“暂存目录 =&gt; 工作目录”，下面试试历史commit作为source吧。为了方便，将当前暂存区的更改（“test temp”）进行提交：<code>git commit -m &quot;commit temp&quot;</code>，此时的commit记录如下图：</p>
+<p><img src="/assets/images/git-notes-13.png" alt="图13"></p>
+<p>这里我们试着将某个历史commit的test.txt恢复回来，比如将commit 3状态下对应的文件恢复，则找到对应的commit hash，运行<code>git checkout 9fc9896 test.txt</code>，会发现当前工作目录最后一行已经是“test 3”了，与commit 3时的文件状态一致，并且这个更改（最新的commit与commit “test 3”的差别）已经自动被add到暂存区域，如下图：</p>
+<p><img src="/assets/images/git-notes-14.png" alt="图14"></p>
+<p>运行<code>git reset HEAD test.txt</code>（git add的反操作，后面会讲）和<code>git checkout test.txt</code>（最新的commit恢复到工作目录）来使test.txt恢复到“test temp”的状态。除了hash，还可以使用一些“快捷方式”来引用各个commit，比如刚才的操作用<code>git checkout HEAD~3 test.txt</code>也是一样的，其中<code>HEAD~3</code>表示比当前的commit早3个commit（爷爷的爸爸。。。）。说到快捷方式，其实分支名称也可以理解成一个快捷方式，代表所在分支的最新commit。比如运行<code>git checkout branch2 test.txt</code>，同样可以看到branch2的最新commit的状态被恢复到工作目录并添加到了暂存区。</p>
+<p>总结一下checkout的几个功能：</p>
+<ol>
+<li>分支相关操作：<code>git checkout 分支名/commit hash</code>切换到相应的分支或commit，加上<code>-b</code>参数则会创建分支并切换过去</li>
+<li>恢复文件相关操作：<code>git checkout [分支名/commit hash/HEAD快捷方式] -- 文件名</code>恢复指定分支的最新commit或指定commit或快捷方式指向的commit的文件到工作目录，若省略中间的参数，则<ul>
+<li>暂存区有内容且暂存区内容与工作目录不同，则恢复暂存区的状态到工作目录</li>
+<li>暂存区无内容，则恢复HEAD（最新的commit）的状态到工作目录</li>
+</ul>
+</li>
+</ol>
+<p>P.S. 本来准备把所有命令写在一篇里，不过感觉篇幅太长了也不好，这篇就到这里吧，剩下的下篇再写。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Git/" rel="tag"># Git</a>
+              <a href="/tags/SourceTree/" rel="tag"># SourceTree</a>
+              <a href="/tags/%E7%89%88%E6%9C%AC%E6%8E%A7%E5%88%B6/" rel="tag"># 版本控制</a>
+              <a href="/tags/git-commit/" rel="tag"># git-commit</a>
+              <a href="/tags/git-checkout/" rel="tag"># git-checkout</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2014/05/11/new-job/" rel="prev" title="换工作啦">
+      <i class="fa fa-chevron-left"></i> 换工作啦
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2014/08/06/solve-placeholder-incompatibility-using-angular-on-legacy-ie/" rel="next" title="使用AngularJS解决IE 8/9不支持placeholder的问题">
+      使用AngularJS解决IE 8/9不支持placeholder的问题 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    
+  
+  <div class="comments">
+  <script src="https://utteranc.es/client.js" repo="PinkyJie/pinkyjie.github.com" issue-term="pathname" theme="github-light" crossorigin="anonymous" async></script>
+  </div>
+  
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#三个目录"><span class="nav-number">1.</span> <span class="nav-text">三个目录</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#commit-我会好几种姿势呢"><span class="nav-number">2.</span> <span class="nav-text">commit - 我会好几种姿势呢</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#checkout-上得了厅堂，下得了厨房"><span class="nav-number">3.</span> <span class="nav-text">checkout - 上得了厅堂，下得了厨房</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="马斯特"
+      src="/assets/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">马斯特</p>
+  <div class="site-description" itemprop="description">前端 | 溜冰 | Mac</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">55</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">186</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/PinkyJie" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;PinkyJie" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:pinkyjie.gn@gmail.com" title="E-Mail → mailto:pinkyjie.gn@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/PinkyJie" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;PinkyJie" rel="noopener" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://stackoverflow.com/users/689948/pinkyjie" title="StackOverflow → http:&#x2F;&#x2F;stackoverflow.com&#x2F;users&#x2F;689948&#x2F;pinkyjie" rel="noopener" target="_blank"><i class="fa fa-fw fa-stack-overflow"></i>StackOverflow</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">马斯特</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.7.0
+  </div>
+
+        
+
+
+  <div style="display: none;">
+    <script src="//s95.cnzz.com/z_stat.php?id=1253033676&web_id=1253033676"></script>
+  </div>
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  <script>
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install','8k3UxSuRWYkrhVg55bC3','2.0.0');
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

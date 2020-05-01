@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="o7yQBnLIoWby8Y5vNMQywBiMtev-ilWjXt89RQpTvVw">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('http://pinkyjie.com').hostname,
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.7.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":"utteranc","storage":true,"lazyload":false,"nav":null,"activeClass":"utteranc"},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="上一篇分析了下Backbone中extend的实现，这篇就学学Backbone中的Events。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="理解Backbone中Events的实现(一)">
+<meta property="og:url" content="http://pinkyjie.com/2013/12/02/understand-backbone-events-part-1/index.html">
+<meta property="og:site_name" content="进击的马斯特">
+<meta property="og:description" content="上一篇分析了下Backbone中extend的实现，这篇就学学Backbone中的Events。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://pinkyjie.com/assets/images/understand-backbone-events-part-1-1.PNG">
+<meta property="og:image" content="http://pinkyjie.com/assets/images/understand-backbone-events-part-1-2.PNG">
+<meta property="article:published_time" content="2013-12-02T22:28:00.000Z">
+<meta property="article:modified_time" content="2020-05-01T01:47:54.590Z">
+<meta property="article:author" content="马斯特">
+<meta property="article:tag" content="BackboneJS">
+<meta property="article:tag" content="Javascript">
+<meta property="article:tag" content="UnderscoreJS">
+<meta property="article:tag" content="前端MVC">
+<meta property="article:tag" content="Events">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://pinkyjie.com/assets/images/understand-backbone-events-part-1-1.PNG">
+
+<link rel="canonical" href="http://pinkyjie.com/2013/12/02/understand-backbone-events-part-1/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>理解Backbone中Events的实现(一) | 进击的马斯特</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">进击的马斯特</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">CODING MY LIFE</p>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://pinkyjie.com/2013/12/02/understand-backbone-events-part-1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/assets/images/avatar.jpg">
+      <meta itemprop="name" content="马斯特">
+      <meta itemprop="description" content="前端 | 溜冰 | Mac">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="进击的马斯特">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          理解Backbone中Events的实现(一)
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2013-12-02 22:28:00" itemprop="dateCreated datePublished" datetime="2013-12-02T22:28:00+00:00">2013-12-02</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-05-01 01:47:54" itemprop="dateModified" datetime="2020-05-01T01:47:54+00:00">2020-05-01</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%89%8D%E7%AB%AF%E5%BC%80%E5%8F%91/" itemprop="url" rel="index">
+                    <span itemprop="name">前端开发</span>
+                  </a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>上一篇分析了下<a href="http://pinkyjie.com/2013/11/29/understand-backbone-extend/">Backbone中extend的实现</a>，这篇就学学Backbone中的Events。</p>
+<a id="more"></a>
+<p><code>Backbone.Events</code>其实就是一个plain的object，里面定义了如<code>on</code>、<code>off</code>、<code>trigger</code>等方法，设计它的原因就是方便Events中定义的方法混合进其他任意的object里，为任意object提供绑定、解绑和触发自定义事件的功能，比如<a href="http://backbonejs.org/docs/backbone.html#section-14" target="_blank" rel="noopener">带注释的源码</a>里提供的小例子：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> object = &#123;&#125;;</span><br><span class="line">_.extend(object, Backbone.Events);</span><br><span class="line">object.on(<span class="string">'expand'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123; alert(<span class="string">'expanded'</span>); &#125;);</span><br><span class="line">object.trigger(<span class="string">'expand'</span>);</span><br></pre></td></tr></table></figure>
+<p>通过UnderscoreJS的extend函数使object拥有了on和trigger方法，绑定和触发了一个叫做expand的自定义事件。</p>
+<h3 id="事件的基本要素"><a href="#事件的基本要素" class="headerlink" title="事件的基本要素"></a>事件的基本要素</h3><p>根据<a href="http://backbonejs.org/#Events" target="_blank" rel="noopener">Backbone的文档</a>，<code>Backbone.Events</code>拥有 <code>on</code>、<code>off</code>、<code>trigger</code>、<code>once</code>、<code>listenTo</code>、<code>stopListening</code>、<code>listenToOnce</code> 这7个方法。一个事件，简单来说，最基本的就是三个要素，事件的名称（name），回调函数（callback）和上下文（context，即回调里的<code>this</code>指向谁），这三个要素唯一标识一个事件。一个事件可以被绑定（监听）、解绑和触发。一个对象可以监听自己的事件，也可以监听其他对象的事件。基于这些，上面7个方法可以简单分分类，用来触发事件的是<code>trigger</code>，剩下的<code>on</code>和<code>once</code>用来监听自己的事件，对应的<code>off</code>用来解绑，<code>listenTo</code>和<code>listenToOnce</code>用来监听其他对象的事件，<code>stopListening</code>用来解绑。Backbone里如何实现事件和回调函数的绑定呢？其实每个对象上有一个叫做<code>_events</code>的变量，它是一个key-value对，其中的key就是事件名称，value是一个对象数组，其中每个对象包含绑定在该事件上的一对callback和context。绑定自己的事件就是将callback加入到自己的<code>_events</code>变量中以事件名称为key的数组中，而绑定其他对象的事件就是将callback加入到其他对象的<code>_events</code>变量中以事件名称为key的数组中，解绑就是将对应的callback删除。明白了基本原理，下面就具体来分析这7个方法的实现吧。</p>
+<h3 id="on的实现"><a href="#on的实现" class="headerlink" title="on的实现"></a>on的实现</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> Events = Backbone.Events = &#123;</span><br><span class="line">    on: <span class="function"><span class="keyword">function</span>(<span class="params">name, callback, context</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (!eventsApi(<span class="keyword">this</span>, <span class="string">'on'</span>, name, [callback, context]) || !callback) <span class="keyword">return</span> <span class="keyword">this</span>;</span><br><span class="line">        <span class="keyword">this</span>._events || (<span class="keyword">this</span>._events = &#123;&#125;);</span><br><span class="line">        <span class="keyword">var</span> events = <span class="keyword">this</span>._events[name] || (<span class="keyword">this</span>._events[name] = []);</span><br><span class="line">        events.push(&#123;<span class="attr">callback</span>: callback, <span class="attr">context</span>: context, <span class="attr">ctx</span>: context || <span class="keyword">this</span>&#125;);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>;</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="comment">// ....</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>第1行就不用说了，将<code>Backbone.Events</code>同时赋值给变量<code>Events</code>的作用我猜是比较短，方便后面进行引用。。。函数<code>on</code>的作用就是绑定自己的事件，3个参数就是刚才提到的事件的三要素。第3行函数的第一步就是对传入的参数进行一个判断，若<code>eventsApi</code>调用返回false或没有提供callback，就不进行下面的绑定了。后面的条件很容易理解，那么也可以推测前面的这个<code>eventsApi</code>也是检查输入参数的，但这名字起得有点匪夷所思啊！在看它的代码之前，老问题又来了，这第3行的<code>this</code>又代表什么呢？可能第一感觉就是<code>this</code>这里属于“函数调用”，指向<code>Backbone.Events</code>，但其实真正调用<code>on</code>函数的并不是<code>Backbone.Events</code>，这个<code>Events</code>是需要Mix到其他对象里去的，类似第一段代码里的object，所以这里<code>this</code>指的是事件的监听者。搞清楚了this下面就来看看函数<code>eventsApi</code>的实现代码吧。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> eventSplitter = <span class="regexp">/\s+/</span>;</span><br><span class="line"><span class="keyword">var</span> eventsApi = <span class="function"><span class="keyword">function</span>(<span class="params">obj, action, name, rest</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (!name) <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">typeof</span> name === <span class="string">'object'</span>) &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">var</span> key <span class="keyword">in</span> name) &#123;</span><br><span class="line">            obj[action].apply(obj, [key, name[key]].concat(rest));</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (eventSplitter.test(name)) &#123;</span><br><span class="line">        <span class="keyword">var</span> names = name.split(eventSplitter);</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>, l = names.length; i &lt; l; i++) &#123;</span><br><span class="line">            obj[action].apply(obj, [names[i]].concat(rest));</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>先看看传进来的四个参数：<code>this, &#39;on&#39;, name, [callback, context]</code>，第一个刚才说过的事件监听者，第二个函数名称，第三个是事件名称，后面是剩下的回调函数和上下文组成的数组。第3行首先判断如果没有事件名称则返回<code>true</code>，也就是说事件名称传<code>null</code>或<code>undefined</code>也是“合法”的，又是一个匪夷所思的地方，我试着绑定一个名称为<code>null</code>的事件，然后用’trigger’触发了它，发现真的可行啊！！！不能理解！下面的两个if分别应对两种情况，一种是name为key-value对，key为事件名称，value为callback，如<code>{event1: callback1, event2: callback2}</code>。另一种是name为以空格分隔的事件名称组，如<code>event1 event2</code>，变量<code>eventSplitter</code>就是用来测试空格的正则表达式。如果事件名称只是一个单纯的字符串，那第17行直接返回true。这两种事件名称的方式都是被Backbone所支持的，不管哪种情况都是将参数转化为符合on函数定义的那样：名称，回调，上下文。通过<code>obj[action].apply</code>来调用on，on里面又会递归调用<code>eventsApi</code>，直至参数合法为止，也就是将name分解为一个不含空格的简单字符串。如果经过for循环里<code>on</code>和<code>eventsApi</code>不停递归，始终也没法让<code>eventsApi</code>直接返回true，那么for循环出来后返回false（第8行和15行），表明name参数不合法，则前面的on会直接返回，不再进行绑定。</p>
+<p>继续回到on函数，第4行用“短路”的风格定义了前面提到的<code>_events</code>变量，其实我更喜欢的写法是<code>this._events = this._events || {};</code>，感觉这样更流行一些，更通俗的写法就是<code>if (!this._events) this._events = {};</code>。有了<code>_events</code>对象，下面第5行又是“短路”，Backbone很喜欢这种风格，后面还会看到很多。这次“短路”判断如果<code>_events</code>里还没有以事件名称name为key的value，说明还没有callback绑定到这个事件上，就将其置为空数组。前面讲原理的时候说过，事件的绑定内部都是通过这个数组实现的。下面第6行就将callback、context和ctx加入这个数组，完成绑定。这第3个参数<code>ctx: context || this</code>其实才是真正的context，可以发现后面真正触发事件的时候调用的也是这第3个参数。为什么呢？我认为是防止调用on的时候不传context，不传context的情况下一般是希望回调里的上下文是监听者本身，这里的<code>ctx</code>通过“短路”实现了这一点。最后一行将监听者this本身返回。</p>
+<h3 id="once的实现"><a href="#once的实现" class="headerlink" title="once的实现"></a>once的实现</h3><p>once也是绑定事件，不同的是它保证绑定的回调函数只会被调用一次，后面再触发事件的时候就不再调用了。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">once: <span class="function"><span class="keyword">function</span>(<span class="params">name, callback, context</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (!eventsApi(<span class="keyword">this</span>, <span class="string">'once'</span>, name, [callback, context]) || !callback) <span class="keyword">return</span> <span class="keyword">this</span>;</span><br><span class="line">    <span class="keyword">var</span> self = <span class="keyword">this</span>;</span><br><span class="line">    <span class="keyword">var</span> once = _.once(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        self.off(name, once);</span><br><span class="line">        callback.apply(<span class="keyword">this</span>, <span class="built_in">arguments</span>);</span><br><span class="line">    &#125;);</span><br><span class="line">    once._callback = callback;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>.on(name, once, context);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>同样传入事件的3要素作为入口参数，同样第一步进行判断，不合法则立即返回。第3行将this赋值给<code>self</code>，这又是一个Backbone里很常见的写法，将this保留，以便在一些回调函数里引用，如这里的第5行。第4-7行是保障callback只被调用一次的关键，这里借助Underscore库的<code>once</code>函数。将一个匿名函数传给<code>_.once</code>进行包装，将包装后的结果赋值给变量<code>once</code>，这个经过包装的函数保证只被执行一次。后面第8行将将原始的callback放进<code>once._callback</code>保存以备后续使用，第9行将包装后的<code>once</code>作为新的回调来调用on，这就保证了这个回调将只被执行一次。这整个过程中唯一的问题就是这个匿名函数干了什么？第5行将包装后的<code>once</code>调用off解绑，这里的<code>self</code>就是外面的this，事件的监听者。然后第6行执行原始的callback。这里的arguments就是这个匿名函数被调用时传进来的参数，也就是触发事件调用回调（即此处的变量once）时传入的参数，这个好理解。那这里的this又代表什么呢，按照道理，this应该是callback的上下文才对，好像一下子又看不出来。慢慢来分析，this是在匿名函数里，要分析它就要看这个匿名函数具体是如何被执行的，而匿名函数又是作为参数传进<code>_.once</code>里面的，那先来看看Underscore里once的实现：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">_.once = <span class="function"><span class="keyword">function</span>(<span class="params">func</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> ran = <span class="literal">false</span>, memo;</span><br><span class="line">    <span class="keyword">return</span> <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (ran) <span class="keyword">return</span> memo;</span><br><span class="line">        ran = <span class="literal">true</span>;</span><br><span class="line">        memo = func.apply(<span class="keyword">this</span>, <span class="built_in">arguments</span>);</span><br><span class="line">        func = <span class="literal">null</span>;</span><br><span class="line">        <span class="keyword">return</span> memo;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>Underscore中这个once的作用是保证传进来的函数<code>func</code>只被执行一次，它的实现很像python里的装饰器。它定义了两个私有变量<code>ran</code>和<code>memo</code>，返回一个闭包，这两个变量只有在闭包里才能访问到。这个返回的闭包就是包装后的函数，首次执行ran为false，然后置ran为true，函数返回值给memo，再次执行时由于ran已为true就直接返回memo。也就是说，包装后的函数只执行一次，后面再执行的时候直接返回上次的结果（貌似跟想的不太一样。。。）。这里的这个<code>func</code>就是前面提到的匿名函数，返回的闭包就是刚才包装后的变量<code>once</code>。这里<code>func.apply(this, arguments)</code>通过apply将变量<code>this</code>变成匿名函数func中的上下文，也就是说这里的<code>this</code>就是前面<code>callback.apply(this, arguments)</code>中的this。那这个this指什么呢？这个this存在于返回的闭包（即前面的变量<code>once</code>）中，<code>once</code>是在事件触发时被调用的回调函数，那么显然，这里的this就是回调函数的上下文，这个上下文要么就是传进来的变量<code>context</code>，要么就是事件的监听者本身。</p>
+<p>前面的分析搞的晕头转向，我也越写越迷了，那么就让实践去证明吧。打开一个同时引入Backbone和Underscore的网页，你可以自己写，懒人自然用现成的，比如<a href="http://todomvc.com/architecture-examples/backbone/" target="_blank" rel="noopener">TodoMVC的演示页面</a>。利用Chrome的Devtools（右键审查元素），打开source标签页，找到<code>backbone.js</code>中<code>callback.apply(this, arguments);</code>（第97行）打上断点，找到<code>underscore.js</code>中<code>memo = func.apply(this, arguments);</code>（第683行）打上断点。然后打开console标签，输入如下代码：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">a = _.extend(&#123;<span class="attr">id</span>: <span class="number">1</span>&#125;, Backbone.Events); <span class="comment">// 时间监听者</span></span><br><span class="line">b = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;<span class="built_in">console</span>.log(<span class="keyword">this</span>.id);&#125;; <span class="comment">// 回调函数</span></span><br><span class="line">c = &#123;<span class="attr">id</span>: <span class="number">2</span>&#125;; <span class="comment">// 自定义对象，作为回调函数的上下文</span></span><br><span class="line">a.once(<span class="string">'test'</span>, b, c); <span class="comment">// 自定义test事件，绑定回调和上下文</span></span><br><span class="line">a.trigger(<span class="string">'test'</span>, <span class="string">'arg1'</span>, <span class="string">'arg2'</span>, <span class="string">'arg3'</span>); <span class="comment">// 触发自定义事件，传3个参数</span></span><br></pre></td></tr></table></figure>
+<p>一句一句执行，最后一句trigger执行的时候会看到断点先是断在了<code>underscore.js</code>里，然后继续执行又断在了<code>backbone.js</code>里，下面两张图分别是程序执行到两个断点处时，<code>this</code>和’arguments’变量的实际值，可以验证刚才上面的分析是正确的。</p>
+<p><img src="/assets/images/understand-backbone-events-part-1-1.PNG" alt=""></p>
+<p><img src="/assets/images/understand-backbone-events-part-1-2.PNG" alt=""></p>
+<p>如果想验证once是否真的让回调只执行一次，可以再次触发事件，发现没有进断点，证明绑定确实只生效一次。</p>
+<h3 id="未完待续"><a href="#未完待续" class="headerlink" title="未完待续"></a>未完待续</h3><p>发现有点罗嗦了，越说越多。。。剩下的几个函数下回再分解。。。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/BackboneJS/" rel="tag"># BackboneJS</a>
+              <a href="/tags/Javascript/" rel="tag"># Javascript</a>
+              <a href="/tags/UnderscoreJS/" rel="tag"># UnderscoreJS</a>
+              <a href="/tags/%E5%89%8D%E7%AB%AFMVC/" rel="tag"># 前端MVC</a>
+              <a href="/tags/Events/" rel="tag"># Events</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2013/11/30/understand-backbone-extend/" rel="prev" title="理解Backbone中extend的实现">
+      <i class="fa fa-chevron-left"></i> 理解Backbone中extend的实现
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2013/12/05/understand-backbone-events-part-2/" rel="next" title="理解Backbone中Events的实现(二)">
+      理解Backbone中Events的实现(二) <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    
+  
+  <div class="comments">
+  <script src="https://utteranc.es/client.js" repo="PinkyJie/pinkyjie.github.com" issue-term="pathname" theme="github-light" crossorigin="anonymous" async></script>
+  </div>
+  
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#事件的基本要素"><span class="nav-number">1.</span> <span class="nav-text">事件的基本要素</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#on的实现"><span class="nav-number">2.</span> <span class="nav-text">on的实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#once的实现"><span class="nav-number">3.</span> <span class="nav-text">once的实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#未完待续"><span class="nav-number">4.</span> <span class="nav-text">未完待续</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="马斯特"
+      src="/assets/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">马斯特</p>
+  <div class="site-description" itemprop="description">前端 | 溜冰 | Mac</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">55</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">186</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/PinkyJie" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;PinkyJie" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:pinkyjie.gn@gmail.com" title="E-Mail → mailto:pinkyjie.gn@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/PinkyJie" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;PinkyJie" rel="noopener" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://stackoverflow.com/users/689948/pinkyjie" title="StackOverflow → http:&#x2F;&#x2F;stackoverflow.com&#x2F;users&#x2F;689948&#x2F;pinkyjie" rel="noopener" target="_blank"><i class="fa fa-fw fa-stack-overflow"></i>StackOverflow</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">马斯特</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.7.0
+  </div>
+
+        
+
+
+  <div style="display: none;">
+    <script src="//s95.cnzz.com/z_stat.php?id=1253033676&web_id=1253033676"></script>
+  </div>
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  <script>
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install','8k3UxSuRWYkrhVg55bC3','2.0.0');
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
